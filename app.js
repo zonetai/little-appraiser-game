@@ -15,7 +15,7 @@ const KEY='kid-appraiser-v2';
 function defaults(){ return {name:'', xp:0, read:[], badges:[], quizBest:0, chalBest:0, priceStreak:0, priceStreakBest:0, compCorrect:0, est3:0, estPlayed:0, tfBest:0, matchDone:0, matchBestMoves:0, city:{}, missions:{}, sound:true, plays:0}; }
 let S = load();
 function load(){ const d=defaults(); try{ const o=JSON.parse(localStorage.getItem(KEY)||'{}'); return Object.assign(d,o); }catch(e){ return d; } }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} refreshMeta(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} refreshMeta(); if(typeof cloudPush==='function') cloudPush(); }
 
 /* ---------- 音效 ---------- */
 let actx=null;
@@ -651,7 +651,7 @@ let resetArmed=false;
 function resetAll(btn){
   if(!resetArmed){ resetArmed=true; btn.textContent='⚠️ 再按一次就會清除所有進度'; btn.classList.add('r'); btn.classList.remove('ghost'); setTimeout(()=>{ resetArmed=false; btn.textContent='🔄 重新開始（清除所有進度）'; btn.classList.remove('r'); btn.classList.add('ghost'); }, 4000); return; }
   resetArmed=false; try{ localStorage.removeItem(KEY); }catch(e){}
-  S=load(); save(); quizState=priceState=compState=matchState=estState=cityState=misState=null; clearTimers(); renderBadges(); renderCards(); toast('已重新開始！');
+  S=load(); save(); quizState=priceState=compState=matchState=estState=cityState=misState=null; clearTimers(); renderBadges(); renderCards(); toast(typeof cloudUser!=='undefined'&&cloudUser?'已重新開始（雲端進度也一起清除）':'已重新開始！');
   btn.textContent='🔄 重新開始（清除所有進度）'; btn.classList.remove('r'); btn.classList.add('ghost');
 }
 

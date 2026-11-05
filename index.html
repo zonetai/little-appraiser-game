@@ -19,6 +19,7 @@
     </div>
     <div class="hdr-right">
       <div class="level" id="hdr-level"></div>
+      <button class="acct-btn" id="acct-btn" title="登入後可跨裝置同步進度"><span>👤 登入</span></button>
       <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="音效開關">🔊</button>
     </div>
   </div>
@@ -173,7 +174,9 @@
       <ul>
         <li>遊戲中的價格、折舊率、調整幅度、收益率、城市地價加減成數，皆為<b>教學用簡化數字</b>，用來說明「方向」與「邏輯」，並非真實市場行情，也不能作為任何估價或投資依據。</li>
         <li>真實估價須依《不動產估價技術規則》進行，並由領有證照的不動產估價師簽證負責。</li>
-        <li>進度、XP 與徽章儲存在這台裝置的瀏覽器中，換裝置不會同步；可在徽章頁按「重新開始」清除。多人共用一台電腦時，建議每位同學輪流時先重置。</li>
+        <li><b>帳號與跨裝置同步：</b>不登入也能玩，進度存在這台裝置的瀏覽器中。按右上角「👤 登入」用<b>暱稱＋密碼</b>建立帳號後，進度會自動同步到雲端（Supabase），在別的電腦、平板或手機登入同一個暱稱即可接續。暱稱可用中文，不需要 email；忘記密碼無法自行找回，老師可在管理後台協助重設。</li>
+        <li><b>學校共用電腦：</b>下課前請同學按「登出並清除這台的進度」，下一位同學才不會接到別人的進度。沒登入的同學可在徽章頁按「重新開始」清除。</li>
+        <li>雲端只儲存暱稱與遊戲進度（XP、已讀卡片、徽章、各遊戲最佳成績），不收集任何個人資料。</li>
       </ul>
       <h3>小小名詞表</h3>
       <dl class="glossary">
@@ -199,7 +202,18 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="modal" id="acct-modal" onclick="if(event.target===this) closeAcct()">
+  <div class="modal-box">
+    <button class="modal-x" onclick="closeAcct()" title="關閉">✕</button>
+    <h3>☁️ 我的帳號</h3>
+    <p class="muted modal-sub">登入後，你的 XP、徽章和任務進度會存到雲端，換電腦、平板或手機都能接著玩。</p>
+    <div id="acct-body"></div>
+  </div>
+</div>
+
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="cloud.js"></script>
 </body>
 </html>
