@@ -129,7 +129,7 @@ function renderHome(){
 }
 function gameList(){
   return [
-    {p:'mission', ico:'🕵️', name:'估價師出任務', desc:'6 個真實情境：銀行、法院、都更、徵收、店面、道德考驗。', prog:`完成 ${Object.keys(S.missions||{}).length} / ${MISSIONS.length} 任務`, col:'var(--r)'},
+    {p:'mission', ico:'🕵️', name:'估價師出任務', desc:'9 個真實情境：銀行、法院、都更、徵收、店面、道德考驗、品管審查、審查委員、調解人。', prog:`完成 ${Object.keys(S.missions||{}).length} / ${MISSIONS.length} 任務`, col:'var(--r)'},
     {p:'quiz', ico:'🧠', name:'快問快答', desc:'練習模式自選主題；挑戰模式 15 題計時連擊！', prog:`練習最佳 ${S.quizBest}/10 · 挑戰最佳 ${S.chalBest}/15`, col:'var(--g)'},
     {p:'price', ico:'💰', name:'哪間比較貴？', desc:'兩間房子比一比，猜每坪誰貴，學影響房價的因素。', prog:`最佳連勝 ${S.priceStreakBest}`, col:'var(--o)'},
     {p:'estimate', ico:'🎯', name:'價格猜猜樂', desc:'看三個案例和調整條件，拉動滑桿估出標的單價。', prog:`3 星次數 ${S.est3}`, col:'var(--b)'},
@@ -163,7 +163,8 @@ function renderCards(){
   const list=CARDS.map((c,i)=>({c,i})).filter(x=> searchTerm ? (x.c.t+x.c.a+x.c.tip+x.c.q).includes(searchTerm) : x.c.w===currentWorld);
   $('cards').innerHTML= list.length ? list.map(({c,i})=>{
     const col=WORLDS.find(x=>x.id===c.w).color;
-    return `<div class="kcard" id="kc${i}" onclick="flip(${i})">
+    const tall=(c.a.length+c.tip.length+(c.fun||'').length)>175?' tall':'';
+    return `<div class="kcard${tall}" id="kc${i}" onclick="flip(${i})">
       <div class="inner">
         <div class="face front" style="--c:${col}">
           <span class="read">${S.read.includes(i)?'✅':''}</span>
