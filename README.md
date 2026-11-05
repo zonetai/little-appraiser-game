@@ -23,7 +23,7 @@
 純靜態網站，不需建置工具；修改內容只需編輯 `data.js`。
 
 ## 原創與授權
-- 文字、題目、遊戲設計與程式碼均為原創，由不動產估價師鍾少佑規劃並與 AI（Anthropic Claude）協作製作，製作歷程見本倉庫的 commit 紀錄。
+- 文字、題目、遊戲設計與程式碼均為原創，由執業不動產估價師規劃並與 AI（Anthropic Claude）協作製作，製作歷程見本倉庫的 commit 紀錄。
 - 程式碼：[MIT License](LICENSE)
 - 教材文字內容：[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant)
 - 遊戲中的價格、折舊率、調整幅度等皆為教學用簡化數字，非真實行情，不可作為估價或投資依據。
