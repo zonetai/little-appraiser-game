@@ -320,3 +320,8 @@ input[type=range]{width:100%; accent-color:var(--b); height:30px}
   .tf-s{font-size:20px}
   .cert-who{font-size:30px} .cert-inner h2{font-size:26px}
 }
+
+/* footer links & about */
+footer a{color:var(--b); font-weight:700; text-decoration:none}
+footer a:hover{text-decoration:underline}
+.note a{color:var(--b); font-weight:700}

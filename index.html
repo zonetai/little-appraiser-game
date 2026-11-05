@@ -31,6 +31,7 @@
       <button data-page="badges">🏅 徽章</button>
       <button data-page="cert">🎓 證書</button>
       <button data-page="teacher">👩‍🏫 老師家長</button>
+      <button data-page="about">ℹ️ 關於</button>
     </nav>
   </div>
 </header>
@@ -193,11 +194,52 @@
     </div>
   </section>
 
+  <!-- 關於本站 -->
+  <section class="page" id="page-about">
+    <div class="section-title"><h2>ℹ️ 關於本站：製作說明與授權</h2></div>
+    <div class="note">
+      <h3>原創聲明</h3>
+      <p>本站所有知識卡文字、題目、任務劇情、遊戲規則、版面設計與程式碼，均為本站<b>原創製作</b>，未複製任何其他網站、教材、簡報或出版品的內容與程式。遊戲採用的形式（選擇題、翻牌配對、二選一比較、格子地圖）屬於通用的遊戲類型，其題材、文案與計分機制皆為本站自行設計。</p>
+      <h3>製作方式</h3>
+      <ul>
+        <li><b>規劃與專業把關：</b>鍾少佑（不動產估價師）。以估價實務為出發點，決定主題架構、名詞解釋與「估價師小知識」的方向。</li>
+        <li><b>撰寫與開發：</b>與 AI 協作（Anthropic Claude），由估價師提出需求與審閱，AI 產出文字與程式碼；全程未參考或改寫任何特定第三方作品。</li>
+        <li><b>製作歷程公開：</b>原始碼與每一次修改紀錄都公開在 <a href="https://github.com/zonetai/little-appraiser-game" target="_blank" rel="noopener">GitHub（zonetai/little-appraiser-game）</a>，可查看從第一版到現在的完整演進。</li>
+        <li><b>使用的開源元件：</b>僅 <a href="https://github.com/supabase/supabase-js" target="_blank" rel="noopener">supabase-js</a>（MIT 授權）用於雲端帳號同步；圖示全部為 Unicode 表情符號，未使用任何外部圖片或字型檔。</li>
+      </ul>
+      <h3>內容依據與資料來源</h3>
+      <p>知識卡與題目中的制度說明，依據下列公開法規與政府資料，並改寫為小學生能理解的語言；遊戲中的價格、折舊率、調整幅度、收益率等數字皆為教學用簡化範例。</p>
+      <ul>
+        <li>《不動產估價技術規則》、《不動產估價師法》：三大估價方法、比較標的數量、勘估標的、估價師資格與職業倫理。</li>
+        <li>《平均地權條例》實價登錄制度（2012 年實施）、內政部不動產交易實價查詢服務網。</li>
+        <li>《土地徵收條例》：市價補償與協議價購；《都市更新條例》：權利變換；《都市危險及老舊建築物加速重建條例》。</li>
+        <li>《都市計畫法》及各地土地使用分區管制：建蔽率、容積率、公共設施保留地。</li>
+        <li>財政部固定資產耐用年數表：各類結構之耐用年數。</li>
+        <li>內政部不動產資訊平台：房價所得比等統計；經濟部地質調查及礦業管理中心活動斷層與土壤液化潛勢圖；經濟部水利署淹水潛勢圖。</li>
+      </ul>
+      <h3>授權方式</h3>
+      <ul>
+        <li><b>文字與教材內容：</b>採 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">創用 CC 姓名標示－非商業性－相同方式分享 4.0（CC BY-NC-SA 4.0）</a>。學校與非營利教學可自由使用、改作，請標示「小小估價師大冒險」與本站網址。</li>
+        <li><b>程式碼：</b>採 <a href="https://github.com/zonetai/little-appraiser-game/blob/main/LICENSE" target="_blank" rel="noopener">MIT 授權</a>。</li>
+        <li>商業使用或其他合作，請透過 GitHub 聯繫。</li>
+      </ul>
+      <h3>隱私</h3>
+      <p>不登入也能完整遊玩，進度只存在你的裝置。登入功能僅儲存暱稱、密碼雜湊值與遊戲進度，不收集 email、真實姓名或任何個人資料；資料存放於 Supabase 雲端資料庫。</p>
+      <h3>版本紀錄</h3>
+      <ul>
+        <li><b>2026-11-05 v1：</b>單一網頁，4 個世界 35 張知識卡，5 個小遊戲與徽章。</li>
+        <li><b>2026-11-05 v2：</b>擴充為 6 個世界 63 張知識卡、8 個遊戲、XP 等級、13 枚徽章與可列印證書。</li>
+        <li><b>2026-11-05 v2.1：</b>新增暱稱＋密碼帳號與跨裝置進度同步。</li>
+      </ul>
+      <p class="fine">發現錯誤或有建議，歡迎到 <a href="https://github.com/zonetai/little-appraiser-game/issues" target="_blank" rel="noopener">GitHub Issues</a> 回報。</p>
+    </div>
+  </section>
+
 </main>
 
 <footer>
   小小估價師大冒險 ・ 不動產知識庫遊戲 ・ 以不動產估價師的專業視角設計，供教學使用。<br>
-  遊戲內數字為教學簡化範例，非真實行情。
+  遊戲內數字為教學簡化範例，非真實行情。 ・ <a href="#about">製作說明與授權</a> ・ <a href="https://github.com/zonetai/little-appraiser-game" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
 <div class="toast" id="toast"></div>

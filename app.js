@@ -100,7 +100,7 @@ function refreshMeta(){
 }
 
 /* ---------- 導覽 ---------- */
-const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher'];
+const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher','about'];
 let timers=[];
 function clearTimers(){ timers.forEach(t=>clearInterval(t)); timers=[]; }
 function go(page){
