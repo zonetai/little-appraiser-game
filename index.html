@@ -4,213 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>小小估價師大冒險｜不動產知識庫遊戲</title>
-<style>
-  :root{
-    --bg:#fff8e7; --ink:#2b2d42; --muted:#6b705c;
-    --y:#ffd166; --o:#ff9f1c; --r:#ef476f; --g:#06d6a0; --b:#118ab2; --p:#9b5de5; --dk:#073b4c;
-    --card:#ffffff; --shadow:0 6px 0 rgba(0,0,0,.08), 0 10px 24px rgba(0,0,0,.08);
-    --radius:22px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",sans-serif;
-    background:var(--bg);
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(255,209,102,.35) 0 120px, transparent 121px),
-      radial-gradient(circle at 90% 20%, rgba(6,214,160,.25) 0 160px, transparent 161px),
-      radial-gradient(circle at 80% 90%, rgba(155,93,229,.18) 0 180px, transparent 181px),
-      radial-gradient(circle at 15% 85%, rgba(17,138,178,.18) 0 140px, transparent 141px);
-    background-attachment:fixed;
-    color:var(--ink); line-height:1.6; font-size:18px;
-  }
-  header{
-    position:sticky; top:0; z-index:20;
-    background:rgba(255,248,231,.92); backdrop-filter:blur(8px);
-    border-bottom:3px dashed rgba(0,0,0,.08);
-  }
-  .wrap{max-width:1040px; margin:0 auto; padding:14px 18px}
-  .brand{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none}
-  .brand .logo{font-size:40px; filter:drop-shadow(0 3px 0 rgba(0,0,0,.12))}
-  .brand h1{font-size:24px; margin:0; letter-spacing:1px}
-  .brand small{display:block; font-size:13px; color:var(--muted); font-weight:normal}
-  nav{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
-  nav button{
-    border:0; border-radius:999px; padding:8px 16px; font-size:16px; font-weight:700; cursor:pointer;
-    background:#fff; color:var(--ink); box-shadow:0 3px 0 rgba(0,0,0,.08); transition:transform .08s;
-    font-family:inherit;
-  }
-  nav button:hover{transform:translateY(-2px)}
-  nav button.active{background:var(--dk); color:#fff}
-  main{padding-bottom:80px}
-  .page{display:none; animation:pop .25s ease}
-  .page.show{display:block}
-  @keyframes pop{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
-
-  .hero{
-    background:linear-gradient(135deg,#ffe29a,#ffb86b); border-radius:var(--radius); padding:34px 30px;
-    box-shadow:var(--shadow); display:grid; grid-template-columns:1.3fr .7fr; gap:18px; align-items:center;
-  }
-  .hero h2{font-size:34px; margin:0 0 8px; line-height:1.25}
-  .hero p{font-size:19px; margin:0 0 14px}
-  .hero .art{font-size:110px; text-align:center; line-height:1; filter:drop-shadow(0 6px 0 rgba(0,0,0,.12))}
-  .btn{
-    display:inline-block; border:0; border-radius:16px; padding:12px 22px; font-size:18px; font-weight:800;
-    cursor:pointer; color:#fff; background:var(--b); box-shadow:0 5px 0 rgba(0,0,0,.15); transition:transform .08s;
-    font-family:inherit; text-decoration:none;
-  }
-  .btn:active{transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.15)}
-  .btn.y{background:var(--o)} .btn.g{background:var(--g); color:var(--dk)} .btn.r{background:var(--r)} .btn.p{background:var(--p)} .btn.ghost{background:#fff; color:var(--ink)}
-  .btn.sm{padding:8px 14px; font-size:15px; border-radius:12px}
-  .btn[disabled]{opacity:.5; cursor:not-allowed}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; margin-top:22px}
-  .tile{
-    background:var(--card); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); cursor:pointer;
-    border-top:8px solid var(--y); transition:transform .12s;
-  }
-  .tile:hover{transform:translateY(-4px) rotate(-.5deg)}
-  .tile .ico{font-size:46px; line-height:1}
-  .tile h3{margin:8px 0 4px; font-size:21px}
-  .tile p{margin:0; color:var(--muted); font-size:15px}
-  .tile .meta{margin-top:10px; font-size:13px; color:var(--b); font-weight:700}
-
-  .section-title{display:flex; align-items:center; gap:10px; margin:26px 0 6px}
-  .section-title h2{margin:0; font-size:26px}
-  .pill{background:#fff; border-radius:999px; padding:4px 12px; font-size:14px; font-weight:700; box-shadow:0 2px 0 rgba(0,0,0,.08)}
-
-  /* knowledge */
-  .worlds{display:flex; flex-wrap:wrap; gap:10px; margin:14px 0}
-  .worlds button{
-    border:0; border-radius:14px; padding:10px 16px; font-size:16px; font-weight:800; cursor:pointer; color:#fff;
-    box-shadow:0 4px 0 rgba(0,0,0,.15); opacity:.75; font-family:inherit;
-  }
-  .worlds button.active{opacity:1; transform:scale(1.05)}
-  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px}
-  .kcard{perspective:1200px; min-height:340px}
-  .kcard .inner{position:relative; width:100%; height:100%; min-height:340px; transition:transform .5s; transform-style:preserve-3d; cursor:pointer}
-  .kcard.flipped .inner{transform:rotateY(180deg)}
-  .face{position:absolute; inset:0; border-radius:var(--radius); padding:20px; backface-visibility:hidden; box-shadow:var(--shadow); background:#fff; display:flex; flex-direction:column}
-  .face.front{border-left:10px solid var(--c, var(--y))}
-  .face.front .ico{font-size:54px; line-height:1}
-  .face.front h3{margin:10px 0 6px; font-size:22px}
-  .face.front .hint{margin-top:auto; color:var(--muted); font-size:14px}
-  .face.back{transform:rotateY(180deg); background:var(--dk); color:#fff; font-size:14.5px; line-height:1.55; overflow:auto; padding:16px 18px}
-  .face.back h4{margin:0 0 6px; font-size:17px; color:var(--y)}
-  .face.back p{margin:0 0 8px}
-  .face.back .tip{background:rgba(255,255,255,.12); border-radius:12px; padding:8px 12px; border-left:4px solid var(--g); margin-top:auto}
-  .face.back .tip b{color:var(--g)}
-  .read{position:absolute; top:12px; right:14px; font-size:20px}
-
-  /* quiz & games */
-  .panel{background:#fff; border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-top:16px}
-  .panel h3{margin:0 0 10px; font-size:23px}
-  .progress{height:14px; background:#eee; border-radius:999px; overflow:hidden; margin:10px 0 16px}
-  .progress i{display:block; height:100%; background:linear-gradient(90deg,var(--g),var(--b)); width:0; transition:width .3s}
-  .question{font-size:22px; font-weight:800; margin:8px 0 16px}
-  .options{display:grid; gap:12px}
-  .opt{
-    border:3px solid #eee; border-radius:16px; padding:14px 16px; font-size:18px; cursor:pointer; background:#fafafa; text-align:left;
-    font-family:inherit; transition:all .12s; display:flex; gap:10px; align-items:center;
-  }
-  .opt:hover{border-color:var(--b); background:#f0f9ff}
-  .opt .k{background:var(--dk); color:#fff; border-radius:8px; min-width:30px; text-align:center; font-weight:800; padding:2px 0}
-  .opt.correct{border-color:var(--g); background:#e8fff7}
-  .opt.wrong{border-color:var(--r); background:#fff0f3}
-  .opt[disabled]{cursor:default}
-  .explain{margin-top:14px; padding:14px 16px; border-radius:14px; background:#fff8e7; border-left:6px solid var(--o); display:none}
-  .explain.show{display:block}
-  .explain b{color:var(--o)}
-  .score{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:8px}
-  .score .pill{font-size:16px}
-
-  .houses{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:12px 0}
-  .house{border:4px solid #eee; border-radius:var(--radius); padding:18px; cursor:pointer; background:#fafafa; transition:all .12s; position:relative}
-  .house:hover{border-color:var(--b); transform:translateY(-3px)}
-  .house .art{font-size:64px; text-align:center; line-height:1.1}
-  .house h4{margin:8px 0 10px; text-align:center; font-size:22px}
-  .house ul{margin:0; padding-left:0; list-style:none; font-size:16px}
-  .house li{padding:4px 0; border-bottom:1px dashed #e5e5e5; display:flex; justify-content:space-between}
-  .house li b{color:var(--dk)}
-  .house.win{border-color:var(--g); background:#e8fff7}
-  .house.lose{border-color:#ddd; opacity:.7}
-  .house .tag{position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--g); color:var(--dk); font-weight:900; padding:4px 14px; border-radius:999px; display:none}
-  .house.win .tag{display:block}
-  .house.subject{border-color:var(--o); background:#fff8e7; cursor:default}
-  .house.subject:hover{transform:none}
-  .cands{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
-  .cands .house .art{font-size:48px}
-  .cands .house h4{font-size:18px}
-  .cands .house ul{font-size:14.5px}
-
-  /* memory */
-  .memgrid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px}
-  .mem{
-    aspect-ratio:1/0.85; border-radius:16px; background:var(--p); color:#fff; display:flex; align-items:center; justify-content:center;
-    text-align:center; padding:10px; font-weight:800; font-size:16px; cursor:pointer; box-shadow:0 5px 0 rgba(0,0,0,.15); transition:transform .15s; user-select:none;
-  }
-  .mem span{display:none}
-  .mem.open{background:#fff; color:var(--ink); border:3px solid var(--p)}
-  .mem.open span{display:block}
-  .mem.done{background:#e8fff7; border-color:var(--g); color:var(--dk); cursor:default; transform:scale(.96)}
-  .mem.done span{display:block}
-  .mem.term{font-size:19px}
-
-  /* badges */
-  .badges{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-top:14px}
-  .badge{background:#fff; border-radius:var(--radius); padding:18px; text-align:center; box-shadow:var(--shadow); position:relative}
-  .badge .ico{font-size:56px; line-height:1; filter:grayscale(1); opacity:.35}
-  .badge.got .ico{filter:none; opacity:1; animation:bounce .6s}
-  @keyframes bounce{0%{transform:scale(.6)} 60%{transform:scale(1.2)} 100%{transform:scale(1)}}
-  .badge h4{margin:8px 0 2px; font-size:17px}
-  .badge p{margin:0; font-size:13.5px; color:var(--muted)}
-  .badge .lock{position:absolute; top:10px; right:12px; font-size:18px}
-  .badge.got .lock{display:none}
-
-  .toast{
-    position:fixed; left:50%; bottom:26px; transform:translate(-50%,120px); background:var(--dk); color:#fff; padding:14px 22px;
-    border-radius:16px; font-weight:800; font-size:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); transition:transform .35s; z-index:50;
-  }
-  .toast.show{transform:translate(-50%,0)}
-
-  .note{background:#fff; border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow); margin-top:16px}
-  .note h3{margin-top:0}
-  .note ul{padding-left:22px}
-  .note li{margin:6px 0}
-  footer{color:var(--muted); font-size:14px; text-align:center; padding:30px 18px}
-  .glossary{font-size:16px}
-  .glossary dt{font-weight:800; color:var(--dk); margin-top:10px}
-  .glossary dd{margin:0}
-
-  @media (max-width:720px){
-    body{font-size:17px}
-    .hero{grid-template-columns:1fr; padding:24px 20px}
-    .hero .art{font-size:80px}
-    .hero h2{font-size:28px}
-    .houses{grid-template-columns:1fr}
-    .cands{grid-template-columns:1fr}
-    .memgrid{grid-template-columns:repeat(4,1fr); gap:8px}
-    .mem{font-size:13px; padding:6px}
-    .mem.term{font-size:15px}
-  }
-</style>
+<meta name="description" content="給國小學生的不動產知識庫遊戲網站：從估價師的角度認識房子、土地、價格與城市議題。">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<canvas id="confetti"></canvas>
+
 <header>
-  <div class="wrap">
+  <div class="wrap hdr">
     <div class="brand" onclick="go('home')">
       <div class="logo">🏠🔍</div>
       <h1>小小估價師大冒險<small>用估價師的眼睛，看懂房子、土地和我們的城市</small></h1>
     </div>
+    <div class="hdr-right">
+      <div class="level" id="hdr-level"></div>
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="音效開關">🔊</button>
+    </div>
+  </div>
+  <div class="wrap">
     <nav id="nav">
       <button data-page="home">🏡 首頁</button>
       <button data-page="learn">📚 知識庫</button>
-      <button data-page="quiz">🧠 快問快答</button>
-      <button data-page="price">💰 哪間比較貴</button>
-      <button data-page="comp">🏘️ 找鄰居</button>
-      <button data-page="match">🧩 連連看</button>
-      <button data-page="badges">🏅 徽章牆</button>
+      <button data-page="games">🎮 遊樂場</button>
+      <button data-page="badges">🏅 徽章</button>
+      <button data-page="cert">🎓 證書</button>
       <button data-page="teacher">👩‍🏫 老師家長</button>
     </nav>
   </div>
@@ -218,108 +36,156 @@
 
 <main class="wrap">
 
-  <!-- HOME -->
+  <!-- 首頁 -->
   <section class="page" id="page-home">
     <div class="hero">
       <div>
-        <h2>嗨！我是估價師，<br>房子的「價格偵探」🕵️</h2>
-        <p>為什麼有的房子很貴、有的很便宜？老房子要怎麼變新？政府蓋捷運要用到別人的土地怎麼辦？<br>跟著我一起翻知識卡、玩遊戲、收集徽章，成為小小估價師！</p>
-        <button class="btn y" onclick="go('learn')">📚 先去看知識卡</button>
-        <button class="btn g" onclick="go('quiz')">🧠 直接挑戰</button>
+        <h2 id="home-title">嗨！我是估價師，<br>房子的「價格偵探」🕵️</h2>
+        <p>為什麼有的房子很貴、有的很便宜？老房子要怎麼變新？政府蓋捷運要用到別人的土地怎麼辦？<br>翻知識卡、玩遊戲、接任務、收集徽章，升級成為「估價大師」！</p>
+        <button class="btn y" onclick="go('learn')">📚 看知識卡</button>
+        <button class="btn r" onclick="go('mission')">🕵️ 接任務</button>
+        <button class="btn g" onclick="go('games')">🎮 遊樂場</button>
       </div>
       <div class="art">🏘️</div>
     </div>
 
-    <div class="section-title"><h2>🎮 選一個關卡開始</h2><span class="pill" id="home-progress">目前進度：0 / 6 徽章</span></div>
-    <div class="grid">
-      <div class="tile" style="border-color:var(--y)" onclick="go('learn')"><div class="ico">📚</div><h3>知識庫圖書館</h3><p>35 張翻翻卡，分成 4 個世界：認識不動產、房子為什麼有價錢、估價師的工作、城市與社會議題。</p><div class="meta" id="tile-learn">已讀 0 / 35 張</div></div>
-      <div class="tile" style="border-color:var(--g)" onclick="go('quiz')"><div class="ico">🧠</div><h3>快問快答</h3><p>每局 10 題選擇題，答完立刻看估價師的解說。</p><div class="meta">目標：一局答對 8 題</div></div>
-      <div class="tile" style="border-color:var(--o)" onclick="go('price')"><div class="ico">💰</div><h3>哪間比較貴？</h3><p>兩間房子比一比，猜猜哪間每坪比較貴，學會影響房價的關鍵因素。</p><div class="meta">目標：連續答對 5 題</div></div>
-      <div class="tile" style="border-color:var(--b)" onclick="go('comp')"><div class="ico">🏘️</div><h3>找鄰居（比較法）</h3><p>估價師最常用的方法：找出「最像」的成交案例。你能找到最像的鄰居嗎？</p><div class="meta">目標：答對 5 題</div></div>
-      <div class="tile" style="border-color:var(--p)" onclick="go('match')"><div class="ico">🧩</div><h3>名詞連連看</h3><p>翻開卡片，把專有名詞和它的意思配成一對。</p><div class="meta">目標：完成一局</div></div>
-      <div class="tile" style="border-color:var(--r)" onclick="go('badges')"><div class="ico">🏅</div><h3>徽章牆</h3><p>集滿 5 個徽章，就能拿到「小小估價師」畢業證書徽章！</p><div class="meta">看看你收集到幾個</div></div>
-    </div>
+    <div id="home-daily"></div>
+
+    <div class="section-title"><h2>🎮 選一個關卡開始</h2><span class="pill" id="home-progress"></span></div>
+    <div class="grid" id="home-tiles"></div>
+    <p class="center"><button class="btn ghost" onclick="go('games')">看全部 8 個遊戲 ➡️</button></p>
 
     <div class="note">
       <h3>🔍 估價師到底在做什麼？</h3>
       <p>估價師不是賣房子的人，也不是蓋房子的人。估價師是<b>公正的第三方</b>，用科學的方法，找出一間房子或一塊土地「合理的價錢」。銀行要借錢給別人買房、法院要拍賣房子、政府要蓋馬路用到別人的土地、老房子要都市更新分新房子……都需要估價師來算出一個大家都能信服的數字。</p>
-      <p>估價師有三個法寶：<b>比較法</b>（看鄰居賣多少）、<b>成本法</b>（重新蓋要花多少）、<b>收益法</b>（租出去能收多少）。這個網站會帶你一一認識它們！</p>
+      <p>估價師有三個法寶：<b>比較法</b>（看鄰居賣多少）、<b>成本法</b>（重新蓋要花多少）、<b>收益法</b>（租出去能收多少）。這個網站會帶你一一認識它們，還能親自上場試試看！</p>
     </div>
   </section>
 
-  <!-- LEARN -->
+  <!-- 知識庫 -->
   <section class="page" id="page-learn">
-    <div class="section-title"><h2>📚 知識庫圖書館</h2><span class="pill" id="learn-progress">已讀 0 / 35</span></div>
-    <p style="margin:4px 0 0;color:var(--muted)">點一下卡片就會翻面，看看背面的解釋和「估價師小知識」。</p>
+    <div class="section-title"><h2>📚 知識庫圖書館</h2><span class="pill" id="learn-progress"></span></div>
+    <div class="learn-tools">
+      <input type="search" id="card-search" placeholder="🔍 搜尋關鍵字，例如：折舊、捷運、徵收" oninput="searchCards(this.value)">
+      <button class="btn sm ghost" onclick="randomCard()">🎲 隨機一張</button>
+    </div>
     <div class="worlds" id="worlds"></div>
+    <p class="world-desc" id="world-desc"></p>
     <div class="cards" id="cards"></div>
   </section>
 
-  <!-- QUIZ -->
+  <!-- 遊樂場 -->
+  <section class="page" id="page-games">
+    <div class="section-title"><h2>🎮 遊樂場</h2><span class="pill">8 個遊戲 · 每個都能賺 XP</span></div>
+    <div class="grid" id="games-tiles"></div>
+  </section>
+
   <section class="page" id="page-quiz">
-    <div class="section-title"><h2>🧠 快問快答</h2><span class="pill">每局 10 題</span></div>
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🧠 快問快答</h2></div>
     <div class="panel" id="quiz-panel"></div>
   </section>
 
-  <!-- PRICE -->
+  <section class="page" id="page-tf">
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>⏱️ 真假快答</h2></div>
+    <div class="panel" id="tf-panel"></div>
+  </section>
+
   <section class="page" id="page-price">
-    <div class="section-title"><h2>💰 哪間比較貴？</h2><span class="pill">猜「每坪」價錢</span></div>
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>💰 哪間比較貴？</h2><span class="pill">猜「每坪」價錢</span></div>
     <div class="panel" id="price-panel"></div>
   </section>
 
-  <!-- COMP -->
+  <section class="page" id="page-estimate">
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🎯 價格猜猜樂</h2><span class="pill">比較法的「調整」</span></div>
+    <div class="panel" id="est-panel"></div>
+  </section>
+
   <section class="page" id="page-comp">
-    <div class="section-title"><h2>🏘️ 找鄰居：比較法小實驗</h2><span class="pill">找出最像的成交案例</span></div>
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🏘️ 找鄰居：比較法小實驗</h2></div>
     <div class="panel" id="comp-panel"></div>
   </section>
 
-  <!-- MATCH -->
   <section class="page" id="page-match">
-    <div class="section-title"><h2>🧩 名詞連連看</h2><span class="pill">8 組名詞配對</span></div>
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🧩 名詞連連看</h2></div>
     <div class="panel" id="match-panel"></div>
   </section>
 
-  <!-- BADGES -->
-  <section class="page" id="page-badges">
-    <div class="section-title"><h2>🏅 我的徽章牆</h2><span class="pill" id="badge-count">0 / 6</span></div>
-    <div class="badges" id="badges"></div>
-    <p style="text-align:center;margin-top:20px"><button class="btn ghost sm" onclick="resetAll(this)">🔄 重新開始（清除所有進度）</button></p>
+  <section class="page" id="page-city">
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🏙️ 城市規劃師</h2><span class="pill">土地使用分區 × 外部效果</span></div>
+    <div class="panel" id="city-panel"></div>
   </section>
 
-  <!-- TEACHER -->
+  <section class="page" id="page-mission">
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🕵️ 估價師出任務</h2></div>
+    <div class="panel" id="mission-panel"></div>
+  </section>
+
+  <!-- 徽章 -->
+  <section class="page" id="page-badges">
+    <div class="section-title"><h2>🏅 我的徽章牆</h2><span class="pill" id="badge-count"></span></div>
+    <div class="badges" id="badges"></div>
+    <div class="section-title"><h2>📈 等級與稱號</h2></div>
+    <div class="panel" id="level-list"></div>
+    <p class="center" style="margin-top:20px"><button class="btn ghost sm" onclick="resetAll(this)">🔄 重新開始（清除所有進度）</button></p>
+  </section>
+
+  <!-- 證書 -->
+  <section class="page" id="page-cert">
+    <div class="section-title"><h2>🎓 我的證書</h2></div>
+    <div class="cert-tools no-print">
+      <label>你的名字：<input type="text" id="cert-name" maxlength="12" placeholder="輸入名字" onchange="saveName(this.value)"></label>
+      <button class="btn b sm" onclick="window.print()">🖨️ 列印證書</button>
+      <span class="muted">集滿全部徽章，證書會變成「結業證書」！</span>
+    </div>
+    <div id="cert"></div>
+  </section>
+
+  <!-- 老師家長 -->
   <section class="page" id="page-teacher">
     <div class="section-title"><h2>👩‍🏫 給老師與家長</h2></div>
     <div class="note">
       <h3>這個網站想教什麼？</h3>
-      <p>多數孩子對「房子」的理解停在「我家」和「很貴」。本站以<b>不動產估價師</b>的專業視角切入，讓孩子理解：價格不是隨便喊的，而是由位置、屋齡、環境、供需、法規等因素共同決定，並且可以用方法「算」出來。同時帶入都市更新、社會住宅、土地徵收、居住正義等公共議題，培養對城市與公共事務的基本素養。</p>
+      <p>多數孩子對「房子」的理解停在「我家」和「很貴」。本站以<b>不動產估價師</b>的專業視角切入，讓孩子理解：價格不是隨便喊的，而是由位置、屋齡、環境、供需、法規等因素共同決定，並且可以用方法「算」出來。同時帶入都市更新、社會住宅、土地徵收、居住正義、環境風險等公共議題，培養對城市與公共事務的基本素養。</p>
+      <h3>內容架構</h3>
+      <ul>
+        <li><b>知識庫：</b>6 個世界、60 餘張翻翻卡，每張都有白話解釋＋「估價師小知識」，部分附「你知道嗎」小故事。可搜尋關鍵字。</li>
+        <li><b>估價師出任務：</b>6 個情境（銀行貸款、法院拍賣、都更權變、土地徵收、店面收益、職業道德），每個 5 個關鍵決定，模擬估價師的判斷。</li>
+        <li><b>價格猜猜樂：</b>比較法「調整」的數學練習：由案例價格反推標的價格（除法與百分比）。</li>
+        <li><b>城市規劃師：</b>在格子地圖上配置公園、捷運、工廠、垃圾場，體會外部效果與土地使用分區的邏輯。</li>
+        <li><b>快問快答 / 真假快答 / 哪間比較貴 / 找鄰居 / 連連看：</b>70 題選擇題、40 題是非題與各式小遊戲，反覆練習關鍵概念。</li>
+        <li><b>XP 等級、13 枚徽章、可列印證書：</b>維持動機，方便老師在課堂上當作任務卡使用。</li>
+      </ul>
       <h3>對應的學習目標（國小中高年級）</h3>
       <ul>
-        <li><b>社會領域：</b>認識居住環境、土地利用、公共建設與公民權利義務（稅、徵收補償）。</li>
-        <li><b>數學領域：</b>單位換算（坪、平方公尺）、平均數、百分比（折舊、調整率）的生活應用。</li>
-        <li><b>理財素養：</b>資產、租與買的選擇、價格與價值的差別。</li>
+        <li><b>社會領域：</b>居住環境、土地利用、公共建設、公民權利義務（稅、徵收補償）、環境風險。</li>
+        <li><b>數學領域：</b>單位換算（坪、平方公尺）、平均數、百分比（折舊、調整率）、簡單的收益換算（租金 ÷ 收益率）。</li>
+        <li><b>理財素養：</b>頭期款、房貸、利率、租與買的選擇、價格與價值的差別。</li>
         <li><b>品格教育：</b>專業人員的公正、獨立與責任（估價師簽證負責）。</li>
       </ul>
       <h3>建議使用方式</h3>
       <ul>
-        <li><b>單堂課（40 分鐘）：</b>先選一個世界讀 8 張知識卡（10 分） → 玩「哪間比較貴」（10 分） → 快問快答一局（10 分） → 討論：你覺得什麼最影響房價？（10 分）</li>
-        <li><b>延伸活動：</b>請孩子回家問家人「我們家附近最近一間房子賣多少？」，再到<b>內政部實價登錄網站</b>查證，體驗估價師的「比較法」。</li>
-        <li><b>分組辯論：</b>老房子該不該都更？公園旁邊的房子比較貴，公平嗎？</li>
+        <li><b>單堂課（40 分鐘）：</b>選一個世界讀知識卡（10 分） → 玩「哪間比較貴」或「城市規劃師」（15 分） → 快問快答一局（10 分） → 討論：你覺得什麼最影響房價？公園旁邊比較貴公平嗎？（5 分）</li>
+        <li><b>兩堂課進階：</b>第二堂用「估價師出任務」分組討論每個決定為什麼對、為什麼錯，再用「價格猜猜樂」練習百分比。</li>
+        <li><b>延伸活動：</b>請孩子回家問家人「我們家附近最近一間房子賣多少？」，再到<b>內政部實價登錄網站</b>查證，體驗比較法。</li>
+        <li><b>分組辯論：</b>老房子該不該都更？政府可以為了蓋捷運徵收私人土地嗎？垃圾場該蓋在哪裡？</li>
       </ul>
       <h3>內容說明與注意事項</h3>
       <ul>
-        <li>遊戲中的價格、折舊率、調整幅度皆為<b>教學用簡化數字</b>，用來說明「方向」與「邏輯」，並非真實市場行情，也不能作為任何估價或投資依據。</li>
+        <li>遊戲中的價格、折舊率、調整幅度、收益率、城市地價加減成數，皆為<b>教學用簡化數字</b>，用來說明「方向」與「邏輯」，並非真實市場行情，也不能作為任何估價或投資依據。</li>
         <li>真實估價須依《不動產估價技術規則》進行，並由領有證照的不動產估價師簽證負責。</li>
-        <li>進度與徽章儲存在這台裝置的瀏覽器中，換裝置不會同步；可在徽章牆按「重新開始」清除。</li>
+        <li>進度、XP 與徽章儲存在這台裝置的瀏覽器中，換裝置不會同步；可在徽章頁按「重新開始」清除。多人共用一台電腦時，建議每位同學輪流時先重置。</li>
       </ul>
       <h3>小小名詞表</h3>
       <dl class="glossary">
         <dt>不動產</dt><dd>土地以及蓋在土地上、搬不走的東西（房子）。</dd>
         <dt>坪</dt><dd>台灣常用的面積單位，1 坪約等於 3.3 平方公尺，差不多是兩張單人床的大小。</dd>
+        <dt>勘估標的 / 比較標的</dt><dd>要估價的房子 / 拿來比較的成交案例。</dd>
         <dt>比較法</dt><dd>找附近條件相近、最近成交的案例，調整差異後推算價格。</dd>
         <dt>成本法</dt><dd>土地價格 ＋ 現在重新蓋這棟房子的費用 － 老舊折損。</dd>
         <dt>收益法</dt><dd>用這間房子能收到的租金，反推它現在值多少。</dd>
         <dt>實價登錄</dt><dd>政府公開的不動產成交資訊，任何人都可以查詢。</dd>
         <dt>權利變換</dt><dd>都市更新時，依照估價結果計算每位地主、建商各能分到多少新房子的制度。</dd>
+        <dt>房價所得比</dt><dd>房屋總價除以家庭年收入，數字越高代表越難負擔。</dd>
       </dl>
     </div>
   </section>
@@ -333,428 +199,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-/* ========= 資料：知識卡 ========= */
-const WORLDS = [
-  {id:'w1', name:'🏠 認識不動產', color:'#ffd166'},
-  {id:'w2', name:'💰 房子為什麼有價錢', color:'#06d6a0'},
-  {id:'w3', name:'🔍 估價師的工作', color:'#118ab2'},
-  {id:'w4', name:'🏙️ 城市與社會議題', color:'#9b5de5'},
-];
-const CARDS = [
-  // 世界一
-  {w:'w1', ico:'🏠', t:'什麼是「不動產」？', q:'可以搬走的叫動產，搬不走的叫？', a:'「不動產」就是搬不走的財產：土地，和蓋在土地上的房子。你的玩具、腳踏車可以搬走，叫「動產」；但房子和土地搬不走，所以叫「不動產」。', tip:'估價師估的就是搬不走的東西，所以估價師一定要「親自到現場看」，不能只看照片！'},
-  {w:'w1', ico:'🧱', t:'土地和房子是兩回事', q:'房子會變老，那土地呢？', a:'房子是蓋在土地上的，所以一間房子其實包含「土地」和「建物」兩部分，各有各的權狀。房子會一年一年變舊、變老；但土地不會壞，所以在很多地方，土地才是最值錢的部分。', tip:'估價師常常把土地和建物「分開算」：土地看地段，建物看屋齡和蓋得好不好。'},
-  {w:'w1', ico:'📜', t:'所有權狀：房子的身分證', q:'怎麼知道這間房子是誰的？', a:'所有權狀和登記謄本就像房子的身分證，上面寫著：主人是誰、房子在哪裡、有多大、蓋在哪塊土地上、有沒有向銀行借錢（抵押）。', tip:'估價師接到案子，第一件事就是調「謄本」，確認面積、用途和權利有沒有問題。'},
-  {w:'w1', ico:'🏢', t:'公寓、大樓、透天', q:'你家是哪一種？', a:'「公寓」通常 5 樓以下、沒有電梯；「大樓」有電梯、有管理員，常常超過 10 層；「透天」是一戶從 1 樓到頂樓都是自己的。不同類型，價格和生活方式都不一樣。', tip:'比較法要「同類比同類」：不能拿透天的成交價去估公寓喔！'},
-  {w:'w1', ico:'📏', t:'「坪」是多大？', q:'1 坪大概是幾張單人床？', a:'台灣買賣房子用「坪」計算面積。1 坪約等於 3.3 平方公尺，差不多是「兩張單人床並排」的大小。一間 30 坪的房子，就是大約 60 張單人床那麼大。', tip:'估價師報告裡最常出現的字就是「每坪多少萬元」，這叫做「單價」；單價 × 坪數 ＝ 總價。'},
-  {w:'w1', ico:'🛗', t:'公設比：大家一起用的空間', q:'買 30 坪，為什麼家裡只有 20 坪？', a:'大樓裡的樓梯、電梯、大廳、走廊是大家「一起用」的，叫「公共設施」。買房子時這些也算在坪數裡，所以 30 坪的房子，可能家裡真正能用的只有 20 坪左右。公設占的比例叫「公設比」。', tip:'新大樓公設比常常超過 30%，老公寓很低。估價師會注意「室內實際多大」，不只看權狀坪數。'},
-  {w:'w1', ico:'🗺️', t:'門牌與地號', q:'房子有門牌，那土地有什麼？', a:'房子用「門牌」找得到（像 ○○路 10 號 3 樓），土地則用「地號」編號（像 ○○段 123 地號）。一個門牌的房子，可能坐在好幾個地號的土地上。', tip:'估價師會把地號和門牌一一對起來，確認「估的就是這一塊」，不能估錯鄰居的地！'},
-  {w:'w1', ico:'🏷️', t:'價格 ≠ 價值', q:'開價 1000 萬的房子就值 1000 萬嗎？', a:'「開價」是賣方想賣的價錢，「成交價」是真的賣出去的價錢，「價值」是這間房子合理應該值多少。三個數字常常不一樣！賣方可能喊很高，買方可能殺很低。', tip:'估價師的工作就是找出中間那個「合理的價值」，不受賣方或買方的情緒影響。'},
-
-  // 世界二
-  {w:'w2', ico:'📍', t:'地點、地點、地點！', q:'一模一樣的房子，放在哪裡最貴？', a:'影響房價最重要的三件事：地點、地點、地點！同樣大小、同樣新舊的房子，在市中心、靠近捷運和學校，就比偏遠的地方貴很多。因為大家都想住在方便的地方。', tip:'估價師看一間房子，先看的不是房子本身，而是它「坐在哪裡」。'},
-  {w:'w2', ico:'⚖️', t:'想要的人多，就會貴', q:'限量卡片為什麼很貴？', a:'這叫「供給與需求」。想買的人很多（需求大），房子卻很少（供給少），價格就會往上跑；反過來，蓋了很多新房子但沒人要買，價格就會往下掉。就像限量的卡片總是比較貴。', tip:'估價師會觀察「市場」：最近成交多不多？有沒有很多新房子正在蓋？'},
-  {w:'w2', ico:'👟', t:'房子會變舊：折舊', q:'新球鞋穿三年還值原價嗎？', a:'房子就像鞋子，用久了會舊、會壞，價值一年一年減少，這叫「折舊」。一棟 40 年的老房子，建物本身可能已經不值多少錢，剩下的主要是土地的價值。', tip:'估價師會查「屋齡」，用折舊率算建物剩下多少價值。但記得：土地不會折舊！'},
-  {w:'w2', ico:'🌇', t:'樓層、採光與景觀', q:'住高一點比較貴還是便宜？', a:'有電梯的大樓，高樓層看得遠、採光好、比較安靜，通常比較貴。但沒有電梯的老公寓剛好相反，爬到 5 樓很累，所以高樓層反而比較便宜！', tip:'估價師會做「樓層調整」：同一棟樓，不同樓層的價格要分別調整。'},
-  {w:'w2', ico:'🚇', t:'交通方便加分', q:'走路 3 分鐘到捷運站，會更貴嗎？', a:'靠近捷運站、公車站、交流道，上學上班都方便，大家搶著要，價格就會比較高。但如果「太近」，火車、高速公路的噪音又會讓價格變低，要剛剛好才行。', tip:'估價師會實際量「走到捷運站幾分鐘」，不是看地圖直線距離。'},
-  {w:'w2', ico:'🏭', t:'嫌惡設施與加分設施', q:'旁邊有公園和旁邊有垃圾場，哪個貴？', a:'房子旁邊如果有墳墓、垃圾場、高壓電塔、加油站、殯儀館，大部分人會不喜歡，價格會比較低，這些叫「嫌惡設施」。相反的，公園、綠地、好學校、圖書館旁邊，價格會比較高。', tip:'估價師在現場勘查時，會特別走一圈，看看附近有沒有這些會影響價格的東西。'},
-  {w:'w2', ico:'🧭', t:'格局與方位', q:'為什麼大人說「西曬」不好？', a:'房子的形狀方不方正、有沒有窗戶通風、面向哪一邊，都會影響住起來舒不舒服。「西曬」是指下午太陽直射進屋，夏天很熱；格局奇怪、有很多用不到的角落，也會比較便宜。', tip:'估價師畫「格局圖」時會注意：採光面有幾面？有沒有暗房（沒窗戶的房間）？'},
-  {w:'w2', ico:'🏫', t:'學區與生活機能', q:'為什麼有名的學校旁邊房子很搶手？', a:'附近有好學校、市場、超市、醫院、便利商店，生活很方便，這叫「生活機能好」。很多家長為了讓小孩讀某間學校，會特別去買那附近的房子，價格就被推高了。', tip:'估價師寫報告時會有一節叫「鄰里環境分析」，就是在描述這些事。'},
-
-  // 世界三
-  {w:'w3', ico:'🕵️', t:'估價師是誰？', q:'估價師和房屋仲介一樣嗎？', a:'不一樣！仲介是幫忙買賣房子的人；估價師是「公正的第三方」，不買也不賣，只負責用科學方法算出合理價格。要當估價師，必須考過國家考試、取得證書，還要加入公會、遵守職業道德。', tip:'估價師像法官一樣要「公正」：不管是誰委託，都不能亂估高或估低。'},
-  {w:'w3', ico:'🏦', t:'誰需要估價？', q:'什麼時候會需要估價師？', a:'很多時候！銀行要借錢給人買房，要知道房子值多少；法院要拍賣房子，要訂底價；政府要蓋捷運需要徵收土地，要算補償；老房子都市更新，要算每個人分多少；公司的財務報表、公家機關賣土地，也都需要。', tip:'估價師的客戶常常不是一般人，而是銀行、法院、政府、建商和大公司。'},
-  {w:'w3', ico:'🔁', t:'法寶一：比較法', q:'想知道房子值多少，先問鄰居？', a:'「比較法」是最常用的方法：找出附近最近成交、條件最像的幾間房子（叫「比較標的」），看它們賣多少，再針對差異調整：比較新就加一點、比較舊就減一點、樓層不同也要調整，最後算出合理價格。', tip:'關鍵是找到「最像的鄰居」：同區域、同類型、屋齡接近、面積接近、成交時間近。試試「找鄰居」遊戲！'},
-  {w:'w3', ico:'🧮', t:'法寶二：成本法', q:'重新蓋一棟要花多少錢？', a:'「成本法」是這樣想的：如果現在重新買一塊一樣的土地、再蓋一棟一樣的房子，要花多少錢？然後因為這棟房子已經舊了，要再扣掉折舊。土地價格 ＋ 重建費用 － 折舊 ＝ 成本法的價值。', tip:'成本法特別適合新房子、工廠，或是很特別、附近找不到類似成交案例的建物。'},
-  {w:'w3', ico:'🐔', t:'法寶三：收益法', q:'會下金蛋的雞值多少？', a:'「收益法」把房子想成一隻會下金蛋的雞：這間房子租出去，一年可以收多少租金？租金越高、越穩定，房子就越值錢。把未來能收到的租金換算回今天的價值，就是收益法。', tip:'店面、辦公大樓、出租公寓常用收益法。估價師會調查附近「租金行情」。'},
-  {w:'w3', ico:'📸', t:'現場勘查', q:'估價師為什麼一定要到現場？', a:'估價師一定要親自到現場：拍照、量尺寸、看有沒有漏水、壁癌、裂縫，看看巷子寬不寬、附近有什麼。有時候照片看起來很美，到了現場才發現旁邊是垃圾場！', tip:'勘查時會帶的工具：相機、捲尺或雷射測距儀、謄本、地籍圖，有時還有空拍機。'},
-  {w:'w3', ico:'🌐', t:'實價登錄', q:'房子賣多少錢可以查得到嗎？', a:'可以！台灣從 2012 年開始「實價登錄」，房子買賣之後要把成交價登記給政府，政府會在網站上公開（把門牌號碼稍微遮住）。任何人都可以上網查附近的房子賣多少錢。', tip:'實價登錄是估價師做「比較法」最重要的資料庫，但估價師還會再過濾掉不正常的交易（例如親戚之間便宜賣）。'},
-  {w:'w3', ico:'📖', t:'估價報告書', q:'估價的答案只有一個數字嗎？', a:'不只！估價師會寫一本厚厚的「估價報告書」，裡面有：房子的基本資料、照片、地圖、鄰里環境、用了哪些方法、找了哪些比較案例、怎麼調整、最後怎麼決定價格。估價師要在報告上簽名蓋章，為結果負責。', tip:'一份報告書常常有幾十頁到一百多頁，寫報告的時間比到現場看的時間還長！'},
-  {w:'w3', ico:'🤝', t:'公正與獨立', q:'委託人說「幫我估高一點」可以嗎？', a:'不可以！估價師最重要的品格是「公正」和「獨立」。即使付錢的人希望價格高一點（或低一點），估價師也只能根據證據和方法，算出合理的價格。如果亂估，可能會害銀行借出太多錢、害地主分到太少房子。', tip:'估價師要遵守《不動產估價師法》和職業道德規範，亂估價會被處罰，甚至吊銷證書。'},
-
-  // 世界四
-  {w:'w4', ico:'🗂️', t:'土地使用分區', q:'為什麼工廠不能蓋在學校旁邊？', a:'城市就像教室有座位表，每塊土地都被規定「可以做什麼」：住宅區蓋房子住、商業區開店做生意、工業區蓋工廠、農業區種田、還有公園和學校用地。這樣城市才不會亂七八糟。', tip:'同樣一塊土地，商業區通常比住宅區貴、住宅區比農業區貴，因為能做的事情不一樣。'},
-  {w:'w4', ico:'🧊', t:'建蔽率與容積率', q:'一塊地可以蓋多滿、蓋多高？', a:'政府用兩個數字管房子怎麼蓋：「建蔽率」是房子最多可以蓋滿土地的幾成（剩下要留空地）；「容積率」是總共可以蓋多少樓地板面積（決定能蓋多高）。像是玩積木的規則！', tip:'容積率越高，同一塊地能蓋的房子越多，土地就越值錢。估價師算土地價值時一定會查這兩個數字。'},
-  {w:'w4', ico:'🏗️', t:'都市更新', q:'一整排老房子怎麼一起變新？', a:'很多老房子又舊又不防震，但一戶一戶自己蓋很難。「都市更新」就是讓一整區的住戶一起合作，把老房子拆掉重蓋成新大樓，每個人再分回新房子。', tip:'估價師在都更裡超重要：要算每個人原本的房子和土地值多少，再算新房子值多少，決定「每個人該分多少」，這叫「權利變換」。'},
-  {w:'w4', ico:'⚠️', t:'危老重建', q:'危險的老房子可以快一點重建嗎？', a:'有些房子太老、結構不安全，地震來了很危險。「危老重建」是政府鼓勵這些房子趕快重建的辦法：手續比都更簡單、速度比較快，還可以多蓋一點樓地板面積當作獎勵。', tip:'估價師會幫住戶和建商算：重建後每個人大概能分到多少，合不合理。'},
-  {w:'w4', ico:'🏘️', t:'社會住宅', q:'房租太貴怎麼辦？', a:'有些人收入不多、或剛開始工作，租不起市區的房子。政府蓋「社會住宅」，用比較便宜的租金租給需要的人，而且只租不賣，讓更多人輪流住得到。', tip:'社宅的租金怎麼訂？也常常需要估價師先查「市場租金」，政府再打折出租。'},
-  {w:'w4', ico:'🔑', t:'租房子還是買房子？', q:'租和買，哪個比較好？', a:'都有好處！租房子比較自由、不用一次拿出很多錢，但房子不是自己的；買房子要付很多錢、還要還貸款，但房子是自己的，老了也有地方住。沒有絕對的對錯，要看每個人的情況。', tip:'估價師看房子時會同時想兩個數字：它值多少（買價）、能租多少（租金），這兩個數字之間有關係。'},
-  {w:'w4', ico:'🧾', t:'房屋稅與地價稅', q:'擁有房子，每年要交錢給政府？', a:'是的！有房子要繳「房屋稅」、有土地要繳「地價稅」，政府用這些錢蓋公園、修馬路、辦學校。房子越大、地段越好，繳的稅通常越多。', tip:'課稅用的「房屋評定現值」和「公告地價」是政府訂的，通常比市價低很多；估價師估的是「市價」。'},
-  {w:'w4', ico:'🛣️', t:'土地徵收與補償', q:'政府要蓋捷運，用到我家的地怎麼辦？', a:'政府要蓋道路、捷運、學校，有時需要用到人民的土地，這叫「徵收」。但不能白白拿走，必須給地主「合理的補償」，而且要先試著用協議的方式購買。', tip:'法律規定徵收要照「市價」補償，而市價就是由估價師查估的。這是估價師保護人民權益的重要工作！'},
-  {w:'w4', ico:'🌱', t:'綠建築與耐震', q:'省電的房子會比較值錢嗎？', a:'「綠建築」是省電、省水、通風好、對環境友善的房子；「耐震」是地震來了比較安全。這些好房子住起來舒服、花費少、也比較安全，所以通常也比較值錢。', tip:'估價師在評估建物時，會看有沒有綠建築標章、耐震等級、用什麼結構（RC、SRC…）。'},
-  {w:'w4', ico:'🏡', t:'居住正義', q:'每個人都有地方住，重要嗎？', a:'「有地方住」是每個人的基本需要。但如果房價漲得太快、太高，很多認真工作的人也買不起、租不起，這就不公平了。所以政府會用各種政策，像社會住宅、租金補貼、課稅等方式，讓更多人住得起。', tip:'估價師提供「真實、公正的價格資訊」，就是幫助社會做出公平決定的基礎。'},
-];
-
-/* ========= 資料：快問快答 ========= */
-const QUIZ = [
-  {q:'下面哪一個是「不動產」？', o:['腳踏車','一塊土地','電動玩具','一箱書'], a:1, e:'土地和房子搬不走，所以叫不動產；其他可以搬走的都是動產。'},
-  {q:'1 坪大約等於多少？', o:['1 平方公尺','3.3 平方公尺','10 平方公尺','33 平方公尺'], a:1, e:'1 坪約 3.3 平方公尺，差不多兩張單人床並排。'},
-  {q:'估價師最主要的工作是什麼？', o:['幫人買賣房子賺佣金','蓋房子','公正地算出房子或土地的合理價格','幫人裝潢房子'], a:2, e:'估價師是公正的第三方，不買不賣，只負責算出合理價格。'},
-  {q:'「比較法」是怎麼估價的？', o:['看附近最近成交、條件相近的房子賣多少，再調整差異','看房子有幾個房間','問屋主想賣多少','看房子漂不漂亮'], a:0, e:'比較法就是「找最像的鄰居」，看成交價再做調整。'},
-  {q:'「收益法」把房子想成什麼？', o:['一輛車','一隻會下金蛋的雞','一座山','一本書'], a:1, e:'收益法用房子能收的租金（金蛋）反推它值多少。'},
-  {q:'「成本法」的算式是？', o:['租金 × 12','土地價格 ＋ 重建費用 － 折舊','開價 － 殺價','鄰居成交價的平均'], a:1, e:'成本法：現在重新買地蓋房要花多少，再扣掉房子的老舊折損。'},
-  {q:'房子一年一年變舊、價值變少，這叫什麼？', o:['升值','折舊','通膨','公設'], a:1, e:'建物會折舊，但土地不會折舊。'},
-  {q:'下面哪一個「不會」折舊？', o:['房子的牆壁','電梯','土地','屋頂'], a:2, e:'土地不會壞掉，所以不折舊；建物和設備會。'},
-  {q:'影響房價最重要的因素常被說成三個字，是？', o:['新新新','大大大','地點地點地點','貴貴貴'], a:2, e:'同樣的房子放在不同地點，價格差很多。'},
-  {q:'哪一個是「嫌惡設施」？', o:['公園','圖書館','垃圾焚化廠','捷運站'], a:2, e:'大多數人不想住在垃圾場、墳墓、高壓電塔旁邊，這些叫嫌惡設施，會讓價格變低。'},
-  {q:'沒有電梯的 5 樓老公寓，哪一層通常最便宜？', o:['1 樓','2 樓','3 樓','5 樓'], a:3, e:'沒電梯要爬樓梯，越高越累，所以頂樓反而最便宜。有電梯的大樓則相反。'},
-  {q:'「公設比」是指什麼？', o:['公園的比例','大家一起用的空間（樓梯、電梯、大廳）占的比例','公車站的數量','公司的股票'], a:1, e:'公設是大家共用的空間，公設比越高，自己家裡能用的坪數越少。'},
-  {q:'台灣的「實價登錄」是什麼？', o:['房子的真實照片','政府公開房子成交價的制度','房子的真實地址','房屋稅的收據'], a:1, e:'2012 年起，房子成交後要登記價格，政府在網站公開，大家都能查。'},
-  {q:'委託人說「幫我估高一點」，估價師應該？', o:['照做，因為是客戶','估更高讓客戶開心','拒絕，只能依證據和方法估出合理價格','隨便估'], a:2, e:'估價師必須公正、獨立，亂估價會被處罰。'},
-  {q:'估價師為什麼一定要到現場勘查？', o:['去跟屋主聊天','現場才能看到漏水、環境、巷道等照片看不到的事','為了拍美照','不一定要去'], a:1, e:'照片會騙人，現場才看得到漏水、壁癌、噪音和隔壁有什麼。'},
-  {q:'「都市更新」的意思是？', o:['城市改名字','一整區老房子的住戶合作，拆掉重蓋新房子','把路重新鋪','換新的市長'], a:1, e:'都更讓老舊街區重生，估價師負責算每個人該分多少新房子。'},
-  {q:'都更時，估價師算「每個人該分多少新房子」的制度叫？', o:['抽籤','權利變換','拍賣','比價'], a:1, e:'權利變換：用估價結果公平分配更新後的房子。'},
-  {q:'政府蓋捷運需要人民的土地時，應該？', o:['直接拿走','依市價給合理補償，而且要先試著協議購買','借用十年再還','用舊房子交換'], a:1, e:'徵收必須給合理補償，市價由估價師查估。'},
-  {q:'「社會住宅」是什麼？', o:['只有社會老師能住的房子','政府蓋的、用較便宜租金租給需要的人、只租不賣的房子','社區活動中心','超級豪宅'], a:1, e:'社宅幫助租不起市區房子的人有地方住。'},
-  {q:'「容積率」管的是？', o:['房子有幾個房間','一塊土地總共能蓋多少樓地板面積','房子的顏色','住幾個人'], a:1, e:'容積率越高，能蓋越多，土地通常越值錢。'},
-  {q:'住宅區、商業區、工業區、農業區，這種規定叫？', o:['土地使用分區','房屋分類','學區','郵遞區號'], a:0, e:'城市的「座位表」，規定每塊地可以做什麼。'},
-  {q:'「開價 1000 萬」代表？', o:['房子一定值 1000 萬','賣方「想」賣的價錢，不一定等於合理價值','政府訂的價格','銀行借出的錢'], a:1, e:'開價、成交價、價值是三個不一樣的數字。'},
-  {q:'有房子每年要繳的稅叫？', o:['房屋稅','營業稅','關稅','娛樂稅'], a:0, e:'房屋稅、地價稅的錢用來蓋公園、修路、辦學校。'},
-  {q:'哪一個通常「會」讓房價變高？', o:['旁邊是殯儀館','走路 3 分鐘到捷運站和公園','屋齡 50 年且漏水','格局奇怪、沒有窗戶'], a:1, e:'交通方便、環境好會加分；嫌惡設施、老舊、格局差會減分。'},
-  {q:'估價師估完價，會交出什麼？', o:['一張收據','一本說明方法與過程、簽名負責的估價報告書','一張房子照片','一包糖果'], a:1, e:'報告書要寫清楚怎麼算的，估價師要簽證負責。'},
-  {q:'一間 30 坪的房子，每坪 50 萬元，總價是？', o:['150 萬元','500 萬元','1500 萬元','3000 萬元'], a:2, e:'單價 × 坪數 ＝ 總價：50 萬 × 30 ＝ 1500 萬元。'},
-  {q:'要成為估價師，需要？', o:['會畫房子就可以','通過國家考試、取得證書並遵守職業道德','年紀超過 50 歲','擁有很多房子'], a:1, e:'估價師是國家考試的專門職業，有法律管著。'},
-  {q:'比較法要找「最像的鄰居」，哪一個最不像？', o:['同社區、同屋齡、上個月成交','隔壁棟、屋齡差 2 年、三個月前成交','隔壁縣市的透天、十年前成交','同條路、同類型、半年前成交'], a:2, e:'地區不同、類型不同、時間太久的案例不能當比較標的。'},
-];
-
-/* ========= 資料：連連看 ========= */
-const PAIRS = [
-  ['不動產','搬不走的土地和房子'],
-  ['折舊','房子變舊、價值減少'],
-  ['比較法','看鄰居最近賣多少再調整'],
-  ['收益法','用租金反推房子值多少'],
-  ['實價登錄','政府公開的成交價資料'],
-  ['公設比','大家共用空間占的比例'],
-  ['都市更新','老房子一起拆掉重蓋'],
-  ['徵收','政府用地，依市價補償'],
-  ['容積率','一塊地總共能蓋多少面積'],
-  ['坪','約 3.3 平方公尺的面積單位'],
-  ['成本法','土地＋重建費用－折舊'],
-  ['嫌惡設施','讓房價變低的垃圾場、墳墓等'],
-];
-
-/* ========= 狀態與徽章 ========= */
-const KEY='kid-appraiser-v1';
-let S = load();
-function load(){
-  const d={read:[], badges:[], quizBest:0, priceStreak:0, priceStreakBest:0, compCorrect:0, matchDone:0};
-  try{ return Object.assign(d, JSON.parse(localStorage.getItem(KEY)||'{}')); }
-  catch(e){ return d; }
-}
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} refreshMeta(); }
-
-const BADGES = [
-  {id:'reader', ico:'📚', name:'知識探險家', desc:'翻閱 10 張知識卡', test:()=>S.read.length>=10},
-  {id:'quiz', ico:'🧠', name:'答題高手', desc:'快問快答一局答對 8 題以上', test:()=>S.quizBest>=8},
-  {id:'price', ico:'💰', name:'火眼金睛', desc:'「哪間比較貴」連續答對 5 題', test:()=>S.priceStreakBest>=5},
-  {id:'comp', ico:'🏘️', name:'好鄰居偵探', desc:'「找鄰居」累計答對 5 題', test:()=>S.compCorrect>=5},
-  {id:'match', ico:'🧩', name:'配對達人', desc:'完成一局名詞連連看', test:()=>S.matchDone>=1},
-  {id:'master', ico:'🎓', name:'小小估價師', desc:'集滿前面 5 個徽章', test:()=>['reader','quiz','price','comp','match'].every(b=>S.badges.includes(b))},
-];
-function checkBadges(){
-  let gained=[];
-  BADGES.forEach(b=>{ if(!S.badges.includes(b.id) && b.test()){ S.badges.push(b.id); gained.push(b);} });
-  if(gained.length){ save(); gained.forEach((b,i)=>setTimeout(()=>toast(`🏅 獲得徽章：${b.ico} ${b.name}！`), i*1800)); if(gained.some(b=>b.id==='master')) setTimeout(()=>toast('🎉 恭喜！你已經是小小估價師了！'), gained.length*1800); }
-}
-function refreshMeta(){
-  document.getElementById('home-progress').textContent=`目前進度：${S.badges.length} / ${BADGES.length} 徽章`;
-  document.getElementById('tile-learn').textContent=`已讀 ${S.read.length} / ${CARDS.length} 張`;
-  document.getElementById('learn-progress').textContent=`已讀 ${S.read.length} / ${CARDS.length}`;
-  document.getElementById('badge-count').textContent=`${S.badges.length} / ${BADGES.length}`;
-}
-let toastTimer;
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'), 2600); }
-let resetArmed=false;
-function resetAll(btn){
-  if(!resetArmed){ resetArmed=true; btn.textContent='⚠️ 再按一次就會清除所有進度'; btn.classList.add('r'); btn.classList.remove('ghost'); setTimeout(()=>{ resetArmed=false; btn.textContent='🔄 重新開始（清除所有進度）'; btn.classList.remove('r'); btn.classList.add('ghost'); }, 4000); return; }
-  resetArmed=false; try{ localStorage.removeItem(KEY); }catch(e){}
-  S=load(); save(); quizState=null; priceState=null; compState=null; matchState=null; renderCards(); renderBadges(); toast('已重新開始！');
-  btn.textContent='🔄 重新開始（清除所有進度）'; btn.classList.remove('r'); btn.classList.add('ghost');
-}
-
-/* ========= 導覽 ========= */
-function go(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
-  document.getElementById('page-'+page).classList.add('show');
-  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
-  location.hash=page;
-  window.scrollTo({top:0, behavior:'smooth'});
-  if(page==='badges') renderBadges();
-  if(page==='quiz' && !quizState) quizStart();
-  if(page==='price' && !priceState) priceNew();
-  if(page==='comp' && !compState) compNew();
-  if(page==='match' && !matchState) matchStart();
-}
-document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
-
-/* ========= 知識庫 ========= */
-let currentWorld='w1';
-function renderWorlds(){
-  const el=document.getElementById('worlds');
-  el.innerHTML=WORLDS.map(w=>{
-    const total=CARDS.filter(c=>c.w===w.id).length;
-    const read=CARDS.filter((c,i)=>c.w===w.id && S.read.includes(i)).length;
-    return `<button style="background:${w.color}" class="${w.id===currentWorld?'active':''}" onclick="setWorld('${w.id}')">${w.name} <span style="opacity:.8;font-size:13px">${read}/${total}</span></button>`;
-  }).join('');
-}
-function setWorld(id){ currentWorld=id; renderWorlds(); renderCards(); }
-function renderCards(){
-  renderWorlds();
-  const w=WORLDS.find(x=>x.id===currentWorld);
-  const el=document.getElementById('cards');
-  el.innerHTML=CARDS.map((c,i)=>({c,i})).filter(x=>x.c.w===currentWorld).map(({c,i})=>`
-    <div class="kcard" id="kc${i}" onclick="flip(${i})">
-      <div class="inner">
-        <div class="face front" style="--c:${w.color}">
-          <span class="read">${S.read.includes(i)?'✅':''}</span>
-          <div class="ico">${c.ico}</div>
-          <h3>${c.t}</h3>
-          <div style="color:var(--muted);font-size:16px">${c.q}</div>
-          <div class="hint">👆 點我翻面看答案</div>
-        </div>
-        <div class="face back">
-          <h4>${c.ico} ${c.t}</h4>
-          <p>${c.a}</p>
-          <div class="tip"><b>🔍 估價師小知識：</b>${c.tip}</div>
-        </div>
-      </div>
-    </div>`).join('');
-}
-function flip(i){
-  const el=document.getElementById('kc'+i); if(!el) return; el.classList.toggle('flipped');
-  if(!S.read.includes(i)){ S.read.push(i); save(); el.querySelector('.read').textContent='✅'; renderWorlds(); checkBadges(); }
-}
-
-/* ========= 快問快答 ========= */
-let quizState=null;
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-function quizStart(){
-  quizState={qs:shuffle(QUIZ).slice(0,10), i:0, score:0, answered:false};
-  quizRender();
-}
-function quizRender(){
-  const st=quizState, p=document.getElementById('quiz-panel');
-  if(st.i>=st.qs.length){
-    const s=st.score; let msg = s>=9?'🌟 太厲害了！你根本是估價師本人！': s>=8?'🎉 很棒！拿到「答題高手」徽章了！': s>=6?'👍 不錯喔！再去知識庫複習一下，就能拿徽章！':'💪 沒關係，先去知識庫看看，再來挑戰！';
-    if(s>S.quizBest){ S.quizBest=s; save(); }
-    checkBadges();
-    p.innerHTML=`<h3>結算</h3><div style="font-size:60px;text-align:center">${s>=8?'🏆':s>=6?'😊':'📚'}</div>
-      <p style="text-align:center;font-size:24px;font-weight:800">答對 ${s} / ${st.qs.length} 題</p>
-      <p style="text-align:center">${msg}</p>
-      <p style="text-align:center;color:var(--muted)">歷史最佳：${S.quizBest} 題</p>
-      <p style="text-align:center"><button class="btn g" onclick="quizStart()">🔁 再玩一局</button> <button class="btn ghost" onclick="go('learn')">📚 去知識庫</button></p>`;
-    return;
-  }
-  const q=st.qs[st.i];
-  p.innerHTML=`
-    <div class="score"><span class="pill">第 ${st.i+1} / ${st.qs.length} 題</span><span class="pill">⭐ 答對 ${st.score}</span></div>
-    <div class="progress"><i style="width:${st.i/st.qs.length*100}%"></i></div>
-    <div class="question">${q.q}</div>
-    <div class="options">${q.o.map((o,k)=>`<button class="opt" onclick="quizAnswer(${k})"><span class="k">${'ABCD'[k]}</span><span>${o}</span></button>`).join('')}</div>
-    <div class="explain" id="quiz-explain"></div>
-    <p style="text-align:right;margin:14px 0 0"><button class="btn sm" id="quiz-next" style="display:none" onclick="quizNext()">下一題 ➡️</button></p>`;
-}
-function quizAnswer(k){
-  const st=quizState; if(st.answered) return; st.answered=true;
-  const q=st.qs[st.i]; const opts=document.querySelectorAll('#quiz-panel .opt');
-  opts.forEach((b,i)=>{ b.disabled=true; if(i===q.a) b.classList.add('correct'); else if(i===k) b.classList.add('wrong'); });
-  const ok=k===q.a; if(ok) st.score++;
-  const ex=document.getElementById('quiz-explain'); ex.innerHTML=`<b>${ok?'✅ 答對了！':'❌ 答錯了，正確答案是 '+'ABCD'[q.a]+'。'}</b><br>🔍 估價師說：${q.e}`; ex.classList.add('show');
-  document.getElementById('quiz-next').style.display='inline-block';
-}
-function quizNext(){ quizState.i++; quizState.answered=false; quizRender(); }
-
-/* ========= 哪間比較貴 ========= */
-let priceState=null;
-const ZONES=[{n:'市中心',base:60,ico:'🏙️'},{n:'近郊住宅區',base:40,ico:'🏘️'},{n:'偏遠郊區',base:25,ico:'🌄'}];
-function rnd(a){ return a[Math.floor(Math.random()*a.length)]; }
-function genHouse(){
-  const type=rnd(['電梯大樓','電梯大樓','無電梯公寓','透天']);
-  const zone=rnd(ZONES);
-  const age=rnd([2,5,10,15,20,30,40]);
-  const floor=type==='透天'?null: type==='無電梯公寓'? rnd([1,2,3,4,5]) : rnd([2,5,8,12,18]);
-  const mrt=rnd([true,false,false]);
-  const park=rnd([true,false]);
-  const bad=rnd([null,null,null,'垃圾焚化廠','高壓電塔','墳墓','加油站']);
-  const h={type,zone,age,floor,mrt,park,bad};
-  h.price=calcPrice(h); return h;
-}
-function calcPrice(h){
-  let p=h.zone.base;
-  p*=1-Math.min(h.age,40)*0.009;
-  if(h.mrt) p*=1.12;
-  if(h.park) p*=1.05;
-  if(h.bad) p*=0.85;
-  if(h.type==='電梯大樓') p*=1+(h.floor-1)*0.01;
-  if(h.type==='無電梯公寓') p*= h.floor>=4?0.9:1;
-  if(h.type==='透天') p*=1.08;
-  return p;
-}
-function houseHTML(h,name,cls,onclick){
-  return `<div class="house ${cls||''}" ${onclick?`onclick="${onclick}"`:''}>
-    <div class="tag">比較貴！</div>
-    <div class="art">${h.type==='透天'?'🏠':h.type==='電梯大樓'?'🏢':'🏬'}</div>
-    <h4>${name}</h4>
-    <ul>
-      <li><span>類型</span><b>${h.type}</b></li>
-      <li><span>地點</span><b>${h.zone.ico} ${h.zone.n}</b></li>
-      <li><span>屋齡</span><b>${h.age} 年</b></li>
-      ${h.floor?`<li><span>樓層</span><b>${h.floor} 樓</b></li>`:''}
-      <li><span>捷運</span><b>${h.mrt?'🚇 走路 3 分鐘':'🚶 走路 20 分鐘'}</b></li>
-      <li><span>公園</span><b>${h.park?'🌳 旁邊有公園':'—'}</b></li>
-      <li><span>附近</span><b>${h.bad?'⚠️ '+h.bad:'😊 沒有特別的'}</b></li>
-    </ul>
-  </div>`;
-}
-function priceNew(){
-  let a,b,tries=0;
-  do{ a=genHouse(); b=genHouse(); tries++; }while((Math.abs(a.price-b.price)/Math.max(a.price,b.price)<0.1 || JSON.stringify(a)===JSON.stringify(b)) && tries<200);
-  priceState={a,b,done:false};
-  const p=document.getElementById('price-panel');
-  p.innerHTML=`
-    <div class="score"><span class="pill">🔥 連續答對 ${S.priceStreak||0}</span><span class="pill">🏅 最佳 ${S.priceStreakBest||0}</span></div>
-    <div class="question">兩間房子，哪一間「每坪」的價錢比較高？點選你的答案！</div>
-    <div class="houses" id="houses">
-      ${houseHTML(a,'A 房子','','priceAnswer(0)')}
-      ${houseHTML(b,'B 房子','','priceAnswer(1)')}
-    </div>
-    <div class="explain" id="price-explain"></div>
-    <p style="text-align:right;margin:14px 0 0"><button class="btn sm y" id="price-next" style="display:none" onclick="priceNew()">下一題 ➡️</button></p>`;
-}
-function reasons(x,y){
-  // reasons why x is pricier than y
-  const r=[];
-  if(x.zone.base>y.zone.base) r.push(`📍 地點：${x.zone.n} 比 ${y.zone.n} 搶手（地點、地點、地點！）`);
-  if(x.age<y.age) r.push(`👟 屋齡：${x.age} 年比 ${y.age} 年新，折舊比較少`);
-  if(x.mrt&&!y.mrt) r.push('🚇 交通：走路 3 分鐘到捷運站加分');
-  if(x.park&&!y.park) r.push('🌳 環境：旁邊有公園加分');
-  if(!x.bad&&y.bad) r.push(`⚠️ 嫌惡設施：另一間旁邊有${y.bad}，會扣分`);
-  if(x.type==='電梯大樓'&&y.type==='電梯大樓'&&x.floor>y.floor) r.push('🌇 樓層：有電梯的大樓，高樓層視野好、較貴');
-  if(x.type==='無電梯公寓'&&y.type==='無電梯公寓'&&x.floor<y.floor&&y.floor>=4) r.push('🪜 樓層：沒電梯的公寓，4、5 樓要爬很累，反而便宜');
-  if(x.type==='透天'&&y.type!=='透天') r.push('🏠 類型：透天連土地都是自己的，每坪通常較高');
-  if(x.type!=='透天'&&y.type==='透天') r.push('🏠 類型：雖然另一間是透天，但其他條件差太多');
-  return r;
-}
-function priceAnswer(k){
-  const st=priceState; if(st.done) return; st.done=true;
-  const win=st.a.price>st.b.price?0:1; const ok=k===win;
-  const hs=document.querySelectorAll('#houses .house');
-  hs[win].classList.add('win'); hs[1-win].classList.add('lose');
-  const W=win===0?st.a:st.b, L=win===0?st.b:st.a;
-  const diff=Math.round((W.price/L.price-1)*100);
-  S.priceStreak= ok?(S.priceStreak||0)+1:0;
-  S.priceStreakBest=Math.max(S.priceStreakBest||0,S.priceStreak); save(); checkBadges();
-  const rs=reasons(W,L);
-  const ex=document.getElementById('price-explain');
-  ex.innerHTML=`<b>${ok?'✅ 答對了！':'❌ 不對喔！'}</b> ${win===0?'A':'B'} 房子每坪大約貴了 ${diff}%。<br>
-    🔍 <b>估價師這樣想：</b><ul style="margin:6px 0 0;padding-left:20px">${rs.map(r=>`<li>${r}</li>`).join('')||'<li>兩間條件很接近，但加總起來還是有差！</li>'}</ul>
-    <div style="margin-top:8px;color:var(--muted);font-size:14px">（教學用簡化數字：市中心 60 萬／坪、近郊 40、郊區 25 為基礎，再依屋齡、交通、環境、樓層調整。）</div>`;
-  ex.classList.add('show');
-  document.getElementById('price-next').style.display='inline-block';
-  document.querySelector('.score').innerHTML=`<span class="pill">🔥 連續答對 ${S.priceStreak}</span><span class="pill">🏅 最佳 ${S.priceStreakBest}</span>`;
-}
-
-/* ========= 找鄰居（比較法） ========= */
-let compState=null;
-const DISTRICTS=['快樂區','陽光區','幸福區'];
-function compNew(){
-  const subj={d:rnd(DISTRICTS), type:rnd(['電梯大樓','無電梯公寓','透天']), age:rnd([5,10,20,30]), area:rnd([20,30,45]), when:'（待估價）'};
-  const feats=['d','type','age','area','when'];
-  function cand(matchN){
-    const c={d:subj.d,type:subj.type,age:subj.age,area:subj.area,when:'上個月'};
-    const toBreak=shuffle(feats).slice(0, feats.length-matchN);
-    toBreak.forEach(f=>{
-      if(f==='d') c.d=rnd(DISTRICTS.filter(x=>x!==subj.d).concat(['隔壁縣市']));
-      if(f==='type') c.type=rnd(['電梯大樓','無電梯公寓','透天'].filter(x=>x!==subj.type));
-      if(f==='age') c.age=rnd([5,10,20,30,45].filter(x=>Math.abs(x-subj.age)>=15));
-      if(f==='area') c.area=rnd([12,20,30,45,80].filter(x=>Math.abs(x-subj.area)>=20));
-      if(f==='when') c.when=rnd(['12 年前','8 年前']);
-    });
-    c.score=feats.filter(f=>f==='when'? c.when==='上個月' : c[f]===subj[f]).length;
-    return c;
-  }
-  let best=cand(5), c2=cand(rnd([2,3])), c3=cand(rnd([1,2]));
-  // near-miss: make best slightly different in one soft feature so it is realistic
-  best.age=subj.age+rnd([-2,-1,1,2]); if(best.age<1) best.age=1; best.area=subj.area+rnd([-2,-1,1,2]); best.score=5;
-  const cands=shuffle([best,c2,c3]);
-  compState={subj,cands,done:false,correct:cands.indexOf(best)};
-  const p=document.getElementById('comp-panel');
-  const cHTML=(c,name,i)=>`<div class="house" onclick="compAnswer(${i})">
-    <div class="tag">最像！</div>
-    <div class="art">${c.type==='透天'?'🏠':c.type==='電梯大樓'?'🏢':'🏬'}</div><h4>${name}</h4>
-    <ul><li><span>地區</span><b>${c.d}</b></li><li><span>類型</span><b>${c.type}</b></li><li><span>屋齡</span><b>${c.age} 年</b></li><li><span>面積</span><b>${c.area} 坪</b></li><li><span>成交</span><b>${c.when}</b></li></ul></div>`;
-  p.innerHTML=`
-    <div class="score"><span class="pill">🏅 累計答對 ${S.compCorrect||0} / 5</span></div>
-    <div class="question">估價師要估下面這間房子。用「比較法」，請從三個成交案例中，選出<u>最像</u>的那一個！</div>
-    <div class="houses" style="grid-template-columns:1fr">
-      <div class="house subject"><div class="art">🎯</div><h4>要估價的房子（勘估標的）</h4>
-      <ul><li><span>地區</span><b>${subj.d}</b></li><li><span>類型</span><b>${subj.type}</b></li><li><span>屋齡</span><b>${subj.age} 年</b></li><li><span>面積</span><b>${subj.area} 坪</b></li></ul></div>
-    </div>
-    <div class="cands" id="cands">${cands.map((c,i)=>cHTML(c,'案例 '+(i+1),i)).join('')}</div>
-    <div class="explain" id="comp-explain"></div>
-    <p style="text-align:right;margin:14px 0 0"><button class="btn sm" id="comp-next" style="display:none" onclick="compNew()">下一題 ➡️</button></p>`;
-}
-function compAnswer(i){
-  const st=compState; if(st.done) return; st.done=true;
-  const ok=i===st.correct; const hs=document.querySelectorAll('#cands .house');
-  hs[st.correct].classList.add('win'); hs.forEach((h,k)=>{ if(k!==st.correct) h.classList.add('lose'); });
-  if(ok){ S.compCorrect=(S.compCorrect||0)+1; save(); checkBadges(); }
-  const wrongs=st.cands.map((c,k)=>({c,k})).filter(x=>x.k!==st.correct).map(({c,k})=>{
-    const why=[]; if(c.d!==st.subj.d) why.push('地區不同'); if(c.type!==st.subj.type) why.push('類型不同'); if(Math.abs(c.age-st.subj.age)>=15) why.push('屋齡差太多'); if(Math.abs(c.area-st.subj.area)>=20) why.push('面積差太多'); if(c.when!=='上個月') why.push(`成交是 ${c.when}，太久了`);
-    return `<li>案例 ${k+1}：${why.join('、')||'條件接近'}</li>`;
-  });
-  const ex=document.getElementById('comp-explain');
-  ex.innerHTML=`<b>${ok?'✅ 答對了！':'❌ 不對喔！最像的是案例 '+(st.correct+1)+'。'}</b><br>🔍 <b>估價師這樣想：</b>比較法要選「同地區、同類型、屋齡接近、面積接近、最近成交」的案例，差一點點沒關係，之後再做「調整」。<ul style="margin:6px 0 0;padding-left:20px">${wrongs.join('')}</ul>`;
-  ex.classList.add('show');
-  document.getElementById('comp-next').style.display='inline-block';
-  document.querySelector('#comp-panel .score').innerHTML=`<span class="pill">🏅 累計答對 ${S.compCorrect||0} / 5</span>`;
-}
-
-/* ========= 連連看 ========= */
-let matchState=null;
-function matchStart(){
-  const pairs=shuffle(PAIRS).slice(0,8);
-  let tiles=[]; pairs.forEach((p,i)=>{ tiles.push({id:i,txt:p[0],term:true}); tiles.push({id:i,txt:p[1],term:false}); });
-  matchState={tiles:shuffle(tiles), open:[], done:0, moves:0, lock:false};
-  const p=document.getElementById('match-panel');
-  p.innerHTML=`<div class="score"><span class="pill" id="match-moves">👆 翻牌次數 0</span><span class="pill" id="match-done">✅ 配對 0 / 8</span></div>
-    <div class="question">翻開兩張卡片，把「名詞」和「它的意思」配成一對！</div>
-    <div class="memgrid" id="memgrid">${matchState.tiles.map((t,i)=>`<div class="mem ${t.term?'term':''}" id="mem${i}" onclick="matchFlip(${i})"><span>${t.txt}</span></div>`).join('')}</div>
-    <div class="explain" id="match-explain"></div>`;
-}
-function matchFlip(i){
-  const st=matchState; if(st.lock) return;
-  const el=document.getElementById('mem'+i); if(el.classList.contains('open')||el.classList.contains('done')) return;
-  el.classList.add('open'); st.open.push(i);
-  if(st.open.length===2){
-    st.moves++; document.getElementById('match-moves').textContent=`👆 翻牌次數 ${st.moves}`;
-    const [a,b]=st.open, ta=st.tiles[a], tb=st.tiles[b];
-    if(ta.id===tb.id && ta.term!==tb.term){
-      st.lock=true;
-      setTimeout(()=>{ document.getElementById('mem'+a).classList.add('done'); document.getElementById('mem'+b).classList.add('done'); st.open=[]; st.done++; st.lock=false;
-        document.getElementById('match-done').textContent=`✅ 配對 ${st.done} / 8`;
-        if(st.done===8){ S.matchDone=(S.matchDone||0)+1; save(); checkBadges();
-          const ex=document.getElementById('match-explain'); ex.innerHTML=`<b>🎉 全部配對完成！</b> 總共翻了 ${st.moves} 次。${st.moves<=12?'記憶力超強！':'再玩一次挑戰更少次數吧！'} <button class="btn sm p" onclick="matchStart()">🔁 再玩一局</button>`; ex.classList.add('show'); }
-      }, 400);
-    } else {
-      st.lock=true;
-      setTimeout(()=>{ document.getElementById('mem'+a).classList.remove('open'); document.getElementById('mem'+b).classList.remove('open'); st.open=[]; st.lock=false; }, 900);
-    }
-  }
-}
-
-/* ========= 徽章 ========= */
-function renderBadges(){
-  const el=document.getElementById('badges');
-  el.innerHTML=BADGES.map(b=>`<div class="badge ${S.badges.includes(b.id)?'got':''}"><span class="lock">🔒</span><div class="ico">${b.ico}</div><h4>${b.name}</h4><p>${b.desc}</p></div>`).join('');
-  refreshMeta();
-}
-
-/* ========= 啟動 ========= */
-renderCards(); refreshMeta();
-const start=(location.hash||'#home').slice(1);
-go(document.getElementById('page-'+start)?start:'home');
-</script>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
