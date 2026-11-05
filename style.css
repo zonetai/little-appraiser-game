@@ -1,7 +1,9 @@
 :root{
-  --bg:#fff8e7; --ink:#2b2d42; --muted:#6b705c;
-  --y:#ffd166; --o:#ff9f1c; --r:#ef476f; --g:#06d6a0; --b:#118ab2; --p:#9b5de5; --t:#2ec4b6; --dk:#073b4c;
-  --card:#ffffff; --shadow:0 6px 0 rgba(0,0,0,.08), 0 10px 24px rgba(0,0,0,.08);
+  /* 品牌色（取自 LOGO 與估咕貓頭鷹貼圖）：深青、深灰、淺灰、暖米白 */
+  --teal:#004c56; --teal2:#1b7f8e; --teal3:#8ab6bd; --grey:#545759; --grey2:#b4b4b4; --cream:#e4d8cc;
+  --bg:#f6f1e8; --ink:#2f3435; --muted:#6b7275;
+  --y:#f2b544; --o:#f08a24; --r:#e4553f; --g:#3bb273; --b:#1b7f8e; --p:#6c7a89; --t:#2a9d8f; --dk:#004c56;
+  --card:#ffffff; --shadow:0 6px 0 rgba(0,76,86,.08), 0 10px 24px rgba(0,76,86,.10);
   --radius:22px;
 }
 *{box-sizing:border-box}
@@ -10,21 +12,22 @@ body{
   font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",sans-serif;
   background:var(--bg);
   background-image:
-    radial-gradient(circle at 10% 10%, rgba(255,209,102,.35) 0 120px, transparent 121px),
-    radial-gradient(circle at 90% 20%, rgba(6,214,160,.25) 0 160px, transparent 161px),
-    radial-gradient(circle at 80% 90%, rgba(155,93,229,.18) 0 180px, transparent 181px),
-    radial-gradient(circle at 15% 85%, rgba(17,138,178,.18) 0 140px, transparent 141px);
+    radial-gradient(circle at 10% 10%, rgba(242,181,68,.30) 0 120px, transparent 121px),
+    radial-gradient(circle at 90% 20%, rgba(27,127,142,.20) 0 160px, transparent 161px),
+    radial-gradient(circle at 80% 90%, rgba(84,87,89,.14) 0 180px, transparent 181px),
+    radial-gradient(circle at 15% 85%, rgba(0,76,86,.16) 0 140px, transparent 141px);
   background-attachment:fixed;
   color:var(--ink); line-height:1.6; font-size:18px;
 }
 #confetti{position:fixed; inset:0; pointer-events:none; z-index:90; display:none}
 
 /* ---------- header ---------- */
-header{position:sticky; top:0; z-index:20; background:rgba(255,248,231,.94); backdrop-filter:blur(8px); border-bottom:3px dashed rgba(0,0,0,.08)}
+header{position:sticky; top:0; z-index:20; background:rgba(246,241,232,.94); backdrop-filter:blur(8px); border-bottom:3px dashed rgba(0,76,86,.18)}
 .wrap{max-width:1060px; margin:0 auto; padding:10px 18px}
 .hdr{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:4px}
 .brand{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none}
 .brand .logo{font-size:38px; filter:drop-shadow(0 3px 0 rgba(0,0,0,.12))}
+.brand .logo-img{height:52px; width:auto; filter:drop-shadow(0 3px 0 rgba(0,76,86,.18))}
 .brand h1{font-size:23px; margin:0; letter-spacing:1px; line-height:1.2}
 .brand small{display:block; font-size:12.5px; color:var(--muted); font-weight:normal}
 .hdr-right{display:flex; align-items:center; gap:10px}
@@ -46,10 +49,12 @@ main{padding-bottom:80px}
 @keyframes pop{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 
 /* ---------- common ---------- */
-.hero{background:linear-gradient(135deg,#ffe29a,#ffb86b); border-radius:var(--radius); padding:30px 30px; box-shadow:var(--shadow); display:grid; grid-template-columns:1.3fr .7fr; gap:18px; align-items:center; margin-top:10px}
+.hero{background:linear-gradient(135deg,#e6f1f2 0%,#fbe9c2 100%); border:4px solid #fff; border-radius:var(--radius); padding:30px 30px; box-shadow:var(--shadow); display:grid; grid-template-columns:1.3fr .7fr; gap:18px; align-items:center; margin-top:10px}
 .hero h2{font-size:32px; margin:0 0 8px; line-height:1.25}
 .hero p{font-size:18px; margin:0 0 14px}
 .hero .art{font-size:110px; text-align:center; line-height:1; filter:drop-shadow(0 6px 0 rgba(0,0,0,.12))}
+.hero-owl{width:min(280px,80%); height:auto; filter:drop-shadow(0 8px 0 rgba(0,76,86,.15)); animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}}
 .btn{display:inline-block; border:0; border-radius:16px; padding:12px 22px; font-size:18px; font-weight:800; cursor:pointer; color:#fff; background:var(--b); box-shadow:0 5px 0 rgba(0,0,0,.15); transition:transform .08s; font-family:inherit; text-decoration:none; margin:3px 2px}
 .btn:active{transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.15)}
 .btn.y{background:var(--o)} .btn.g{background:var(--g); color:var(--dk)} .btn.r{background:var(--r)} .btn.p{background:var(--p)} .btn.b{background:var(--b)} .btn.ghost{background:#fff; color:var(--ink)}
@@ -62,6 +67,7 @@ main{padding-bottom:80px}
 
 .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:16px; margin-top:18px}
 .tile{background:var(--card); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); cursor:pointer; border-top:8px solid var(--y); transition:transform .12s}
+.tile .ico img{height:56px; width:auto}
 .tile:hover{transform:translateY(-4px) rotate(-.5deg)}
 .tile .ico{font-size:46px; line-height:1}
 .tile h3{margin:8px 0 4px; font-size:21px}
@@ -86,7 +92,7 @@ main{padding-bottom:80px}
 footer{color:var(--muted); font-size:14px; text-align:center; padding:30px 18px}
 
 /* daily card */
-.daily{display:flex; gap:18px; background:#fff; border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow); margin-top:16px; border-left:10px solid var(--t)}
+.daily{display:flex; gap:18px; background:#fff; border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow); margin-top:16px; border-left:10px solid var(--teal)}
 .daily-ico{font-size:60px; line-height:1}
 .daily-k{font-size:13px; font-weight:800; color:var(--t)}
 .daily h3{margin:2px 0 6px; font-size:22px}
@@ -118,7 +124,8 @@ footer{color:var(--muted); font-size:14px; text-align:center; padding:30px 18px}
 .face.back h4{margin:0 0 6px; font-size:17px; color:var(--y)}
 .face.back p{margin:0 0 8px}
 .face.back .tip{background:rgba(255,255,255,.12); border-radius:12px; padding:8px 12px; border-left:4px solid var(--g); margin-top:auto}
-.face.back .tip b{color:var(--g)}
+.face.back .tip b{color:var(--y)}
+.face.back .tip{border-left-color:var(--y)}
 .face.back .fun{background:rgba(255,209,102,.18); border-radius:12px; padding:7px 12px; border-left:4px solid var(--y); margin-top:8px; font-size:13.5px}
 .face.back .fun b{color:var(--y)}
 .read{position:absolute; top:12px; right:14px; font-size:20px}
@@ -326,3 +333,29 @@ input[type=range]{width:100%; accent-color:var(--b); height:30px}
 footer a{color:var(--b); font-weight:700; text-decoration:none}
 footer a:hover{text-decoration:underline}
 .note a{color:var(--b); font-weight:700}
+
+/* ---------- 估咕貓頭鷹 ---------- */
+.stk{height:86px; width:auto; vertical-align:middle; user-select:none; -webkit-user-drag:none}
+.stk-r{float:right; height:96px; margin:-8px 0 6px 12px}
+.stk-big{display:block; height:160px; margin:0 auto 6px}
+.stk-sm{height:60px}
+.explain::after{content:''; display:block; clear:both}
+.tf-fb .stk{height:58px; margin-left:8px}
+.owl-say{display:flex; align-items:center; gap:14px; background:#fff; border-radius:var(--radius); padding:14px 18px; box-shadow:var(--shadow); margin-top:16px}
+.owl-say img{height:84px; width:auto}
+.owl-say .bubble{position:relative; background:#e6f1f2; border-radius:16px; padding:10px 14px; font-size:16px; flex:1}
+.owl-say .bubble::before{content:''; position:absolute; left:-10px; top:22px; border:8px solid transparent; border-right-color:#e6f1f2; border-left:0}
+.cert-owl{height:120px; width:auto; display:block; margin:0 auto 6px}
+.cert-stamp{display:inline-block; border:3px solid var(--teal); color:var(--teal); border-radius:12px; padding:4px 12px; font-weight:900; letter-spacing:2px; transform:rotate(-6deg); margin-top:10px}
+.about-owl{display:grid; grid-template-columns:150px 1fr; gap:18px; align-items:center; background:#e6f1f2; border-radius:16px; padding:16px}
+.about-owl img.main{width:100%; height:auto}
+.about-owl .evo{width:100%; height:auto; margin-top:8px; background:#fff; border-radius:12px; padding:8px}
+.world-desc img{height:40px; vertical-align:middle; margin-right:6px}
+@media (max-width:760px){
+  .stk-r{height:72px}
+  .stk-big{height:120px}
+  .about-owl{grid-template-columns:1fr}
+  .about-owl img.main{width:140px; margin:0 auto}
+  .owl-say{flex-direction:column; text-align:center}
+  .owl-say .bubble::before{display:none}
+}
