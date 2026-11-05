@@ -15,7 +15,7 @@
 <header>
   <div class="wrap hdr">
     <div class="brand" onclick="go('home')">
-      <img class="logo-img" src="assets/owl.png" alt="估咕貓頭鷹">
+      <img class="logo-img" src="assets/owl-head.png" alt="估咕貓頭鷹">
       <h1>小小估價師大冒險<small>跟著估咕貓頭鷹，看懂房子、土地和我們的城市</small></h1>
     </div>
     <div class="hdr-right">
@@ -49,10 +49,10 @@
         <button class="btn r" onclick="go('mission')">🕵️ 接任務</button>
         <button class="btn g" onclick="go('games')">🎮 遊樂場</button>
       </div>
-      <div class="art"><img class="hero-owl" src="assets/owl-glasses.png" alt="估咕貓頭鷹"></div>
+      <div class="art"><img class="hero-owl" src="assets/owl.png" alt="估咕貓頭鷹"></div>
     </div>
 
-    <div class="owl-say"><img src="assets/stk-zaoan.png" alt="估咕貓頭鷹：早安"><div class="bubble"><b>估咕貓頭鷹</b>是本站的嚮導，原型是台灣角鴞：大大的眼睛代表估價師對細節的敏銳觀察；方方正正的身體代表「公正、穩重、可信賴」。名字裡的「估」是估價，「咕」是貓頭鷹的叫聲。答對題目時，牠會跳出來說「泰厲害」！</div></div>
+    <div class="owl-say"><img id="home-owl-say" src="assets/stk-zaoan.png" alt="估咕貓頭鷹：早安"><div class="bubble"><b>估咕貓頭鷹</b>是本站的嚮導，原型是台灣角鴞：大大的眼睛代表估價師對細節的敏銳觀察，青藍色的眉羽和領結是牠的招牌。名字裡的「估」是估價，「咕」是貓頭鷹的叫聲。答對題目時，牠會跳出來說「泰精準」！</div></div>
 
     <div id="home-daily"></div>
 
@@ -215,9 +215,9 @@
       <div class="about-owl">
         <img class="main" src="assets/owl.png" alt="估咕貓頭鷹">
         <div>
-          <p style="margin:0 0 6px">估咕貓頭鷹以<b>台灣角鴞</b>為原型：角鴞感官敏銳、大眼睛象徵對細節的觀察力，正是估價師「實地勘查、專業謹慎」的寫照。牠方正的身體由一個立方體一步步演化而來，象徵合理、公正、值得信賴。</p>
-          <img class="evo" src="assets/owl-evolution.png" alt="估咕貓頭鷹的誕生：從立方體到貓頭鷹">
-          <p class="fine" style="margin:6px 0 0">網站中的 9 張情境貼圖（加油、早安、拜託、泰厲害、辛苦了、泰感謝、泰精準、泰崩潰、泰客氣）取自第一波 LINE 貼圖設計。</p>
+          <p style="margin:0 0 6px">估咕貓頭鷹以<b>台灣角鴞</b>為原型：角鴞感官敏銳、大眼睛象徵對細節的觀察力，正是估價師「實地勘查、專業謹慎」的寫照。白色圓滾滾的身體、青藍色的眉羽與領結、黃色的小腳，是牠的招牌造型。</p>
+          <div class="about-stk"><img src="assets/stk-xiankan.png" alt="現勘中"><img src="assets/stk-jingda.png" alt="精打細算"><img src="assets/stk-tai-jingzhun.png" alt="泰精準"></div>
+          <p class="fine" style="margin:6px 0 0">網站中的情境貼圖（加油、早安、晚安、立馬處理、現勘中、掐指一算、精打細算、泰精準、泰崩潰、辛苦了、謝謝你、慶祝一下、鐵口直斷、交給專業的來、真的 duck 不必、Deadline、通宵趕報告、生日快樂與節慶款）取自第一波 LINE 貼圖設計。</p>
         </div>
       </div>
       <h3>內容依據與資料來源</h3>
@@ -244,7 +244,8 @@
         <li><b>2026-11-05 v1：</b>單一網頁，4 個世界 35 張知識卡，5 個小遊戲與徽章。</li>
         <li><b>2026-11-05 v2：</b>擴充為 6 個世界 63 張知識卡、8 個遊戲、XP 等級、13 枚徽章與可列印證書。</li>
         <li><b>2026-11-05 v2.1：</b>新增暱稱＋密碼帳號與跨裝置進度同步。</li>
-        <li><b>2026-11-05 v2.3：</b>導入吉祥物「估咕貓頭鷹」與品牌色調：標題、首頁、證書、各遊戲回饋貼圖、關於頁吉祥物介紹。</li>
+        <li><b>2026-11-05 v2.4：</b>吉祥物改為正式版「估咕貓頭鷹」（白色圓身、青藍眉羽與領結）與第一波 22 張情境貼圖；新增升級慶祝動畫、依季節與時段變化的首頁問候。</li>
+        <li><b>2026-11-05 v2.3：</b>導入吉祥物與品牌色調：標題、首頁、證書、各遊戲回饋貼圖、關於頁吉祥物介紹。</li>
         <li><b>2026-11-05 v2.2：</b>新增第 7 個世界「真實工作現場」12 張知識卡（報告品管、審查委員、公產、都更審議、協議價購審查、調解、政府標案、資料庫、專欄、公聽會、誠實揭露），3 個新任務（品管審查、公產審查委員、調解人）與對應題目。內容取材自執業估價師的日常工作流程，經匿名化改寫。</li>
       </ul>
       <p class="fine">發現錯誤或有建議，歡迎到 <a href="https://github.com/zonetai/little-appraiser-game/issues" target="_blank" rel="noopener">GitHub Issues</a> 回報。</p>
