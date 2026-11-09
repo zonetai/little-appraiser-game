@@ -7,7 +7,9 @@
 S.tier = S.tier || 'basic';
 S.unlocked = Object.assign({mid:false, adv:false}, S.unlocked||{});
 S.t = Object.assign({mid:{}, adv:{}}, S.t||{});
-function tierOf(){ return S.unlocked[S.tier] || S.tier==='basic' ? S.tier : 'basic'; }
+function tierDefaults(s){ s.tier=s.tier||'basic'; s.unlocked=Object.assign({mid:false,adv:false}, s.unlocked||{}); s.t=Object.assign({mid:{},adv:{}}, s.t||{}); return s; }
+const _load = load; load = function(){ return tierDefaults(_load()); };
+function tierOf(){ if(!S.unlocked) tierDefaults(S); return (S.unlocked[S.tier] || S.tier==='basic') ? S.tier : 'basic'; }
 function tierInfo(id){ return TIERS.find(t=>t.id===(id||tierOf())); }
 function tstat(){ const t=tierOf(); if(t==='basic') return S; S.t[t]=S.t[t]||{}; return S.t[t]; }
 function xpMult(){ const t=tierOf(); if(t==='mid') return 2; if(t==='adv') return 3; return S.unlocked.mid ? 0.5 : 1; }

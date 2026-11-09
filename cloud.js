@@ -9,6 +9,7 @@
 const SUPABASE_URL = 'https://vbqglkkkvsnuobbbysfk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_wZl0mw0Hn18udcHJOFHg4w_BMkWvyrw'; // publishable key，可公開
 const TOKEN_KEY = 'kid-appraiser-token';
+const LOGOUT_KEY = 'kid-appraiser-loggedout';
 
 let sb = null, cloudUser = null, pushTimer = null, cloudStatus = 'off';
 
@@ -21,7 +22,7 @@ function validNick(nick){
 }
 const ERR_MAP = {
   NICK_LEN:'暱稱要 2 到 12 個字', NICK_SPACE:'暱稱不能有空白', PW_LEN:'密碼至少 6 個字',
-  NICK_TAKEN:'這個暱稱已經有人用了，換一個或直接登入', BAD_LOGIN:'暱稱或密碼不對，再試一次', BAD_TOKEN:'登入已過期，請重新登入',
+  NICK_TAKEN:'這個暱稱已經有人用了，換一個或直接登入', NICK_RESERVED:'「訪客-」開頭是保留給系統的，請換一個暱稱', BAD_LOGIN:'暱稱或密碼不對，再試一次', BAD_TOKEN:'登入已過期，請重新登入',
 };
 function friendly(err){
   const m = (err && err.message) || String(err);
@@ -37,7 +38,7 @@ function setCloudStatus(st, msg){
   cloudStatus = st;
   const el = $('acct-btn'); if(!el) return;
   const icons = {off:'👤 登入', syncing:'⏳ 同步中', ok:'☁️ 已同步', err:'⚠️ 同步失敗', offline:'📴 離線'};
-  el.innerHTML = cloudUser ? `<span class="acct-nick">${esc(cloudUser.nickname)}</span><span class="acct-st st-${st}">${icons[st]||''}</span>` : `<span>${icons.off}</span>`;
+  el.innerHTML = cloudUser ? `<span class="acct-nick">${cloudUser.guest?'👤 ':''}${esc(cloudUser.nickname)}</span><span class="acct-st st-${st}">${cloudUser.guest&&st==='ok'?'☁️ 訪客 · 點我設暱稱':(icons[st]||'')}</span>` : `<span>${icons.off}</span>`;
   el.title = msg || '';
   const m = $('acct-sync-msg'); if(m) m.textContent = msg || '';
 }
@@ -78,7 +79,7 @@ async function cloudPull(){
   const merged = mergeProgress(res.data, S);
   const changed = JSON.stringify(merged) !== JSON.stringify(S);
   S = merged;
-  if(!S.name) S.name = res.nickname;
+  if(!S.name && !res.guest && !/^訪客-/.test(res.nickname)) S.name = res.nickname;
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
   refreshMeta();
   if($('page-badges').classList.contains('show')) renderBadges();
@@ -123,10 +124,25 @@ async function cloudEvents(limit){ if(!sb||!cloudUser) return null; try{ return 
 
 /* 註冊 / 登入 / 登出 */
 async function afterAuth(res){
-  setToken(res.token); cloudUser = {id:res.id, nickname:res.nickname};
+  try{ localStorage.removeItem(LOGOUT_KEY); }catch(e){}
+  setToken(res.token); cloudUser = {id:res.id, nickname:res.nickname, guest:!!res.guest};
   if(!S.name){ S.name = res.nickname; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
   await cloudPull();
   toast(`☁️ 嗨，${res.nickname}！進度已連上雲端`, 'level');
+}
+async function cloudGuest(){
+  if(!sb || cloudUser) return;
+  try{ const res = await rpc('kid_guest', {}); setToken(res.token); cloudUser={id:res.id, nickname:res.nickname, guest:true}; try{ localStorage.removeItem(LOGOUT_KEY); }catch(e){} await cloudPull(); }
+  catch(err){ console.warn('guest create failed', err); setCloudStatus('off'); }
+}
+async function cloudClaim(nick, pw){
+  const err = validNick(nick); if(err) throw new Error(err);
+  if(pw.length<6) throw new Error('密碼至少 6 個字');
+  let res; try{ res = await rpc('kid_claim', {p_token:getToken(), p_nick:nick.trim(), p_pw:pw}); }catch(e){ throw new Error(friendly(e)); }
+  cloudUser = {id:res.id, nickname:res.nickname, guest:false};
+  if(!S.name || /^訪客-/.test(S.name)){ S.name = res.nickname; }
+  save(); await cloudPushNow(); setCloudStatus('ok','帳號已建立');
+  toast(`🎉 太好了，${res.nickname}！以後用這個暱稱和密碼就能在任何裝置繼續`, 'level');
 }
 async function cloudSignUp(nick, pw){
   const err = validNick(nick); if(err) throw new Error(err);
@@ -141,7 +157,7 @@ async function cloudSignIn(nick, pw){
 }
 async function cloudSignOut(clearLocal){
   if(sb && cloudUser){ clearTimeout(pushTimer); await cloudPushNow(); await cloudFlushLog(); try{ await rpc('kid_logout', {p_token: getToken()}); }catch(e){} }
-  cloudUser = null; setToken('');
+  cloudUser = null; setToken(''); try{ localStorage.setItem(LOGOUT_KEY,'1'); }catch(e){}
   if(clearLocal){ try{ localStorage.removeItem(KEY); }catch(e){} S = load(); refreshMeta(); go('home'); }
   setCloudStatus('off');
   toast('已登出');
@@ -149,13 +165,32 @@ async function cloudSignOut(clearLocal){
 
 /* 登入視窗 */
 let acctTab = 'login';
-function openAcct(){ $('acct-modal').classList.add('show'); renderAcct(); }
+function openAcct(){ if(cloudUser && cloudUser.guest) acctTab='claim'; $('acct-modal').classList.add('show'); renderAcct(); }
 function closeAcct(){ $('acct-modal').classList.remove('show'); }
 function setAcctTab(t){ acctTab = t; renderAcct(); }
 function renderAcct(){
   const box = $('acct-body');
   if(!sb){ box.innerHTML = `<p class="center muted">雲端功能目前無法使用（可能沒有網路）。你的進度仍會存在這台裝置上。</p>`; return; }
-  if(cloudUser){
+  if(cloudUser && cloudUser.guest && acctTab!=='login'){
+    box.innerHTML = `
+      <div class="acct-hello">👋 你現在是訪客 <b>${esc(cloudUser.nickname)}</b></div>
+      <p class="center muted" id="acct-sync-msg"></p>
+      <p class="center">進度和答題紀錄已經自動存到雲端，但只有這台裝置認得你。<b>設定暱稱和密碼</b>之後，換電腦、平板或手機都能接著玩，進度不會丟。</p>
+      <form onsubmit="acctClaim(event)" class="acct-form">
+        <label>我的暱稱 <small>（2–12 個字，可以用中文）</small><input id="acct-nick" type="text" maxlength="12" autocomplete="username" placeholder="例如：小明" required></label>
+        <label>我的密碼 <small>（至少 6 個字）</small><input id="acct-pw" type="password" minlength="6" autocomplete="new-password" placeholder="••••••" required></label>
+        <label class="chk"><input type="checkbox" id="acct-ok" required> 我記住暱稱和密碼了（忘記的話要請老師幫忙）</label>
+        <p class="acct-err" id="acct-err"></p>
+        <button class="btn g" id="acct-submit" type="submit">✨ 設定暱稱與密碼</button>
+      </form>
+      <hr>
+      <p class="center"><button class="btn ghost sm" onclick="setAcctTab('login')">我已經有帳號了，改用登入</button> <button class="btn ghost sm" onclick="closeAcct(); go('records')">📒 看答題紀錄</button></p>
+      <p class="fine center">用已有帳號登入後，這台裝置上的進度會合併到那個帳號。</p>`;
+    setCloudStatus(cloudStatus);
+    setTimeout(()=>{ const i=$('acct-nick'); if(i) i.focus(); }, 50);
+    return;
+  }
+  if(cloudUser && !cloudUser.guest){
     box.innerHTML = `
       <div class="acct-hello">👋 嗨，<b>${esc(cloudUser.nickname)}</b>！</div>
       <p class="center muted" id="acct-sync-msg"></p>
@@ -177,8 +212,15 @@ function renderAcct(){
       <p class="acct-err" id="acct-err"></p>
       <button class="btn ${acctTab==='login'?'b':'g'}" id="acct-submit" type="submit">${acctTab==='login'?'🔑 登入':'✨ 建立帳號並登入'}</button>
     </form>
-    <p class="fine center">登入後，這台裝置上已經有的進度會和雲端進度合併，不會不見。</p>`;
+    <p class="fine center">登入後，這台裝置上已經有的進度會和雲端進度合併，不會不見。</p>${cloudUser&&cloudUser.guest?'<p class="center"><button class="btn ghost sm" onclick="setAcctTab(\'claim\')">↩️ 回到訪客設定</button></p>':''}`;
   setTimeout(()=>{ const i=$('acct-nick'); if(i) i.focus(); }, 50);
+}
+async function acctClaim(e){
+  e.preventDefault();
+  const nick=$('acct-nick').value, pw=$('acct-pw').value, errEl=$('acct-err'), btn=$('acct-submit');
+  errEl.textContent=''; btn.disabled=true; btn.textContent='請稍等…';
+  try{ await cloudClaim(nick, pw); sfx.ok(); closeAcct(); celebrate('ganxie', `歡迎，${cloudUser.nickname}！帳號建立完成`); }
+  catch(err){ errEl.textContent=err.message; sfx.bad(); if($('acct-submit')){ btn.disabled=false; btn.textContent='✨ 設定暱稱與密碼'; } }
 }
 async function acctSubmit(e){
   e.preventDefault();
@@ -201,8 +243,11 @@ async function acctSubmit(e){
   const tok = getToken();
   if(tok){
     setCloudStatus('syncing','正在恢復登入…');
-    rpc('kid_load', {p_token: tok}).then(res=>{ cloudUser={id:res.id, nickname:res.nickname}; return cloudPull(); })
-      .catch(err=>{ if(String(err.message).includes('BAD_TOKEN')) setToken(''); cloudUser=null; setCloudStatus('off'); });
+    rpc('kid_load', {p_token: tok}).then(res=>{ cloudUser={id:res.id, nickname:res.nickname, guest:!!res.guest}; return cloudPull(); })
+      .catch(err=>{ if(String(err.message).includes('BAD_TOKEN')){ setToken(''); cloudUser=null; setCloudStatus('off'); cloudGuest(); } else { cloudUser=null; setCloudStatus('off'); } });
+  } else {
+    let lo=false; try{ lo=!!localStorage.getItem(LOGOUT_KEY); }catch(e){}
+    if(!lo) cloudGuest();
   }
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && cloudUser && cloudStatus!=='syncing') cloudPull(); });
   window.addEventListener('beforeunload', ()=>{
