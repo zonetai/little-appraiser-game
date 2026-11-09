@@ -133,7 +133,7 @@ function refreshMeta(){
 }
 
 /* ---------- 導覽 ---------- */
-const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher','about','records'];
+const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher','about','records','calc'];
 let timers=[];
 function clearTimers(){ timers.forEach(t=>clearInterval(t)); timers=[]; }
 function go(page){
@@ -145,7 +145,7 @@ function go(page){
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===navKey));
   if(location.hash!=='#'+page) location.hash=page;
   window.scrollTo({top:0, behavior:'smooth'});
-  const init={home:renderHome, learn:renderCards, games:renderGames, badges:renderBadges, cert:renderCert, records:renderRecords,
+  const init={home:renderHome, learn:renderCards, games:renderGames, badges:renderBadges, cert:renderCert, records:renderRecords, calc:()=>calcMenu(),
     quiz:()=>quizMenu(), tf:()=>tfMenu(), price:()=>priceNew(), estimate:()=>estNew(), comp:()=>compNew(), match:()=>matchStart(), city:()=>cityMenu(), mission:()=>missionMenu()};
   if(init[page]) init[page]();
 }

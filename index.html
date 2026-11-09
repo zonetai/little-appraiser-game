@@ -6,7 +6,7 @@
 <title>小小估價師大冒險｜不動產知識庫遊戲</title>
 <meta name="description" content="給國小學生的不動產知識庫遊戲網站：從估價師的角度認識房子、土地、價格與城市議題。">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 
@@ -82,7 +82,8 @@
 
   <!-- 遊樂場 -->
   <section class="page" id="page-games">
-    <div class="section-title"><h2>🎮 遊樂場</h2><span class="pill">8 個遊戲 · 每個都能賺 XP</span></div>
+    <div class="section-title"><h2>🎮 遊樂場</h2><span class="pill">三個階層 · 越高 XP 越多</span></div>
+    <div id="tier-bar"></div>
     <div class="grid" id="games-tiles"></div>
   </section>
 
@@ -119,6 +120,11 @@
   <section class="page" id="page-city">
     <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🏙️ 城市規劃師</h2><span class="pill">土地使用分區 × 外部效果</span></div>
     <div class="panel" id="city-panel"></div>
+  </section>
+
+  <section class="page" id="page-calc">
+    <div class="section-title"><a class="back" href="#games">← 遊樂場</a><h2>🧮 估價計算所</h2><span class="pill">中階・進階</span></div>
+    <div class="panel" id="calc-panel"></div>
   </section>
 
   <section class="page" id="page-mission">
@@ -161,7 +167,8 @@
       <h3>內容架構</h3>
       <ul>
         <li><b>知識庫：</b>7 個世界、75 張翻翻卡，每張都有白話解釋＋「估咕小知識」，部分附「你知道嗎」小故事。可搜尋關鍵字。</li>
-        <li><b>估價師出任務：</b>9 個情境（銀行貸款、法院拍賣、都更權變、土地徵收、店面收益、職業道德、報告品管審查、公產審查委員、調解人），每個 5 個關鍵決定，模擬估價師的判斷。</li>
+        <li><b>三個階層：</b>初階（原有內容）→ 中階（集滿初階徽章解鎖：計算題、更細的案例比較、45 秒真假快答、15 秒挑戰、河岸與山城關卡、三個新任務、估價計算所）→ 進階（集滿中階徽章解鎖：兩步計算、三間排序、剔除異常案例、六選三比較標的、10 秒挑戰、大都會關卡、權變分配等任務）。中階 XP ×2、進階 ×3，解鎖中階後初階 XP 減半，等級上限提高到 18,000 XP「傳奇估價師」。</li>
+        <li><b>估價師出任務：</b>15 個情境（初階 9、中階 3、進階 3）（銀行貸款、法院拍賣、都更權變、土地徵收、店面收益、職業道德、報告品管審查、公產審查委員、調解人），每個 5 個關鍵決定，模擬估價師的判斷。</li>
         <li><b>價格猜猜樂：</b>比較法「調整」的數學練習：由案例價格反推標的價格（除法與百分比）。</li>
         <li><b>城市規劃師：</b>在格子地圖上配置公園、捷運、工廠、垃圾場，體會外部效果與土地使用分區的邏輯。</li>
         <li><b>快問快答 / 真假快答 / 哪間比較貴 / 找鄰居 / 連連看：</b>78 題選擇題、46 題是非題與各式小遊戲，反覆練習關鍵概念。</li>
@@ -252,6 +259,7 @@
         <li><b>2026-11-05 v1：</b>單一網頁，4 個世界 35 張知識卡，5 個小遊戲與徽章。</li>
         <li><b>2026-11-05 v2：</b>擴充為 6 個世界 63 張知識卡、8 個遊戲、XP 等級、13 枚徽章與可列印證書。</li>
         <li><b>2026-11-05 v2.1：</b>新增暱稱＋密碼帳號與跨裝置進度同步。</li>
+        <li><b>2026-11-09 v2.6：</b>新增階層制：初階／中階／進階，含 50 題計算與法規進階題、26 題進階是非題、6 個新任務、4 個新城市關卡（河流、山地、醫院、高速公路）、估價計算所、三間排序、六選三比較標的、剔除異常案例，20 枚中階／進階徽章，等級延伸至 18,000 XP。</li>
         <li><b>2026-11-09 v2.5：</b>新增逐題答題紀錄與「📒 我的紀錄」頁：各遊戲與各世界正確率、錯題清單、時間軸、CSV 匯出；登入後同步到雲端。</li>
         <li><b>2026-11-05 v2.4：</b>吉祥物改為正式版「估咕貓頭鷹」（白色圓身、青藍眉羽與領結）與第一波 22 張情境貼圖；新增升級慶祝動畫、依季節與時段變化的首頁問候。</li>
         <li><b>2026-11-05 v2.3：</b>導入吉祥物與品牌色調：標題、首頁、證書、各遊戲回饋貼圖、關於頁吉祥物介紹。</li>
@@ -279,9 +287,10 @@
   </div>
 </div>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=26"></script>
+<script src="app.js?v=26"></script>
+<script src="tiers.js?v=26"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="cloud.js"></script>
+<script src="cloud.js?v=26"></script>
 </body>
 </html>

@@ -51,6 +51,9 @@ function mergeProgress(remote, local){
   out.matchBestMoves = [local.matchBestMoves, remote.matchBestMoves].filter(v=>v>0).sort((a,b)=>a-b)[0] || 0;
   ['read','badges'].forEach(k=>{ out[k] = Array.from(new Set([...(local[k]||[]), ...(remote[k]||[])])); });
   ['city','missions'].forEach(k=>{ const o = Object.assign({}, remote[k]||{}); Object.entries(local[k]||{}).forEach(([key,v])=>{ o[key] = Math.max(Number(o[key])||0, Number(v)||0); }); out[k]=o; });
+  out.unlocked = {mid:!!((local.unlocked||{}).mid||(remote.unlocked||{}).mid), adv:!!((local.unlocked||{}).adv||(remote.unlocked||{}).adv)};
+  out.t = {}; ['mid','adv'].forEach(tr=>{ const L=(local.t||{})[tr]||{}, R=(remote.t||{})[tr]||{}; const o={}; new Set([...Object.keys(L),...Object.keys(R)]).forEach(k=>{ o[k]=Math.max(Number(L[k])||0, Number(R[k])||0); }); out.t[tr]=o; });
+  out.tier = local.tier || remote.tier || 'basic';
   out.name = local.name || remote.name || '';
   out.sound = local.sound !== undefined ? local.sound : remote.sound;
   return out;
