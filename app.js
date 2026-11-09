@@ -197,7 +197,7 @@ function renderCards(){
   const list=CARDS.map((c,i)=>({c,i})).filter(x=> searchTerm ? (x.c.t+x.c.a+x.c.tip+x.c.q).includes(searchTerm) : x.c.w===currentWorld);
   $('cards').innerHTML= list.length ? list.map(({c,i})=>{
     const col=WORLDS.find(x=>x.id===c.w).color;
-    const tall=(c.a.length+c.tip.length+(c.fun||'').length)>175?' tall':'';
+    const tall=(c.a.length+c.tip.length+(c.fun||'').length)>160?' tall':'';
     return `<div class="kcard${tall}" id="kc${i}" onclick="flip(${i})">
       <div class="inner">
         <div class="face front" style="--c:${col}">
