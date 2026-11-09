@@ -367,3 +367,25 @@ footer a:hover{text-decoration:underline}
 .cele-img{height:min(300px,55vw) !important; width:auto; animation:bounce .6s}
 .cele-msg{background:#fff; color:var(--teal); font-weight:900; font-size:22px; padding:12px 22px; border-radius:16px; margin-top:12px; box-shadow:var(--shadow); text-align:center; max-width:90vw}
 .mode .ico .stk-sm{height:64px}
+
+/* ---------- 我的紀錄 ---------- */
+.rec-head{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:6px}
+.rec-h{margin:18px 0 8px; font-size:18px; color:var(--teal)}
+.rec-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+.rec-card{background:#f7f9f9; border-radius:14px; padding:12px 14px; text-align:center}
+.rec-g{font-weight:800; font-size:15px} .rec-pct{font-size:30px; font-weight:900; line-height:1.1; margin:4px 0}
+.rec-pct.good{color:#0a9b6f} .rec-pct.mid{color:var(--o)} .rec-pct.low{color:var(--r)}
+.rec-bars{display:grid; gap:8px}
+.rec-bar{display:grid; grid-template-columns:180px 1fr 110px; gap:10px; align-items:center; font-size:15px}
+.rec-bar-t{height:14px; background:#eee; border-radius:99px; overflow:hidden} .rec-bar-t i{display:block; height:100%}
+.rec-bar-v{color:var(--muted); font-size:14px; text-align:right}
+.rec-filter{margin:16px 0 0; font-size:15px} .rec-filter select{font-size:15px; padding:6px 10px; border-radius:10px; border:2px solid #ddd; font-family:inherit}
+.rec-wrong{display:grid; gap:8px}
+.rec-row{background:#fff6f4; border-left:5px solid var(--r); border-radius:12px; padding:10px 14px}
+.rec-meta{font-size:12.5px; color:var(--muted)} .rec-q{font-weight:800; margin:2px 0 4px; font-size:16px}
+.rec-a{display:flex; gap:14px; flex-wrap:wrap; font-size:14.5px} .rec-a .bad{color:var(--r)} .rec-a .good{color:#0a9b6f}
+.rec-timeline{display:grid; gap:4px; font-size:14px; max-height:420px; overflow:auto; border:2px dashed #eee; border-radius:12px; padding:8px 10px}
+.rec-tl{display:grid; grid-template-columns:86px 110px 1fr; gap:8px; padding:4px 6px; border-radius:8px}
+.rec-tl.ok{background:#f0fbf6} .rec-tl.no{background:#fff3f1}
+.rec-tl-t{color:var(--muted)} .rec-tl-g{font-weight:800} .rec-tl-q{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+@media (max-width:760px){ .rec-bar{grid-template-columns:1fr; gap:4px} .rec-bar-v{text-align:left} .rec-tl{grid-template-columns:70px 1fr} .rec-tl-q{grid-column:1/3; white-space:normal} }

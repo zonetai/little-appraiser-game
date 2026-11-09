@@ -84,6 +84,7 @@ async function cloudPull(){
   if($('page-cert').classList.contains('show')) renderCert();
   if($('page-games').classList.contains('show')) renderGames();
   await cloudPushNow();
+  cloudFlushLog();
   if(changed) toast('☁️ 已合併雲端進度', 'xp');
 }
 
@@ -100,6 +101,22 @@ async function cloudPushNow(){
   try{ await rpc('kid_save', {p_token: getToken(), p_data: S}); setCloudStatus('ok', '進度已同步到雲端 '+new Date().toLocaleTimeString()); }
   catch(err){ setCloudStatus('err', friendly(err)); console.warn(err); }
 }
+
+/* 逐題紀錄上傳 / 下載 */
+let flushTimer=null, flushing=false;
+function cloudQueueFlush(){ if(!sb||!cloudUser) return; clearTimeout(flushTimer); flushTimer=setTimeout(cloudFlushLog, 2500); }
+async function cloudFlushLog(){
+  if(!sb||!cloudUser||flushing) return; const pend=LOG.filter(e=>e.p); if(!pend.length) return;
+  flushing=true; clearTimeout(flushTimer);
+  try{
+    const batch=pend.slice(0,200);
+    await rpc('kid_log', {p_token:getToken(), p_events: batch.map(e=>({t:e.t, game:e.game, world:e.world||null, question:e.question||null, chosen:e.chosen||null, correct:e.correct||null, ok:(typeof e.ok==='boolean'?e.ok:null), extra:e.extra||{}}))});
+    const done=new Set(batch); LOG=LOG.filter(e=>!done.has(e)); logSave();
+    if(pend.length>batch.length) setTimeout(cloudFlushLog, 300);
+  }catch(err){ console.warn('log flush failed', err); }
+  finally{ flushing=false; }
+}
+async function cloudEvents(limit){ if(!sb||!cloudUser) return null; try{ return await rpc('kid_events_list', {p_token:getToken(), p_limit:limit||1000}); }catch(e){ console.warn(e); return null; } }
 
 /* 註冊 / 登入 / 登出 */
 async function afterAuth(res){
@@ -120,7 +137,7 @@ async function cloudSignIn(nick, pw){
   await afterAuth(res);
 }
 async function cloudSignOut(clearLocal){
-  if(sb && cloudUser){ clearTimeout(pushTimer); await cloudPushNow(); try{ await rpc('kid_logout', {p_token: getToken()}); }catch(e){} }
+  if(sb && cloudUser){ clearTimeout(pushTimer); await cloudPushNow(); await cloudFlushLog(); try{ await rpc('kid_logout', {p_token: getToken()}); }catch(e){} }
   cloudUser = null; setToken('');
   if(clearLocal){ try{ localStorage.removeItem(KEY); }catch(e){} S = load(); refreshMeta(); go('home'); }
   setCloudStatus('off');
@@ -140,7 +157,7 @@ function renderAcct(){
       <div class="acct-hello">👋 嗨，<b>${esc(cloudUser.nickname)}</b>！</div>
       <p class="center muted" id="acct-sync-msg"></p>
       <p class="center">你的進度會自動同步到雲端。在別台電腦、平板或手機用同樣的暱稱和密碼登入，就能接著玩！</p>
-      <p class="center"><button class="btn b sm" onclick="cloudPull()">🔄 立刻同步</button></p>
+      <p class="center"><button class="btn b sm" onclick="cloudPull()">🔄 立刻同步</button> <button class="btn sm ghost" onclick="closeAcct(); go('records')">📒 看答題紀錄</button></p>
       <hr>
       <p class="center"><button class="btn ghost sm" onclick="cloudSignOut(false); closeAcct()">登出（保留這台的進度）</button>
       <button class="btn ghost sm" onclick="cloudSignOut(true); closeAcct()">登出並清除這台的進度</button></p>
@@ -185,5 +202,10 @@ async function acctSubmit(e){
       .catch(err=>{ if(String(err.message).includes('BAD_TOKEN')) setToken(''); cloudUser=null; setCloudStatus('off'); });
   }
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && cloudUser && cloudStatus!=='syncing') cloudPull(); });
-  window.addEventListener('beforeunload', ()=>{ if(pushTimer && sb && cloudUser){ clearTimeout(pushTimer); const body=JSON.stringify({p_token:getToken(), p_data:S}); navigator.sendBeacon && navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/rpc/kid_save?apikey=${SUPABASE_KEY}`, new Blob([body],{type:'application/json'})); } });
+  window.addEventListener('beforeunload', ()=>{
+    if(!sb || !cloudUser || !navigator.sendBeacon) return;
+    if(pushTimer){ clearTimeout(pushTimer); navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/rpc/kid_save?apikey=${SUPABASE_KEY}`, new Blob([JSON.stringify({p_token:getToken(), p_data:S})],{type:'application/json'})); }
+    const pend=LOG.filter(e=>e.p).slice(0,200);
+    if(pend.length){ const okb=navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/rpc/kid_log?apikey=${SUPABASE_KEY}`, new Blob([JSON.stringify({p_token:getToken(), p_events:pend.map(e=>({t:e.t, game:e.game, world:e.world||null, question:e.question||null, chosen:e.chosen||null, correct:e.correct||null, ok:(typeof e.ok==='boolean'?e.ok:null), extra:e.extra||{}}))})],{type:'application/json'})); if(okb){ const d=new Set(pend); LOG=LOG.filter(e=>!d.has(e)); logSave(); } }
+  });
 })();

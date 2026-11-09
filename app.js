@@ -35,6 +35,14 @@ function celebrate(key, msg){
   el.onclick=()=>el.classList.remove('show');
 }
 
+/* ---------- 逐題答題紀錄 ---------- */
+const LOGKEY='kid-appraiser-log';
+let LOG=(()=>{ try{ return JSON.parse(localStorage.getItem(LOGKEY)||'[]'); }catch(e){ return []; } })();
+function logSave(){ try{ if(LOG.length>1500) LOG=LOG.slice(-1500); localStorage.setItem(LOGKEY, JSON.stringify(LOG)); }catch(e){} }
+function logEvent(ev){ ev.t=Date.now(); ev.p=1; LOG.push(ev); logSave(); if(typeof cloudQueueFlush==='function') cloudQueueFlush(); }
+const GAME_NAMES={quiz:'快問快答',tf:'真假快答',price:'哪間比較貴',estimate:'價格猜猜樂',comp:'找鄰居',city:'城市規劃師',mission:'估價師出任務',match:'連連看',card:'知識卡',quiz_done:'快問快答結算',tf_done:'真假快答結算',mission_done:'任務完成'};
+const SCORED=['quiz','tf','price','estimate','comp','mission','city'];
+
 /* ---------- 狀態 ---------- */
 const KEY='kid-appraiser-v2';
 function defaults(){ return {name:'', xp:0, read:[], badges:[], quizBest:0, chalBest:0, priceStreak:0, priceStreakBest:0, compCorrect:0, est3:0, estPlayed:0, tfBest:0, matchDone:0, matchBestMoves:0, city:{}, missions:{}, sound:true, plays:0}; }
@@ -125,7 +133,7 @@ function refreshMeta(){
 }
 
 /* ---------- 導覽 ---------- */
-const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher','about'];
+const PAGES=['home','learn','games','quiz','tf','price','estimate','comp','match','city','mission','badges','cert','teacher','about','records'];
 let timers=[];
 function clearTimers(){ timers.forEach(t=>clearInterval(t)); timers=[]; }
 function go(page){
@@ -137,7 +145,7 @@ function go(page){
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===navKey));
   if(location.hash!=='#'+page) location.hash=page;
   window.scrollTo({top:0, behavior:'smooth'});
-  const init={home:renderHome, learn:renderCards, games:renderGames, badges:renderBadges, cert:renderCert,
+  const init={home:renderHome, learn:renderCards, games:renderGames, badges:renderBadges, cert:renderCert, records:renderRecords,
     quiz:()=>quizMenu(), tf:()=>tfMenu(), price:()=>priceNew(), estimate:()=>estNew(), comp:()=>compNew(), match:()=>matchStart(), city:()=>cityMenu(), mission:()=>missionMenu()};
   if(init[page]) init[page]();
 }
@@ -211,7 +219,7 @@ function renderCards(){
 }
 function flip(i){
   const el=$('kc'+i); if(!el) return; el.classList.toggle('flipped'); sfx.click();
-  if(!S.read.includes(i)){ S.read.push(i); save(); el.querySelector('.read').textContent='✅'; renderWorlds(); addXP(5,'閱讀知識卡'); }
+  if(!S.read.includes(i)){ S.read.push(i); save(); el.querySelector('.read').textContent='✅'; renderWorlds(); addXP(5,'閱讀知識卡'); const c=CARDS[i]; logEvent({game:'card', world:c.w, question:c.t}); }
 }
 function randomCard(){ const i=Math.floor(Math.random()*CARDS.length); currentWorld=CARDS[i].w; searchTerm=''; $('card-search').value=''; renderCards(); setTimeout(()=>{ const el=$('kc'+i); el.scrollIntoView({behavior:'smooth',block:'center'}); flip(i); },100); }
 
@@ -256,6 +264,7 @@ function quizAnswer(k){
   const q=st.qs[st.i]; const opts=document.querySelectorAll('#quiz-panel .opt');
   opts.forEach((b,i)=>{ b.disabled=true; if(i===q.a) b.classList.add('correct'); else if(i===k) b.classList.add('wrong'); });
   const ok=k===q.a;
+  logEvent({game:'quiz', world:q.w, question:q.q, chosen:k>=0?q.o[k]:'（時間到，未作答）', correct:q.o[q.a], ok, extra:{mode:st.mode, lv:q.lv}});
   let xp=0;
   if(ok){ st.score++; st.combo++; st.maxCombo=Math.max(st.maxCombo,st.combo); sfx.ok(); xp = st.mode==='challenge' ? 15+Math.min(st.combo-1,5)*5 : 10; }
   else { st.combo=0; sfx.bad(); }
@@ -273,6 +282,7 @@ function quizEnd(){
   if(st.mode==='challenge'){ if(s>S.chalBest){ S.chalBest=s; save(); } if(s>=12) addXP(50,'挑戰完成獎勵'); }
   else { if(n===10 && s>S.quizBest){ S.quizBest=s; save(); } }
   checkBadges();
+  logEvent({game:'quiz_done', question:st.mode==='challenge'?'挑戰模式':'練習模式'+(st.world&&st.world!=='all'?'（'+(WORLDS.find(w=>w.id===st.world)||{}).name+'）':''), extra:{score:s, n, maxCombo:st.maxCombo}});
   const r=s/n; ico = r>=.9?'🏆':r>=.7?'😊':'📚';
   title = r>=.9?'太厲害了！你根本是估價師本人！': r>=.8?'很棒！繼續保持！': r>=.6?'不錯喔！再去知識庫複習一下。':'沒關係，先去知識庫看看，再來挑戰！';
   $('quiz-panel').innerHTML=`<h3>結算</h3>${stk(r>=.8?'qingzhu':r>=.6?'xinkule':'jiayou','stk-big')}
@@ -306,6 +316,7 @@ function tfRender(){
 function tfAnswer(v){
   const st=tfState; if(!st||st.lock) return; st.lock=true;
   const q=st.qs[st.i]; const ok=v===q.t; const card=$('tf-card');
+  logEvent({game:'tf', question:q.s, chosen:v?'真':'假', correct:q.t?'真':'假', ok});
   card.classList.add(ok?'ok':'no');
   if(ok){ st.correct++; st.combo++; sfx.ok(); addXP(5+(st.combo>=5?5:0),''); } else { st.combo=0; st.wrong.push(q); sfx.bad(); }
   $('tf-fb').innerHTML=`<b>${ok?'✅ 答對':'❌ 答錯'}</b>：${esc(q.e)} ${ok?stk('jingzhun'):stk('bengkui')}`;
@@ -314,6 +325,7 @@ function tfAnswer(v){
 function tfEnd(){
   const st=tfState; if(!st) return; tfState=null;
   if(st.correct>S.tfBest){ S.tfBest=st.correct; save(); }
+  logEvent({game:'tf_done', question:'60 秒真假快答', extra:{correct:st.correct, wrong:st.wrong.length}});
   checkBadges();
   $('tf-panel').innerHTML=`<h3>時間到！</h3>${stk(st.correct>=15?'qingzhu':st.correct>=10?'xinkule':'jiayou','stk-big')}
     <p class="center big">答對 ${st.correct} 題</p><p class="center muted">最佳紀錄：${S.tfBest} 題${st.correct>=15?' · 達成「真假快手」條件！':'（15 題可拿徽章）'}</p>
@@ -397,6 +409,8 @@ function priceAnswer(k){
   hs[win].classList.add('win'); hs[1-win].classList.add('lose');
   const W=win===0?st.a:st.b, L=win===0?st.b:st.a;
   const diff=Math.round((W.price/L.price-1)*100);
+  const hd=h=>`${h.zone.n}/${h.type}/${h.age}年${h.floor?'/'+h.floor+'樓':''}${h.mrt?'/近捷運':''}${h.park?'/公園':''}${h.school?'/學校':''}${h.bad?'/'+h.bad:''}`;
+  logEvent({game:'price', question:`A：${hd(st.a)}｜B：${hd(st.b)}`, chosen:k===0?'A':'B', correct:win===0?'A':'B', ok, extra:{diff}});
   S.priceStreak= ok?S.priceStreak+1:0;
   S.priceStreakBest=Math.max(S.priceStreakBest,S.priceStreak); save();
   if(ok){ sfx.ok(); addXP(10+(S.priceStreak>=5?5:0),''); } else sfx.bad();
@@ -447,6 +461,7 @@ function estSubmit(){
   const st=estState; if(st.done) return; st.done=true;
   const v=Number($('est-slider').value); const err=Math.abs(v-st.P)/st.P;
   const n = err<=0.05?3: err<=0.10?2: err<=0.20?1:0;
+  logEvent({game:'estimate', question:`${st.subj.zone} ${st.subj.type} ${st.subj.age}年 ${st.subj.area}坪`, chosen:v.toFixed(1)+' 萬/坪', correct:st.P+' 萬/坪', ok:n>=2, extra:{errPct:Math.round(err*100), stars:n}});
   S.estPlayed++; if(n===3) S.est3++; save();
   if(n>=2) sfx.ok(); else sfx.bad();
   if(n) addXP(n*20,'估價'); checkBadges();
@@ -494,6 +509,7 @@ function compNew(){
 function compAnswer(i){
   const st=compState; if(st.done) return; st.done=true;
   const ok=i===st.correct; const hs=document.querySelectorAll('#cands .house');
+  logEvent({game:'comp', question:`${st.subj.d} ${st.subj.type} ${st.subj.age}年 ${st.subj.area}坪`, chosen:'案例 '+(i+1), correct:'案例 '+(st.correct+1), ok});
   hs[st.correct].classList.add('win'); hs.forEach((h,k)=>{ if(k!==st.correct) h.classList.add('lose'); });
   if(ok){ S.compCorrect++; save(); sfx.ok(); addXP(15,''); } else sfx.bad();
   checkBadges();
@@ -528,7 +544,7 @@ function matchFlip(i){
     if(ta.id===tb.id && ta.term!==tb.term){
       setTimeout(()=>{ $('mem'+a).classList.add('done'); $('mem'+b).classList.add('done'); st.open=[]; st.done++; st.lock=false; sfx.ok(); addXP(5,'');
         $('match-done').textContent=`✅ 配對 ${st.done} / 8`;
-        if(st.done===8){ S.matchDone++; if(!S.matchBestMoves||st.moves<S.matchBestMoves) S.matchBestMoves=st.moves; save(); addXP(30,'完成連連看'); checkBadges();
+        if(st.done===8){ logEvent({game:'match', question:'名詞連連看', extra:{moves:st.moves}}); S.matchDone++; if(!S.matchBestMoves||st.moves<S.matchBestMoves) S.matchBestMoves=st.moves; save(); addXP(30,'完成連連看'); checkBadges();
           const ex=$('match-explain'); ex.innerHTML=`${stk('ganxie','stk-r')}<b>🎉 全部配對完成！</b> 總共翻了 ${st.moves} 次。${st.moves<=12?'記憶力超強！':'再玩一次挑戰更少次數吧！'} <button class="btn sm p" onclick="matchStart()">🔁 再玩一局</button>`; ex.classList.add('show'); }
       }, 400);
     } else {
@@ -615,6 +631,7 @@ function cityFinish(){
   const st=cityState; if(st.done) return; st.done=true;
   const total=cityValues(st.grid,st.n).total; const r=total/st.best;
   const n= r>=0.97?3: r>=0.9?2: r>=0.8?1:0;
+  logEvent({game:'city', question:CITY_LEVELS[st.li].name, chosen:'總地價 '+total, correct:'最佳約 '+st.best, ok:n>=2, extra:{stars:n}});
   const prev=S.city[st.li]||0; if(n>prev){ S.city[st.li]=n; save(); }
   if(n>=2) sfx.ok(); else sfx.bad(); if(n) { addXP(n*40,'城市規劃'); if(n===3) confetti(150); } checkBadges();
   cityRender();
@@ -651,6 +668,7 @@ function missionStep(){
 function missionAnswer(k){
   const st=misState; if(st.answered) return; st.answered=true;
   const s=st.m.steps[st.i]; const ok=k===s.a;
+  logEvent({game:'mission', question:`${st.m.title}｜${s.q}`, chosen:s.o[k], correct:s.o[s.a], ok, extra:{id:st.m.id, step:st.i+1}});
   document.querySelectorAll('#mission-panel .opt').forEach((b,i)=>{ b.disabled=true; if(i===s.a) b.classList.add('correct'); else if(i===k) b.classList.add('wrong'); });
   if(ok){ st.correct++; sfx.ok(); addXP(10,''); } else sfx.bad();
   const ex=$('m-explain'); ex.innerHTML=`${ok?stk(rnd(['ok','jingzhun']),'stk-r'):stk(rnd(['duck','bengkui']),'stk-r')}<b>${ok?'✅ 正確的決定！':'❌ 這樣做會有問題。'}</b><br>🦉 ${esc(s.e)}`; ex.classList.add('show');
@@ -660,6 +678,7 @@ function missionNextStep(){ misState.i++; missionStep(); }
 function missionEnd(){
   const st=misState, m=st.m, c=st.correct, n=m.steps.length;
   const sc = c===n?3: c>=n-1?2: c>=n-2?1:0;
+  logEvent({game:'mission_done', question:m.title, extra:{id:m.id, stars:sc, correct:c}});
   const prev=S.missions[m.id]; if(prev==null||sc>prev) S.missions[m.id]=sc; save();
   addXP(30,'完成任務'); if(sc===3) confetti(150); checkBadges();
   const nextIdx=MISSIONS.indexOf(m)+1;
@@ -704,6 +723,56 @@ function renderCert(){
     </div></div>`;
 }
 function saveName(v){ S.name=v.trim().slice(0,12); save(); renderCert(); }
+
+/* ---------- 我的紀錄 ---------- */
+let recFilter='all', recCache=null;
+function fmtTime(t){ const d=new Date(t); const p=n=>String(n).padStart(2,'0'); return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function evTime(e){ return e.t || (e.ts ? new Date(e.ts).getTime() : 0); }
+async function getAllEvents(){
+  const local=LOG.slice();
+  let cloud=[];
+  if(typeof cloudEvents==='function' && typeof cloudUser!=='undefined' && cloudUser){ const r=await cloudEvents(2000); if(r) cloud=r; }
+  const all=cloud.concat(local.filter(e=>e.p)).map(e=>Object.assign({}, e, {time:evTime(e)}));
+  all.sort((x,y)=>y.time-x.time); return {all, fromCloud:cloud.length>0, loggedIn:!!(typeof cloudUser!=='undefined'&&cloudUser)};
+}
+function setRecFilter(v){ recFilter=v; renderRecords(true); }
+async function renderRecords(useCache){
+  const box=$('records-panel');
+  if(!useCache || !recCache){ box.innerHTML='<p class="center muted">⏳ 正在整理紀錄…</p>'; recCache=await getAllEvents(); }
+  const {all, loggedIn}=recCache;
+  const nick = loggedIn ? cloudUser.nickname : (S.name||'這台裝置');
+  const scored=all.filter(e=>SCORED.includes(e.game));
+  const games=[...new Set(all.map(e=>e.game))];
+  const stat=g=>{ const l=scored.filter(e=>e.game===g); const c=l.filter(e=>e.ok===true).length; return {n:l.length,c, pct:l.length?Math.round(c/l.length*100):0}; };
+  const byWorld=WORLDS.map(w=>{ const l=scored.filter(e=>e.world===w.id); const c=l.filter(e=>e.ok===true).length; return {w, n:l.length, c, pct:l.length?Math.round(c/l.length*100):0}; }).filter(x=>x.n);
+  const wrongs=all.filter(e=>e.ok===false && ['quiz','tf','mission','comp','price'].includes(e.game) && (recFilter==='all'||e.game===recFilter));
+  const timeline=all.filter(e=>recFilter==='all'||e.game===recFilter).slice(0,80);
+  const days=[...new Set(all.map(e=>new Date(e.time).toDateString()))].length;
+  if(!all.length){
+    box.innerHTML=`${stk('xiankan','stk-big')}<p class="center big">還沒有答題紀錄</p><p class="center muted">${loggedIn?'從現在開始，每答一題都會記錄下來（之前玩過的不會回溯）。':'登入後紀錄會同步到雲端；現在沒登入，只會存在這台裝置。'}</p>`;
+    return;
+  }
+  box.innerHTML=`
+    <div class="rec-head"><div><h3 style="margin:0">${esc(nick)} 的答題紀錄</h3><div class="muted" style="font-size:14px">共 ${all.length} 筆 · ${days} 天 · ${loggedIn?'☁️ 雲端同步':'📱 僅本機'}${LOG.filter(e=>e.p).length&&loggedIn?` · ${LOG.filter(e=>e.p).length} 筆待上傳`:''}</div></div>
+      <div><button class="btn sm ghost" onclick="renderRecords()">🔄 重新整理</button> <button class="btn sm b" onclick="exportCSV()">⬇️ 匯出 CSV</button></div></div>
+    <h4 class="rec-h">各遊戲正確率</h4>
+    <div class="rec-grid">${SCORED.filter(g=>stat(g).n).map(g=>{ const s=stat(g); return `<div class="rec-card"><div class="rec-g">${GAME_NAMES[g]}</div><div class="rec-pct ${s.pct>=80?'good':s.pct>=60?'mid':'low'}">${s.pct}%</div><div class="muted">${s.c} / ${s.n} 題</div></div>`; }).join('')}</div>
+    ${byWorld.length?`<h4 class="rec-h">各世界正確率（快問快答、真假快答等有標註世界的題目）</h4>
+    <div class="rec-bars">${byWorld.map(x=>`<div class="rec-bar"><span class="rec-bar-l">${x.w.name}</span><div class="rec-bar-t"><i style="width:${x.pct}%;background:${x.w.color}"></i></div><span class="rec-bar-v">${x.pct}%（${x.c}/${x.n}）</span></div>`).join('')}</div>`:''}
+    <div class="rec-filter">篩選：<select onchange="setRecFilter(this.value)"><option value="all" ${recFilter==='all'?'selected':''}>全部</option>${games.map(g=>`<option value="${g}" ${recFilter===g?'selected':''}>${GAME_NAMES[g]||g}</option>`).join('')}</select></div>
+    <h4 class="rec-h">❌ 答錯的題目（${wrongs.length}）</h4>
+    ${wrongs.length?`<div class="rec-wrong">${wrongs.slice(0,120).map(e=>`<div class="rec-row"><div class="rec-meta">${fmtTime(e.time)} · ${GAME_NAMES[e.game]||e.game}${e.world?' · '+((WORLDS.find(w=>w.id===e.world)||{}).name||''):''}</div><div class="rec-q">${esc(e.question||'')}</div><div class="rec-a"><span class="bad">他選：${esc(e.chosen||'—')}</span><span class="good">正解：${esc(e.correct||'—')}</span></div></div>`).join('')}</div>`:'<p class="muted">這個範圍內沒有答錯的題目 🎉</p>'}
+    <h4 class="rec-h">🕒 最近紀錄</h4>
+    <div class="rec-timeline">${timeline.map(e=>`<div class="rec-tl ${e.ok===true?'ok':e.ok===false?'no':''}"><span class="rec-tl-t">${fmtTime(e.time)}</span><span class="rec-tl-g">${GAME_NAMES[e.game]||e.game}</span><span class="rec-tl-q">${esc((e.question||'').slice(0,60))}${e.chosen?` → ${esc(e.chosen)}`:''}${e.ok===true?' ✅':e.ok===false?' ❌':''}${e.extra&&e.extra.stars!=null?' '+stars(e.extra.stars):''}${e.extra&&e.extra.score!=null?` ${e.extra.score}/${e.extra.n}`:''}</span></div>`).join('')}</div>
+    <p class="fine">家長或老師：用孩子的暱稱與密碼登入，就能在任何裝置看到這一頁。紀錄從開通這個功能之後開始累積，之前玩過的內容不會回溯。</p>`;
+}
+function exportCSV(){
+  if(!recCache) return;
+  const rows=[['時間','遊戲','世界','題目','作答','正解','結果','其他']];
+  recCache.all.forEach(e=>rows.push([new Date(e.time).toLocaleString('zh-TW'), GAME_NAMES[e.game]||e.game, e.world?((WORLDS.find(w=>w.id===e.world)||{}).name||e.world):'', e.question||'', e.chosen||'', e.correct||'', e.ok===true?'對':e.ok===false?'錯':'', e.extra?JSON.stringify(e.extra):'']));
+  const csv='﻿'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`答題紀錄_${(recCache.loggedIn?cloudUser.nickname:'本機')}_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
 
 /* ---------- 啟動 ---------- */
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
