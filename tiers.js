@@ -454,6 +454,71 @@ renderCert = function(){
     </div></div>`;
 };
 
+/* ---------- 防連點：看題時間、答錯冷卻、記錄作答秒數 ---------- */
+let qShownAt = 0, qLockMs = 0, qLockSeq = 0;
+function lockPanel(id, ms){
+  const p = $(id); if(!p) return;
+  qShownAt = Date.now(); qLockMs = ms; const seq = ++qLockSeq;
+  p.classList.add('q-locked');
+  if(ms >= 1500){
+    const bar = document.createElement('div'); bar.className = 'q-lockbar'; bar.innerHTML = '<i></i><span>👀 先把題目看完再作答…</span>';
+    bar.firstChild.style.animationDuration = ms + 'ms';
+    const q = p.querySelector('.question'); if(q) q.after(bar); else p.prepend(bar);
+  }
+  setTimeout(()=>{ if(seq !== qLockSeq) return; p.classList.remove('q-locked'); const b = p.querySelector('.q-lockbar'); if(b) b.remove(); }, ms);
+}
+function tooFast(){ return qLockMs > 0 && Date.now() - qShownAt < qLockMs; }
+function unlockNow(){ qLockMs = 0; qLockSeq++; document.querySelectorAll('.q-locked').forEach(p=>p.classList.remove('q-locked')); document.querySelectorAll('.q-lockbar').forEach(b=>b.remove()); }
+
+const _logEvent2 = logEvent;
+logEvent = function(ev){ if(qShownAt && SCORED.includes(ev.game)){ ev.extra = Object.assign({ms: Date.now() - qShownAt}, ev.extra || {}); } _logEvent2(ev); };
+
+{ // 快問快答
+  const r = quizRender, a = quizAnswer;
+  quizRender = function(){ r(); const st = quizState; if(st && st.i < st.qs.length){ const q = st.qs[st.i]; lockPanel('quiz-panel', q.lv >= 4 ? 2500 : q.lv === 3 ? 2000 : 1000); } };
+  quizAnswer = function(k){ if(k >= 0 && tooFast()) return; a(k); };
+}
+{ // 真假快答
+  const r = tfRender, a = tfAnswer;
+  tfRender = function(){ r(); lockPanel('tf-panel', 700); };
+  tfAnswer = function(v){ if(tooFast()) return; a(v); };
+}
+{ // 哪間比較貴
+  const n = priceNew, a = priceAnswer;
+  priceNew = function(){ n(); lockPanel('price-panel', tierOf() === 'adv' ? 3000 : 1800); };
+  priceAnswer = function(k){ if(tooFast()) return; a(k); };
+}
+{ // 價格猜猜樂
+  const n = estNew, s = estSubmit;
+  estNew = function(){ n(); lockPanel('est-panel', tierOf() === 'basic' ? 2500 : 4000); };
+  estSubmit = function(){ if(tooFast()) return; s(); };
+}
+{ // 找鄰居
+  const n = compNew, a = compAnswer;
+  compNew = function(){ n(); lockPanel('comp-panel', tierOf() === 'basic' ? 1800 : 3000); };
+  compAnswer = function(i){ if(tooFast()) return; a(i); };
+}
+{ // 估價師出任務
+  const r = missionStep, a = missionAnswer;
+  missionStep = function(){ r(); if(misState && misState.i < misState.m.steps.length) lockPanel('mission-panel', 1800); };
+  missionAnswer = function(k){ if(tooFast()) return; a(k); };
+}
+{ // 估價計算所：看題時間較長，答錯要停下來看算法，連錯三題再多停一下
+  const r = calcRender, a = calcAnswer;
+  calcRender = function(){ r(); const st = calcState; if(st && st.i < st.qs.length) lockPanel('calc-panel', st.tier === 'adv' ? 4000 : 3000); };
+  calcAnswer = function(k){
+    if(tooFast()) return; const st = calcState; if(!st || st.answered) return;
+    a(k);
+    const wrong = !!document.querySelector('#calc-panel .opt.wrong'); st.wrongRun = wrong ? (st.wrongRun || 0) + 1 : 0;
+    const nb = $('calc-next'); if(!nb || !wrong) return;
+    const wait = st.wrongRun >= 3 ? 8000 : 3000; const label = nb.textContent;
+    nb.disabled = true; let left = Math.ceil(wait / 1000); nb.textContent = `先看算法（${left}）`;
+    if(st.wrongRun >= 3){ const ex = $('calc-explain'); if(ex) ex.insertAdjacentHTML('beforeend', '<div class="fine" style="margin-top:6px">🦉 估咕提醒：連續錯三題了。拿出紙筆，照上面的算式自己算一次再繼續，不用急。</div>'); }
+    const t = setInterval(()=>{ left--; if(left <= 0){ clearInterval(t); if($('calc-next') === nb){ nb.disabled = false; nb.textContent = label; } } else nb.textContent = `先看算法（${left}）`; }, 1000);
+    timers.push(t);
+  };
+}
+
 /* ---------- 啟動 ---------- */
 refreshUnlocks(); refreshMeta();
 if($('page-games').classList.contains('show')) renderGames();

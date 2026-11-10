@@ -206,14 +206,14 @@ async function admDetail(id, keep){
     <h4>❌ 答錯的題目（${wrong.length}）</h4>
     ${wrong.length?`<div class="adm-scroll" style="max-height:340px;overflow-y:auto"><table class="adm"><tr><th>時間</th><th>遊戲</th><th>題目</th><th>他選</th><th>正解</th></tr>${wrong.slice(0,300).map(e=>`<tr><td>${fmtS(e.ts)}</td><td>${GAME_NAMES[e.game]||esc(e.game)}</td><td class="q">${esc(e.question||'')}</td><td class="pct-low">${esc(e.chosen||'')}</td><td class="pct-good">${esc(e.correct||'')}</td></tr>`).join('')}</table></div>`:'<p class="muted">沒有答錯紀錄。</p>'}
     <h4>🕒 最近紀錄（${E.length}）</h4>
-    ${E.length?`<div class="adm-scroll" style="max-height:340px;overflow-y:auto"><table class="adm"><tr><th>時間</th><th>遊戲</th><th>階層</th><th>內容</th><th>結果</th></tr>${E.slice(0,400).map(e=>`<tr><td>${fmtS(e.ts)}</td><td>${GAME_NAMES[e.game]||esc(e.game)}</td><td>${TIER_NAMES[(e.extra&&e.extra.tier)||'basic']||''}</td><td class="q">${esc((e.question||'').slice(0,90))}${e.chosen?` → ${esc(e.chosen)}`:''}</td><td>${e.ok===true?'✅':e.ok===false?'❌':''}${e.extra&&e.extra.stars!=null?' '+'⭐'.repeat(e.extra.stars):''}${e.extra&&e.extra.score!=null?` ${e.extra.score}/${e.extra.n}`:''}</td></tr>`).join('')}</table></div>`:'<p class="muted">這個帳號還沒有逐題紀錄。</p>'}
+    ${E.length?`<div class="adm-scroll" style="max-height:340px;overflow-y:auto"><table class="adm"><tr><th>時間</th><th>遊戲</th><th>階層</th><th>內容</th><th>結果</th><th class="num">作答秒數</th></tr>${E.slice(0,400).map(e=>`<tr><td>${fmtS(e.ts)}</td><td>${GAME_NAMES[e.game]||esc(e.game)}</td><td>${TIER_NAMES[(e.extra&&e.extra.tier)||'basic']||''}</td><td class="q">${esc((e.question||'').slice(0,90))}${e.chosen?` → ${esc(e.chosen)}`:''}</td><td>${e.ok===true?'✅':e.ok===false?'❌':''}${e.extra&&e.extra.stars!=null?' '+'⭐'.repeat(e.extra.stars):''}${e.extra&&e.extra.score!=null?` ${e.extra.score}/${e.extra.n}`:''}</td><td class="num">${e.extra&&e.extra.ms!=null?(e.extra.ms/1000).toFixed(1):''}</td></tr>`).join('')}</table></div>`:'<p class="muted">這個帳號還沒有逐題紀錄。</p>'}
   </div>`;
   if(!keep) box.scrollIntoView({behavior:'smooth', block:'start'});
 }
 function exportDetail(){
   if(!detail) return; const a = D.accounts.find(x=>x.id===sel);
-  const rows=[['時間','遊戲','階層','世界','題目','作答','正解','結果','其他']];
-  (detail.events||[]).forEach(e=>rows.push([new Date(e.ts).toLocaleString('zh-TW'), GAME_NAMES[e.game]||e.game, (e.extra&&e.extra.tier)||'basic', e.world?((WORLDS.find(w=>w.id===e.world)||{}).name||e.world):'', e.question||'', e.chosen||'', e.correct||'', e.ok===true?'對':e.ok===false?'錯':'', e.extra?JSON.stringify(e.extra):'']));
+  const rows=[['時間','遊戲','階層','世界','題目','作答','正解','結果','作答秒數','其他']];
+  (detail.events||[]).forEach(e=>rows.push([new Date(e.ts).toLocaleString('zh-TW'), GAME_NAMES[e.game]||e.game, (e.extra&&e.extra.tier)||'basic', e.world?((WORLDS.find(w=>w.id===e.world)||{}).name||e.world):'', e.question||'', e.chosen||'', e.correct||'', e.ok===true?'對':e.ok===false?'錯':'', e.extra&&e.extra.ms!=null?(e.extra.ms/1000).toFixed(1):'', e.extra?JSON.stringify(e.extra):'']));
   csvDownload(`答題紀錄_${a?a.nickname:'帳號'}_${new Date().toISOString().slice(0,10)}.csv`, rows);
 }
 async function admResetPw(id){
