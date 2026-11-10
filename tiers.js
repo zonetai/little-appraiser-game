@@ -21,12 +21,12 @@ BADGES.find(b=>b.id==='master').test = S=>BADGES.filter(b=>!b.tier && b.id!=='ma
 
 function refreshUnlocks(){
   let ch=false;
-  if(S.badges.includes('master') && !S.unlocked.mid){ S.unlocked.mid=true; ch=true; celebrate('qingzhu','🔓 中階解鎖！題目開始要動腦計算囉'); }
-  if(S.badges.includes('mid_master') && !S.unlocked.adv){ S.unlocked.adv=true; ch=true; celebrate('shengri','🔓 進階解鎖！像真正的估價師一樣思考'); }
+  if(S.badges.includes('master') && !S.unlocked.mid){ S.unlocked.mid=true; ch=true; celebrate('qingzhu','🎓 通過估咕初階認證「小小估價師」！<br>🔓 中階解鎖：題目開始要動腦計算囉'); }
+  if(S.badges.includes('mid_master') && !S.unlocked.adv){ S.unlocked.adv=true; ch=true; celebrate('shengri','🧮 通過估咕中階認證「精打細算師」！<br>🔓 進階解鎖：像真正的估價師一樣思考'); }
   if(ch){ save(); checkBadges(); }
 }
 const _checkBadges = checkBadges;
-checkBadges = function(){ _checkBadges(); refreshUnlocks(); };
+checkBadges = function(){ const hadAdv=S.badges.includes('adv_master'); _checkBadges(); refreshUnlocks(); if(!hadAdv && S.badges.includes('adv_master')){ confetti(260); celebrate('shengri','🎯 通過估咕進階認證：你是「泰精準大師」了！'); } };
 
 function setTier(id){
   if(id!=='basic' && !S.unlocked[id]){ toast(`🔒 ${tierInfo(id).name}還沒解鎖：${tierInfo(id).unlock}`); return; }
@@ -431,6 +431,27 @@ renderBadges = function(){
   const L=levelOf(S.xp);
   $('level-list').innerHTML=LEVELS.map((l,i)=>`<div class="lvrow ${i<=L.idx?'got':''}"><span>${l.ico}</span><b>${l.name}</b><small>${l.xp} XP</small></div>`).join('');
   refreshMeta();
+};
+
+/* ---------- 證書：三張估咕認證 ---------- */
+renderCert = function(){
+  const L=levelOf(S.xp); const d=new Date(); const top=CERTS.slice().reverse().find(c=>S.badges.includes(c.badge));
+  $('cert-name').value=S.name||'';
+  $('cert').innerHTML=`
+    <div class="cert-border"><div class="cert-inner">
+      <img class="cert-owl" src="assets/owl-glasses.png" alt="估咕貓頭鷹">
+      <div class="cert-top">小小估價師大冒險</div>
+      <h2>${top? top.full+'證書' : '學習歷程證明'}</h2>
+      <p class="cert-to">茲證明</p>
+      <div class="cert-who">${esc(S.name||'＿＿＿＿＿')}</div>
+      <p>${top? `通過${top.full}，${top.line}，授予認證稱號` : '正在學習不動產與估價知識，目前等級為'}</p>
+      <div class="cert-title">${top? top.ico+' '+top.name : L.lv.ico+' '+L.lv.name}</div>
+      <div class="cert-seals">${CERTS.map(c=>`<div class="cert-seal ${S.badges.includes(c.badge)?'got':''}"><span>${c.ico}</span><b>${c.name}</b><small>${c.full}</small></div>`).join('')}</div>
+      <div class="cert-stats"><div><b>${L.lv.ico} ${L.lv.name}</b><small>等級</small></div><div><b>${S.xp}</b><small>XP</small></div><div><b>${S.read.length}/${CARDS.length}</b><small>知識卡</small></div><div><b>${S.badges.length}/${BADGES.length}</b><small>徽章</small></div><div><b>${Object.keys(S.missions).length}/${MISSIONS.length}</b><small>任務</small></div></div>
+      <div class="cert-date">${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日</div>
+      <div class="cert-stamp">🦉 估咕認證</div>
+      <div class="cert-sign">估價師簽證 ✍️ ＿＿＿＿＿＿</div>
+    </div></div>`;
 };
 
 /* ---------- 啟動 ---------- */

@@ -409,3 +409,11 @@ footer a:hover{text-decoration:underline}
 .badge-group{margin-bottom:22px} .badge-group h3{margin:0 0 6px; font-size:20px} .badge-group.locked{opacity:.6}
 .calc-opts .opt span:last-child{font-size:20px; font-weight:800}
 @media (max-width:760px){ .cands.cands-many{grid-template-columns:repeat(2,1fr)} .comps.comps4{grid-template-columns:1fr} .tier-tab{padding:8px 12px; font-size:15px} }
+
+/* 三張估咕認證 */
+.cert-seals{display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:6px 0 12px}
+.cert-seal{display:flex; flex-direction:column; align-items:center; border:3px dashed #d5d5d5; border-radius:16px; padding:8px 14px; min-width:120px; opacity:.4; filter:grayscale(1)}
+.cert-seal.got{opacity:1; filter:none; border:3px solid var(--teal); background:#e6f1f2}
+.cert-seal span{font-size:30px; line-height:1.1} .cert-seal b{font-size:16px} .cert-seal small{font-size:12px; color:var(--muted)}
+.cert-stats{flex-wrap:wrap; gap:18px}
+.cert-stats b{font-size:20px}

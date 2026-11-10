@@ -118,7 +118,7 @@ function checkBadges(){
   if(gained.length){
     save(); sfx.badge(); confetti(140);
     gained.forEach(b=>toast(`🏅 獲得徽章：${b.ico} ${b.name}！`, 'badge'));
-    if(gained.some(b=>b.id==='master')) celebrate('shengri', '👑 估咕貓頭鷹宣布：你已經是小小估價師了！');
+    if(gained.some(b=>b.id==='master')) celebrate('shengri', '🎓 通過估咕初階認證：你是「小小估價師」了！');
   }
 }
 function refreshMeta(){

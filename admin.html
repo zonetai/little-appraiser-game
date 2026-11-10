@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>後台管理｜小小估價師大冒險</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="style.css?v=31">
+<style>
+  .adm-wrap{max-width:1240px}
+  .adm-card{background:#fff; border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow); margin-top:16px}
+  .adm-card h3{margin:0 0 10px; font-size:20px; color:var(--teal)}
+  .adm-login{max-width:440px; margin:40px auto}
+  .adm-login img{height:110px; display:block; margin:0 auto 8px}
+  .adm-tiles{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin-top:16px}
+  .adm-tile{background:#fff; border-radius:16px; padding:14px 16px; box-shadow:var(--shadow); border-top:6px solid var(--teal2)}
+  .adm-tile b{display:block; font-size:28px; line-height:1.2; color:var(--teal)}
+  .adm-tile span{font-size:14px; color:var(--muted)}
+  .adm-tile small{display:block; font-size:12.5px; color:var(--muted)}
+  .adm-scroll{overflow-x:auto}
+  table.adm{width:100%; border-collapse:collapse; font-size:14.5px}
+  table.adm th{text-align:left; background:#eef4f5; padding:8px 8px; white-space:nowrap; position:sticky; top:0; cursor:default; user-select:none}
+  table.adm th.sortable{cursor:pointer} table.adm th.sortable:hover{background:#dbe9eb}
+  table.adm td{padding:7px 8px; border-bottom:1px solid #eee; vertical-align:top}
+  table.adm tr.row{cursor:pointer} table.adm tr.row:hover{background:#f6fbfb} table.adm tr.sel{background:#e6f1f2}
+  table.adm td.num, table.adm th.num{text-align:right; font-variant-numeric:tabular-nums}
+  .tag{display:inline-block; border-radius:99px; padding:1px 8px; font-size:12px; font-weight:800; color:#fff; background:var(--grey)}
+  .tag.named{background:var(--teal)} .tag.guest{background:#9aa5a8} .tag.warn{background:var(--r)} .tag.cert{background:var(--o)}
+  .bar{display:inline-block; height:10px; border-radius:99px; background:var(--teal2); vertical-align:middle; min-width:2px}
+  .bar.ng{background:var(--r)}
+  .pctcell{font-weight:800} .pct-good{color:#0a9b6f} .pct-mid{color:var(--o)} .pct-low{color:var(--r)}
+  .adm-tools{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; font-size:14.5px}
+  .adm-tools input[type=search], .adm-tools select, .adm-inline input{border:2px solid #ddd; border-radius:10px; padding:6px 10px; font-size:14.5px; font-family:inherit}
+  .adm-inline{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px}
+  .adm-two{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .adm-note{background:#fff8e7; border-left:5px solid var(--o); border-radius:10px; padding:8px 12px; font-size:14px; margin:8px 0}
+  .q{max-width:520px}
+  @media (max-width:900px){ .adm-two{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap adm-wrap hdr">
+    <div class="brand">
+      <img class="logo-img" src="assets/owl-head.png" alt="估咕貓頭鷹">
+      <h1>後台管理<small>小小估價師大冒險 · 遊玩數據</small></h1>
+    </div>
+    <div class="hdr-right">
+      <span class="pill" id="adm-who" style="display:none"></span>
+      <button class="btn sm ghost" id="adm-refresh" style="display:none" onclick="admLoad()">🔄 重新整理</button>
+      <button class="btn sm ghost" id="adm-logout" style="display:none" onclick="admLogout()">登出</button>
+      <a class="btn sm ghost" href="./">回網站</a>
+    </div>
+  </div>
+</header>
+<main class="wrap adm-wrap"><div id="adm-root"></div></main>
+<div class="toast" id="toast"></div>
+
+<script src="data.js?v=31"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="admin.js?v=31"></script>
+</body>
+</html>
