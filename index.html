@@ -6,7 +6,7 @@
 <title>小小估價師大冒險｜不動產知識庫遊戲</title>
 <meta name="description" content="給國小學生的不動產知識庫遊戲網站：從估價師的角度認識房子、土地、價格與城市議題。">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
 
@@ -15,8 +15,8 @@
 <header>
   <div class="wrap hdr">
     <div class="brand" onclick="go('home')">
-      <img class="logo-img" src="assets/owl-head.png" alt="估咕貓頭鷹">
-      <h1>小小估價師大冒險<small>跟著估咕貓頭鷹，看懂房子、土地和我們的城市</small></h1>
+      <img class="logo-img" src="assets/gxt-head.png" alt="估小泰">
+      <h1>小小估價師大冒險<small>跟著估小泰，看懂房子、土地和我們的城市</small></h1>
     </div>
     <div class="hdr-right">
       <div class="level" id="hdr-level"></div>
@@ -44,16 +44,17 @@
   <section class="page" id="page-home">
     <div class="hero">
       <div>
-        <h2 id="home-title">嗨！我是估咕貓頭鷹，<br>房子的「價格偵探」🔍</h2>
-        <p>為什麼有的房子很貴、有的很便宜？老房子要怎麼變新？政府蓋捷運要用到別人的土地怎麼辦？<br>翻知識卡、玩遊戲、接任務、收集徽章，從「估咕蛋」一路孵化成「傳奇估咕」，拿下三張估咕認證！</p>
+        <span class="slogan-chip">估專業 ・ 泰安心</span>
+        <h2 id="home-title">嗨！我是估小泰，<br>房子的「價格偵探」🔍</h2>
+        <p>為什麼有的房子很貴、有的很便宜？老房子要怎麼變新？政府蓋捷運要用到別人的土地怎麼辦？<br>翻知識卡、玩遊戲、接任務、收集徽章，從「小泰蛋」一路孵化成「傳奇小泰」，拿下三張估小泰認證！</p>
         <button class="btn y" onclick="go('learn')">📚 看知識卡</button>
         <button class="btn r" onclick="go('mission')">🕵️ 接任務</button>
         <button class="btn g" onclick="go('games')">🎮 遊樂場</button>
       </div>
-      <div class="art"><img class="hero-owl" src="assets/owl.png" alt="估咕貓頭鷹"></div>
+      <div class="art"><div class="hero-say" id="hero-say">點我換表情！</div><img class="hero-owl" id="hero-owl" src="assets/gxt-ok.png" alt="估小泰" title="點我換表情" onclick="heroFace()"></div>
     </div>
 
-    <div class="owl-say"><img id="home-owl-say" src="assets/stk-zaoan.png" alt="估咕貓頭鷹：早安"><div class="bubble"><b>估咕貓頭鷹</b>是本站的嚮導，原型是台灣角鴞：大大的眼睛代表估價師對細節的敏銳觀察，青藍色的眉羽和領結是牠的招牌。名字裡的「估」是估價，「咕」是貓頭鷹的叫聲。答對題目時，牠會跳出來說「泰精準」！</div></div>
+    <div class="owl-say"><img id="home-owl-say" src="assets/stk-zaoan.png" alt="估小泰：早安"><div class="bubble"><b>估小泰</b>（英文名 Goodtime）是本站的嚮導，一隻在估價師事務所上班的貓頭鷹估價師。大眼睛代表觀察入微、精準判斷；藍色領結是專業人士的形象；藍色眉羽代表理性與智慧；白色圓滾滾的身體讓人覺得親切可靠。牠的口號是「估專業 泰安心」，答對題目時還會跳出來說「泰精準」！</div></div>
 
     <div id="home-daily"></div>
 
@@ -147,7 +148,7 @@
     <div class="cert-tools no-print">
       <label>你的名字：<input type="text" id="cert-name" maxlength="12" placeholder="輸入名字" onchange="saveName(this.value)"></label>
       <button class="btn b sm" onclick="window.print()">🖨️ 列印證書</button>
-      <span class="muted">每完成一個階層就得到一張估咕認證：初階「小小估價師」、中階「精打細算師」、進階「泰精準大師」。</span>
+      <span class="muted">每完成一個階層就得到一張估小泰認證：初階「小小估價師」、中階「精打細算師」、進階「泰精準大師」。</span>
     </div>
     <div id="cert"></div>
   </section>
@@ -166,9 +167,9 @@
       <p>多數孩子對「房子」的理解停在「我家」和「很貴」。本站以<b>不動產估價師</b>的專業視角切入，讓孩子理解：價格不是隨便喊的，而是由位置、屋齡、環境、供需、法規等因素共同決定，並且可以用方法「算」出來。同時帶入都市更新、社會住宅、土地徵收、居住正義、環境風險等公共議題，培養對城市與公共事務的基本素養。</p>
       <h3>內容架構</h3>
       <ul>
-        <li><b>知識庫：</b>9 個世界、122 張翻翻卡，每張都有白話解釋＋「估咕小知識」，部分附「你知道嗎」小故事。可搜尋關鍵字。</li>
+        <li><b>知識庫：</b>9 個世界、122 張翻翻卡，每張都有白話解釋＋「估小泰小知識」，部分附「你知道嗎」小故事。可搜尋關鍵字。</li>
         <li><b>三個階層：</b>初階（原有內容）→ 中階（集滿初階徽章解鎖：計算題、更細的案例比較、45 秒真假快答、15 秒挑戰、河岸與山城關卡、三個新任務、估價計算所）→ 進階（集滿中階徽章解鎖：兩步計算、三間排序、剔除異常案例、六選三比較標的、10 秒挑戰、大都會關卡、權變分配等任務）。中階 XP ×2、進階 ×3，解鎖中階後初階 XP 減半，等級上限 18,000 XP。</li>
-        <li><b>稱號與認證：</b>等級稱號（依 XP）是估咕貓頭鷹的成長歷程：估咕蛋 → 破殼估咕 → 學飛估咕 → 現勘估咕 → 精算估咕 → 展翅估咕 → 獵案估咕 → 明辨估咕 → 公正估咕 → 首席估咕 → 傳奇估咕，刻意不使用「估價師」這個需國家考試的法定職稱。認證（依各階層徽章集滿）共三張：估咕初階認證「小小估價師」、中階認證「精打細算師」、進階認證「泰精準大師」，會顯示在證書上。</li>
+        <li><b>稱號與認證：</b>等級稱號（依 XP）是估小泰的成長歷程：小泰蛋 → 破殼小泰 → 學飛小泰 → 現勘小泰 → 精算小泰 → 展翅小泰 → 獵案小泰 → 明辨小泰 → 公正小泰 → 首席小泰 → 傳奇小泰，刻意不使用「估價師」這個需國家考試的法定職稱。認證（依各階層徽章集滿）共三張：估小泰初階認證「小小估價師」、中階認證「精打細算師」、進階認證「泰精準大師」，會顯示在證書上。</li>
         <li><b>估價師出任務：</b>15 個情境（初階 9、中階 3、進階 3）（銀行貸款、法院拍賣、都更權變、土地徵收、店面收益、職業道德、報告品管審查、公產審查委員、調解人），每個 5 個關鍵決定，模擬估價師的判斷。</li>
         <li><b>價格猜猜樂：</b>比較法「調整」的數學練習：由案例價格反推標的價格（除法與百分比）。</li>
         <li><b>城市規劃師：</b>在格子地圖上配置公園、捷運、工廠、垃圾場，體會外部效果與土地使用分區的邏輯。</li>
@@ -224,21 +225,46 @@
       <p>本站所有知識卡文字、題目、任務劇情、遊戲規則、版面設計與程式碼，均為本站<b>原創製作</b>，未複製任何其他網站、教材、簡報或出版品的內容與程式。遊戲採用的形式（選擇題、翻牌配對、二選一比較、格子地圖）屬於通用的遊戲類型，其題材、文案與計分機制皆為本站自行設計。</p>
       <h3>製作方式</h3>
       <ul>
-        <li><b>規劃與專業把關：</b>由執業不動產估價師規劃。以估價實務為出發點，決定主題架構、名詞解釋與「估咕小知識」的方向；「真實工作現場」世界與三個審查、調解任務，取材自其日常工作流程（報告品管、擔任審查委員、調解）並匿名化改寫。</li>
+        <li><b>規劃與專業把關：</b>由執業不動產估價師規劃。以估價實務為出發點，決定主題架構、名詞解釋與「估小泰小知識」的方向；「真實工作現場」世界與三個審查、調解任務，取材自其日常工作流程（報告品管、擔任審查委員、調解）並匿名化改寫。</li>
         <li><b>撰寫與開發：</b>與 AI 協作（Anthropic Claude），由估價師提出需求與審閱，AI 產出文字與程式碼；全程未參考或改寫任何特定第三方作品。</li>
         <li><b>製作歷程公開：</b>原始碼與每一次修改紀錄都公開在 <a href="https://github.com/zonetai/little-appraiser-game" target="_blank" rel="noopener">GitHub（zonetai/little-appraiser-game）</a>，可查看從第一版到現在的完整演進。</li>
-        <li><b>視覺識別：</b>全站色調取自品牌 LOGO 的深青、深灰、淺灰與暖米白；吉祥物「估咕貓頭鷹」與貼圖由品牌設計團隊製作。</li>
+        <li><b>視覺識別：</b>全站色調取自吉祥物「估小泰」的三個代表色：品牌藍、白色與黃色；估小泰的角色設定、表情圖與情境貼圖由品牌設計團隊製作。</li>
         <li><b>使用的開源元件：</b>僅 <a href="https://github.com/supabase/supabase-js" target="_blank" rel="noopener">supabase-js</a>（MIT 授權）用於雲端帳號同步；圖示全部為 Unicode 表情符號，未使用任何外部圖片或字型檔。</li>
       </ul>
-      <h3>吉祥物：估咕貓頭鷹</h3>
-      <div class="about-owl">
-        <img class="main" src="assets/owl.png" alt="估咕貓頭鷹">
+      <h3>吉祥物：估小泰（Goodtime）</h3>
+      <div class="gxt-profile">
+        <div class="gxt-id">
+          <img src="assets/gxt-normal.png" alt="估小泰">
+          <div class="gxt-slogan">估專業 ・ 泰安心</div>
+        </div>
         <div>
-          <p style="margin:0 0 6px">估咕貓頭鷹以<b>台灣角鴞</b>為原型：角鴞感官敏銳、大眼睛象徵對細節的觀察力，正是估價師「實地勘查、專業謹慎」的寫照。白色圓滾滾的身體、青藍色的眉羽與領結、黃色的小腳，是牠的招牌造型。</p>
-          <div class="about-stk"><img src="assets/stk-xiankan.png" alt="現勘中"><img src="assets/stk-jingda.png" alt="精打細算"><img src="assets/stk-tai-jingzhun.png" alt="泰精準"></div>
-          <p class="fine" style="margin:6px 0 0">網站中的情境貼圖（加油、早安、晚安、立馬處理、現勘中、掐指一算、精打細算、泰精準、泰崩潰、辛苦了、謝謝你、慶祝一下、鐵口直斷、交給專業的來、真的 duck 不必、Deadline、通宵趕報告、生日快樂與節慶款）取自第一波 LINE 貼圖設計。</p>
+          <dl class="gxt-dl">
+            <dt>姓名</dt><dd>估小泰</dd>
+            <dt>英文名</dt><dd>Goodtime</dd>
+            <dt>物種</dt><dd>貓頭鷹</dd>
+            <dt>職業</dt><dd>不動產估價師</dd>
+            <dt>專長</dt><dd>不動產估價、都市更新、危老重建、市場分析</dd>
+            <dt>個性</dt><dd>聰明、細心、親切、幽默、熱心</dd>
+            <dt>代表色</dt><dd><span class="sw" style="background:#0098bc"></span>品牌藍　<span class="sw" style="background:#fff"></span>白色　<span class="sw" style="background:#f8c008"></span>黃色</dd>
+          </dl>
+          <div class="gxt-tags"><span>公正</span><span>客觀</span><span>專業</span><span>謹慎</span><span>合理</span><span>信任</span></div>
         </div>
       </div>
+      <div class="gxt-traits">
+        <div><b>👀 大眼睛</b>觀察入微，精準判斷</div>
+        <div><b>🎀 藍色領結</b>專業人士的形象</div>
+        <div><b>💙 藍色眉羽</b>專業、理性與智慧</div>
+        <div><b>☁️ 白色圓潤體態</b>親切可靠，沒有距離感</div>
+      </div>
+      <h4>估小泰的 20 種表情</h4>
+      <p class="fine" style="margin:0 0 8px">點一下表情，看看估小泰在說什麼。答題的時候，牠也會用這些表情回應你。</p>
+      <div class="gxt-gallery" id="gxt-gallery"></div>
+      <div class="gxt-quote" id="gxt-quote">👆 點任何一個表情</div>
+      <h4>八視圖設定稿</h4>
+      <img class="gxt-turn" src="assets/gxt-turnaround.png" alt="估小泰八視圖設定稿" loading="lazy">
+      <h4>LINE 情境貼圖</h4>
+      <div class="about-stk"><img src="assets/stk-xiankan.png" alt="現勘中" loading="lazy"><img src="assets/stk-jingda.png" alt="精打細算" loading="lazy"><img src="assets/stk-tai-jingzhun.png" alt="泰精準" loading="lazy"></div>
+      <p class="fine" style="margin:6px 0 0">網站中的情境貼圖（加油、早安、晚安、立馬處理、現勘中、掐指一算、精打細算、泰精準、泰崩潰、辛苦了、謝謝你、慶祝一下、鐵口直斷、交給專業的來、真的 duck 不必、Deadline、通宵趕報告、生日快樂與節慶款）取自第一波 LINE 貼圖設計，用在首頁問候、任務開場與升級慶祝。</p>
       <h3>內容依據與資料來源</h3>
       <p>知識卡與題目中的制度說明，依據下列公開法規與政府資料，並改寫為小學生能理解的語言；遊戲中的價格、折舊率、調整幅度、收益率等數字皆為教學用簡化範例。</p>
       <ul>
@@ -253,7 +279,7 @@
       <ul>
         <li><b>文字與教材內容：</b>採 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="noopener">創用 CC 姓名標示－非商業性－相同方式分享 4.0（CC BY-NC-SA 4.0）</a>。學校與非營利教學可自由使用、改作，請標示「小小估價師大冒險」與本站網址。</li>
         <li><b>程式碼：</b>採 <a href="https://github.com/zonetai/little-appraiser-game/blob/main/LICENSE" target="_blank" rel="noopener">MIT 授權</a>。</li>
-        <li><b>吉祥物圖像：</b>估咕貓頭鷹及其貼圖為專有設計素材，<b>保留所有權利</b>，不在上述 CC 授權範圍內；未經同意請勿擷取、改作或另作使用。</li>
+        <li><b>吉祥物圖像：</b>估小泰及其貼圖為專有設計素材，<b>保留所有權利</b>，不在上述 CC 授權範圍內；未經同意請勿擷取、改作或另作使用。</li>
         <li>商業使用或其他合作，請透過 GitHub 聯繫。</li>
       </ul>
       <h3>隱私</h3>
@@ -263,6 +289,7 @@
         <li><b>2026-11-05 v1：</b>單一網頁，4 個世界 35 張知識卡，5 個小遊戲與徽章。</li>
         <li><b>2026-11-05 v2：</b>擴充為 6 個世界 63 張知識卡、8 個遊戲、XP 等級、13 枚徽章與可列印證書。</li>
         <li><b>2026-11-05 v2.1：</b>新增暱稱＋密碼帳號與跨裝置進度同步。</li>
+        <li><b>2026-11-10 v2.11：</b>導入吉祥物新版識別「估小泰（Goodtime）」：全站改名、改用品牌藍／白／黃代表色，新增 20 種表情圖（答題回饋、首頁點擊換表情）、角色設定卡與八視圖，等級稱號改為小泰蛋 → 傳奇小泰，認證改為估小泰初階／中階／進階認證。</li>
         <li><b>2026-11-10 v2.10：</b>防連點機制：各遊戲加入看題時間、計算題答錯冷卻，並記錄每題作答秒數。</li>
         <li><b>2026-11-10 v2.9：</b>認證與稱號重新命名：11 個等級改為估咕成長稱號，三張估咕認證（小小估價師／精打細算師／泰精準大師）顯示於證書；新增管理後台。</li>
         <li><b>2026-11-09 v2.8：</b>知識卡擴充至 122 張：既有 7 個世界各補 3–4 張（建號、違建、車位、樓層效用比、裝潢、座向、噪音、房市循環、面積量測、估價七步驟、三個日期、價格種類、公有土地、容積移轉、管委會、捷運聯合開發、房貸月付、房屋保險、實價登錄申報、海綿城市、土壤污染、GIS、接案、報告保存、如何成為估價師），新增「🧮 估價計算教室」12 張與「🌍 世界的房子」10 張。</li>
@@ -280,7 +307,7 @@
 </main>
 
 <footer>
-  小小估價師大冒險 ・ 不動產知識庫遊戲 ・ 以不動產估價師的專業視角設計，供教學使用。吉祥物「估咕貓頭鷹」版權所有。<br>
+  小小估價師大冒險 ・ 不動產知識庫遊戲 ・ 以不動產估價師的專業視角設計，供教學使用。吉祥物「估小泰」版權所有 ・ 估專業 泰安心。<br>
   遊戲內數字為教學簡化範例，非真實行情。 ・ <a href="#about">製作說明與授權</a> ・ <a href="https://github.com/zonetai/little-appraiser-game" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
@@ -295,10 +322,10 @@
   </div>
 </div>
 
-<script src="data.js?v=32"></script>
-<script src="app.js?v=32"></script>
-<script src="tiers.js?v=32"></script>
+<script src="data.js?v=33"></script>
+<script src="app.js?v=33"></script>
+<script src="tiers.js?v=33"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="cloud.js?v=32"></script>
+<script src="cloud.js?v=33"></script>
 </body>
 </html>

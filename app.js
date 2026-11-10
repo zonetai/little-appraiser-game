@@ -10,8 +10,8 @@ function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.fl
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const stars = n => '⭐'.repeat(n) + '☆'.repeat(3-n);
 
-/* ---------- 估咕貓頭鷹貼圖 ---------- */
-const MASCOT='估咕貓頭鷹';
+/* ---------- 估小泰貼圖 ---------- */
+const MASCOT='估小泰';
 const STK={
   jiayou:['加油','stk-jiayou.png'], zaoan:['估摸檸（早安）','stk-zaoan.png'], wanan:['估耐（晚安）','stk-wanan.png'],
   zhuanye:['交給專業的來','stk-zhuanye.png'], lima:['立馬處理','stk-lima.png'], shengri:['生日快樂','stk-shengri.png'],
@@ -21,8 +21,30 @@ const STK={
   xiankan:['現勘中','stk-xiankan.png'], qiazhi:['掐指一算','stk-qiazhi.png'], duck:['真的 duck 不必','stk-duck.png'],
   jingzhun:['泰精準','stk-tai-jingzhun.png'], bengkui:['泰崩潰','stk-tai-bengkui.png'], xmas:['耶誕節快樂','stk-xmas.png'], xinkule:['辛苦了','stk-xinkule.png']};
 function stk(k, cls){ const s=STK[k]||STK.jiayou; return `<img class="stk ${cls||''}" src="assets/${s[1]}" alt="${MASCOT}：${s[0]}" loading="lazy">`; }
-const stkOK = cls => stk(rnd(['jingzhun','jingda','ok','qingzhu']), cls);
-const stkNO = cls => stk(rnd(['bengkui','jiayou','duck']), cls);
+/* 估小泰表情圖：key → [表情名稱, 估小泰的一句話] */
+const GXT={
+  happy:['開心','答對了，泰開心！'], sparkle:['眼睛發亮','哇，這個案例太棒了！'], wink:['眨眼','這題我有把握。'], moved:['感動','你進步好多，我好感動。'],
+  shy:['害羞','被稱讚了，不好意思啦。'], smirk:['有把握','讓我算給你看。'], smug:['得意','估得準，心情就好。'], ok:['沒問題','交給我，沒問題！'],
+  normal:['認真','現勘出發，眼睛睜大！'], surprised:['驚訝','咦？這間怎麼這麼便宜？'], shocked:['嚇一跳','什麼！屋頂在漏水？'], blank:['愣住','……我再看一次題目。'],
+  sweat:['尷尬','啊，剛剛算錯一格。'], worried:['擔心','資料不夠，不能亂估。'], cry:['哭哭','報告明天就要交了…'], skeptical:['懷疑','這個成交價怪怪的喔。'],
+  deadpan:['無言','沒去現場就要我估價？'], annoyed:['不耐煩','不可以叫我把價格估高。'], pout:['生悶氣','哼，不要催，我要算仔細。'], angry:['生氣','亂報價格，不行！'], sleepy:['想睡','昨天趕報告，好睏…']};
+function face(k, cls){ const g=GXT[k]||GXT.normal; return `<img class="stk ${cls||''}" src="assets/gxt-${GXT[k]?k:'normal'}.png" alt="${MASCOT}：${g[0]}" loading="lazy">`; }
+const stkOK = cls => Math.random()<0.65 ? face(rnd(['happy','sparkle','wink','moved','smirk','shy','ok']), cls) : stk(rnd(['jingzhun','jingda','ok','qingzhu']), cls);
+const stkNO = cls => Math.random()<0.65 ? face(rnd(['cry','shocked','worried','sweat','surprised','blank']), cls) : stk(rnd(['bengkui','jiayou','duck']), cls);
+function heroFace(){
+  const el=$('hero-owl'); if(!el) return; const keys=Object.keys(GXT); let k; do{ k=rnd(keys); }while(k===heroFace.k); heroFace.k=k;
+  el.src='assets/gxt-'+k+'.png'; el.alt=MASCOT+'：'+GXT[k][0];
+  el.classList.remove('boing'); void el.offsetWidth; el.classList.add('boing');
+  const say=$('hero-say'); if(say) say.textContent=GXT[k][1];
+}
+function gxtPick(k){
+  const q=$('gxt-quote'); if(q) q.innerHTML=`<b>${GXT[k][0]}</b>　${MASCOT}：「${esc(GXT[k][1])}」`;
+  document.querySelectorAll('#gxt-gallery button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
+}
+function renderGxtGallery(){
+  const el=$('gxt-gallery'); if(!el) return;
+  el.innerHTML=Object.keys(GXT).filter(k=>k!=='ok').map(k=>`<button type="button" data-k="${k}" onclick="gxtPick('${k}')"><img src="assets/gxt-${k}.png" alt="${MASCOT}：${GXT[k][0]}" loading="lazy"><span>${GXT[k][0]}</span></button>`).join('');
+}
 function seasonStk(){ const d=new Date(), m=d.getMonth()+1, day=d.getDate(), h=d.getHours();
   if(m===12 && day>=10 && day<=26) return 'xmas';
   if((m===1 && day>=15) || (m===2 && day<=20)) return rnd(['newyear','newyear2']);
@@ -118,7 +140,7 @@ function checkBadges(){
   if(gained.length){
     save(); sfx.badge(); confetti(140);
     gained.forEach(b=>toast(`🏅 獲得徽章：${b.ico} ${b.name}！`, 'badge'));
-    if(gained.some(b=>b.id==='master')) celebrate('shengri', '🎓 通過估咕初階認證：你是「小小估價師」了！');
+    if(gained.some(b=>b.id==='master')) celebrate('shengri', '🎓 通過估小泰初階認證：你是「小小估價師」了！');
   }
 }
 function refreshMeta(){
@@ -155,7 +177,7 @@ window.addEventListener('hashchange', ()=>{ const p=(location.hash||'#home').sli
 function renderHome(){
   const L=levelOf(S.xp);
   const c=rnd(CARDS); const ci=CARDS.indexOf(c);
-  $('home-daily').innerHTML=`<div class="daily"><div class="daily-ico">${c.ico}</div><div><div class="daily-k">🦉 估咕今天推薦的知識卡</div><h3>${esc(c.t)}</h3><p>${esc(c.a)}</p><div class="tipline"><b>🦉 估咕小知識：</b>${esc(c.tip)}</div></div></div>`;
+  $('home-daily').innerHTML=`<div class="daily"><div class="daily-ico">${c.ico}</div><div><div class="daily-k">🦉 估小泰今天推薦的知識卡</div><h3>${esc(c.t)}</h3><p>${esc(c.a)}</p><div class="tipline"><b>🦉 估小泰小知識：</b>${esc(c.tip)}</div></div></div>`;
   if(!S.read.includes(ci)){ S.read.push(ci); save(); checkBadges(); }
   $('home-title').innerHTML = S.name ? `嗨，${esc(S.name)}！我是${MASCOT}。<br>你現在是「${L.lv.ico} ${L.lv.name}」` : `嗨！我是${MASCOT}，<br>房子的「價格偵探」🔍`;
   const os=$('home-owl-say'); if(os){ const k=seasonStk(); os.src='assets/'+STK[k][1]; os.alt=MASCOT+'：'+STK[k][0]; }
@@ -210,7 +232,7 @@ function renderCards(){
         <div class="face back">
           <h4>${c.ico} ${esc(c.t)}</h4>
           <p>${esc(c.a)}</p>
-          <div class="tip"><b>🦉 估咕小知識：</b>${esc(c.tip)}</div>
+          <div class="tip"><b>🦉 估小泰小知識：</b>${esc(c.tip)}</div>
           ${c.fun?`<div class="fun"><b>💡 你知道嗎？</b>${esc(c.fun)}</div>`:''}
         </div>
       </div>
@@ -269,7 +291,7 @@ function quizAnswer(k){
   if(ok){ st.score++; st.combo++; st.maxCombo=Math.max(st.maxCombo,st.combo); sfx.ok(); xp = st.mode==='challenge' ? 15+Math.min(st.combo-1,5)*5 : 10; }
   else { st.combo=0; sfx.bad(); }
   const ex=$('quiz-explain');
-  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':(k<0?'⏰ 時間到！':'❌ 答錯了，')}${ok?'':'正確答案是 '+'ABCD'[q.a]+'。'}</b>${xp?`<span class="xpchip">+${xp} XP${st.combo>1?' 🔥 連擊 x'+st.combo:''}</span>`:''}<br>🦉 估咕說：${esc(q.e)}`;
+  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':(k<0?'⏰ 時間到！':'❌ 答錯了，')}${ok?'':'正確答案是 '+'ABCD'[q.a]+'。'}</b>${xp?`<span class="xpchip">+${xp} XP${st.combo>1?' 🔥 連擊 x'+st.combo:''}</span>`:''}<br>🦉 估小泰說：${esc(q.e)}`;
   ex.classList.add('show');
   if(xp) addXP(xp, '');
   $('quiz-next').style.display='inline-block';
@@ -418,7 +440,7 @@ function priceAnswer(k){
   const rs=reasons(W,L);
   const ex=$('price-explain');
   ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！'}</b> ${win===0?'A':'B'} 房子每坪大約貴了 ${diff}%。<br>
-    🦉 <b>估咕這樣想：</b><ul>${rs.map(r=>`<li>${r}</li>`).join('')||'<li>兩間條件很接近，但加總起來還是有差！</li>'}</ul>
+    🦉 <b>估小泰這樣想：</b><ul>${rs.map(r=>`<li>${r}</li>`).join('')||'<li>兩間條件很接近，但加總起來還是有差！</li>'}</ul>
     <div class="fine">（教學用簡化數字：市中心 60 萬／坪、近郊 40、郊區 25 為基礎，再依屋齡、交通、環境、樓層調整。）</div>`;
   ex.classList.add('show');
   $('price-next').style.display='inline-block';
@@ -468,7 +490,7 @@ function estSubmit(){
   $('est-submit').disabled=true; $('est-slider').disabled=true;
   const ex=$('est-explain');
   ex.innerHTML=`${stk(['bengkui','jiayou','jingda','jingzhun'][n],'stk-r')}<b>${['😅 差太多了！','👍 還不錯！','🎉 很接近！','🏆 神準！'][n]}</b> 你估 ${v.toFixed(1)} 萬，合理價格約 <b>${st.P} 萬／坪</b>（誤差 ${Math.round(err*100)}%）<span class="xpchip">${stars(n)}</span><br>
-    🦉 <b>估咕這樣算：</b>每個案例的價格，要「反過來」把差異調整掉，才會變成標的的價格。<ul>
+    🦉 <b>估小泰這樣算：</b>每個案例的價格，要「反過來」把差異調整掉，才會變成標的的價格。<ul>
     ${st.comps.map(c=>`<li>案例 ${c.name}：${c.price} ÷ (1 ${c.adj>=0?'+':'−'} ${Math.abs(Math.round(c.adj*100))}%) ≈ <b>${(c.price/(1+c.adj)).toFixed(1)}</b> 萬</li>`).join('')}
     <li>三個調整後的價格都很接近，取其平均 ≈ <b>${(st.comps.reduce((s,c)=>s+c.price/(1+c.adj),0)/3).toFixed(1)}</b> 萬／坪，就是合理的估價。</li></ul>
     <div class="fine">小技巧：案例條件比標的「好」（+），它的價格就要往下調；比標的「差」（−），就要往上調。</div>`;
@@ -518,7 +540,7 @@ function compAnswer(i){
     return `<li>案例 ${k+1}：${why.join('、')||'條件接近'}</li>`;
   });
   const ex=$('comp-explain');
-  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！最像的是案例 '+(st.correct+1)+'。'}</b><br>🦉 <b>估咕這樣想：</b>比較法要選「同地區、同類型、屋齡接近、面積接近、最近成交」的案例，差一點點沒關係，之後再做「調整」。<ul>${wrongs.join('')}</ul>`;
+  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！最像的是案例 '+(st.correct+1)+'。'}</b><br>🦉 <b>估小泰這樣想：</b>比較法要選「同地區、同類型、屋齡接近、面積接近、最近成交」的案例，差一點點沒關係，之後再做「調整」。<ul>${wrongs.join('')}</ul>`;
   ex.classList.add('show'); $('comp-next').style.display='inline-block';
   document.querySelector('#comp-panel .score').innerHTML=`<span class="pill">🏅 累計答對 ${S.compCorrect}</span>`;
 }
@@ -636,7 +658,7 @@ function cityFinish(){
   if(n>=2) sfx.ok(); else sfx.bad(); if(n) { addXP(n*40,'城市規劃'); if(n===3) confetti(150); } checkBadges();
   cityRender();
   const ex=$('city-explain'); ex.innerHTML=`${stk(['jiayou','xinkule','qingzhu','jingzhun'][n],'stk-r')}<b>${['😅 還可以更好！','👍 不錯的城市！','🎉 很棒的規劃！','🏆 完美城市！'][n]}</b> 總地價 ${total}，電腦找到的最佳解約 ${st.best}。<span class="xpchip">${stars(n)}</span><br>
-    🦉 <b>估咕的規劃心得：</b><ul><li>嫌惡設施（工廠、垃圾場）放角落，只影響到少數格子，最好讓它們互相靠近、一起「犧牲」同一區。</li><li>加分設施（捷運、公園、學校）放中間，周圍八個方向的住宅都能受惠。</li><li>這就是真實城市「土地使用分區」的道理：把相容的放一起，把衝突的分開。</li></ul>
+    🦉 <b>估小泰的規劃心得：</b><ul><li>嫌惡設施（工廠、垃圾場）放角落，只影響到少數格子，最好讓它們互相靠近、一起「犧牲」同一區。</li><li>加分設施（捷運、公園、學校）放中間，周圍八個方向的住宅都能受惠。</li><li>這就是真實城市「土地使用分區」的道理：把相容的放一起，把衝突的分開。</li></ul>
     <p class="center"><button class="btn b" onclick="cityStart(${st.li})">🔁 再挑戰這關</button> <button class="btn ghost" onclick="cityMenu()">↩️ 選關卡</button></p>`;
   ex.classList.add('show'); ex.scrollIntoView({behavior:'smooth'});
 }
@@ -708,7 +730,7 @@ function renderCert(){
   $('cert-name').value=S.name||'';
   $('cert').innerHTML=`
     <div class="cert-border"><div class="cert-inner">
-      <img class="cert-owl" src="assets/owl-glasses.png" alt="估咕貓頭鷹">
+      <img class="cert-owl" src="assets/gxt-wink.png" alt="估小泰">
       <div class="cert-top">小小估價師大冒險</div>
       <h2>${S.badges.includes('master')?'小小估價師 結業證書':'學習成就證明'}</h2>
       <p class="cert-to">茲證明</p>
@@ -718,7 +740,7 @@ function renderCert(){
       <div class="cert-stats"><div><b>${S.xp}</b><small>XP</small></div><div><b>${S.read.length}/${CARDS.length}</b><small>知識卡</small></div><div><b>${S.badges.length}/${BADGES.length}</b><small>徽章</small></div><div><b>${Object.keys(S.missions).length}/${MISSIONS.length}</b><small>任務</small></div></div>
       <div class="cert-badges">${BADGES.filter(b=>S.badges.includes(b.id)).map(b=>`<span title="${b.name}">${b.ico}</span>`).join('')||'<span class="muted">還沒有徽章，快去遊樂場！</span>'}</div>
       <div class="cert-date">${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日</div>
-      <div class="cert-stamp">🦉 估咕貓頭鷹 認證</div>
+      <div class="cert-stamp">🦉 估小泰 認證</div>
       <div class="cert-sign">估價師簽證 ✍️ ＿＿＿＿＿＿</div>
     </div></div>`;
 }
@@ -778,5 +800,6 @@ function exportCSV(){
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 $('sound-btn').textContent=S.sound?'🔊':'🔇';
 refreshMeta();
+renderGxtGallery();
 const start=(location.hash||'#home').slice(1);
 go(PAGES.includes(start)?start:'home');

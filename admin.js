@@ -40,7 +40,7 @@ function renderLogin(mode, msg){
   header(false);
   const setup = mode==='setup';
   $('adm-root').innerHTML = `<div class="adm-card adm-login">
-    <img src="assets/stk-zhuanye.png" alt="估咕貓頭鷹">
+    <img src="assets/stk-zhuanye.png" alt="估小泰">
     <h3 style="text-align:center">${setup?'第一次設定後台帳號':'後台登入'}</h3>
     ${msg?`<div class="adm-note">${esc(msg)}</div>`:''}
     <form class="acct-form" onsubmit="${setup?'admSetup(event)':'admLogin(event)'}">

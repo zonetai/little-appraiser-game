@@ -21,12 +21,12 @@ BADGES.find(b=>b.id==='master').test = S=>BADGES.filter(b=>!b.tier && b.id!=='ma
 
 function refreshUnlocks(){
   let ch=false;
-  if(S.badges.includes('master') && !S.unlocked.mid){ S.unlocked.mid=true; ch=true; celebrate('qingzhu','🎓 通過估咕初階認證「小小估價師」！<br>🔓 中階解鎖：題目開始要動腦計算囉'); }
-  if(S.badges.includes('mid_master') && !S.unlocked.adv){ S.unlocked.adv=true; ch=true; celebrate('shengri','🧮 通過估咕中階認證「精打細算師」！<br>🔓 進階解鎖：像真正的估價師一樣思考'); }
+  if(S.badges.includes('master') && !S.unlocked.mid){ S.unlocked.mid=true; ch=true; celebrate('qingzhu','🎓 通過估小泰初階認證「小小估價師」！<br>🔓 中階解鎖：題目開始要動腦計算囉'); }
+  if(S.badges.includes('mid_master') && !S.unlocked.adv){ S.unlocked.adv=true; ch=true; celebrate('shengri','🧮 通過估小泰中階認證「精打細算師」！<br>🔓 進階解鎖：像真正的估價師一樣思考'); }
   if(ch){ save(); checkBadges(); }
 }
 const _checkBadges = checkBadges;
-checkBadges = function(){ const hadAdv=S.badges.includes('adv_master'); _checkBadges(); refreshUnlocks(); if(!hadAdv && S.badges.includes('adv_master')){ confetti(260); celebrate('shengri','🎯 通過估咕進階認證：你是「泰精準大師」了！'); } };
+checkBadges = function(){ const hadAdv=S.badges.includes('adv_master'); _checkBadges(); refreshUnlocks(); if(!hadAdv && S.badges.includes('adv_master')){ confetti(260); celebrate('shengri','🎯 通過估小泰進階認證：你是「泰精準大師」了！'); } };
 
 function setTier(id){
   if(id!=='basic' && !S.unlocked[id]){ toast(`🔒 ${tierInfo(id).name}還沒解鎖：${tierInfo(id).unlock}`); return; }
@@ -161,7 +161,7 @@ priceAnswer = function(k){
     const W=win===0?st.a:st.b, L=win===0?st.b:st.a; const diff=Math.round((W.price/L.price-1)*100);
     logEvent({game:'price', question:`A：${st.a.zone.n}/${st.a.type}/${st.a.age}年/臨路${st.a.road}m｜B：${st.b.zone.n}/${st.b.type}/${st.b.age}年/臨路${st.b.road}m`, chosen:k===0?'A':'B', correct:win===0?'A':'B', ok, extra:{diff}});
     ts.priceStreak = ok?ts.priceStreak+1:0; ts.priceStreakBest=Math.max(ts.priceStreakBest,ts.priceStreak); save(); if(ok){ sfx.ok(); addXP(12,''); } else sfx.bad(); checkBadges();
-    const rs=reasons(W,L); const ex=$('price-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！'}</b> ${win===0?'A':'B'} 房子每坪大約貴了 ${diff}%。<br>🦉 <b>估咕這樣想：</b><ul>${rs.map(r=>`<li>${r}</li>`).join('')||'<li>兩間條件很接近，但加總起來還是有差！</li>'}</ul>`; ex.classList.add('show');
+    const rs=reasons(W,L); const ex=$('price-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！'}</b> ${win===0?'A':'B'} 房子每坪大約貴了 ${diff}%。<br>🦉 <b>估小泰這樣想：</b><ul>${rs.map(r=>`<li>${r}</li>`).join('')||'<li>兩間條件很接近，但加總起來還是有差！</li>'}</ul>`; ex.classList.add('show');
     $('price-next').style.display='inline-block'; document.querySelector('#price-panel .score').innerHTML=`<span class="pill">🔥 連續答對 ${ts.priceStreak}</span><span class="pill">🏅 最佳 ${ts.priceStreakBest}</span><span class="tier-chip tier-mid">🔬中階</span>`;
     return;
   }
@@ -175,7 +175,7 @@ priceAnswer = function(k){
   logEvent({game:'price', question:'三間排序：'+st.hs.map((h,i)=>['A','B','C'][i]+'='+h.zone.n+'/'+h.type+'/'+h.age+'年').join('｜'), chosen:st.picked.map(i=>['A','B','C'][i]).join('>'), correct:order.map(i=>['A','B','C'][i]).join('>'), ok});
   ts.priceStreak = ok?ts.priceStreak+1:0; ts.priceStreakBest=Math.max(ts.priceStreakBest,ts.priceStreak); save(); if(ok){ sfx.ok(); addXP(15,''); } else sfx.bad(); checkBadges();
   const L=['A','B','C']; const ex=$('price-explain');
-  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 三個順序全對！':'❌ 順序不對。'}</b> 正確順序：${order.map(i=>L[i]).join(' ＞ ')}（每坪約 ${order.map(i=>Math.round(st.hs[i].price)).join(' / ')} 萬）<br>🦉 <b>估咕這樣想：</b><ul>${[0,1].map(i=>`<li><b>${L[order[i]]} ＞ ${L[order[i+1]]}</b>：${reasons(st.hs[order[i]],st.hs[order[i+1]]).slice(0,3).join('；')||'條件接近，加總後仍有差距'}</li>`).join('')}</ul>`;
+  ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 三個順序全對！':'❌ 順序不對。'}</b> 正確順序：${order.map(i=>L[i]).join(' ＞ ')}（每坪約 ${order.map(i=>Math.round(st.hs[i].price)).join(' / ')} 萬）<br>🦉 <b>估小泰這樣想：</b><ul>${[0,1].map(i=>`<li><b>${L[order[i]]} ＞ ${L[order[i+1]]}</b>：${reasons(st.hs[order[i]],st.hs[order[i+1]]).slice(0,3).join('；')||'條件接近，加總後仍有差距'}</li>`).join('')}</ul>`;
   ex.classList.add('show'); $('price-next').style.display='inline-block';
   document.querySelector('#price-panel .score').innerHTML=`<span class="pill">🔥 連續答對 ${ts.priceStreak}</span><span class="pill">🏅 最佳 ${ts.priceStreakBest}</span><span class="tier-chip tier-adv">🐉進階</span>`;
 };
@@ -222,7 +222,7 @@ estSubmit = function(){
   const valid=st.comps.filter(c=>!c.outlier);
   const ex=$('est-explain');
   ex.innerHTML=`${stk(['bengkui','jiayou','jingda','jingzhun'][n],'stk-r')}<b>${['😅 差太多了！','👍 還不錯！','🎉 很接近！','🏆 神準！'][n]}</b> 你估 ${v.toFixed(1)} 萬，合理價格約 <b>${st.P} 萬／坪</b>（誤差 ${Math.round(err*100)}%，${tierInfo().name}標準：3 星 ≤${th[0]*100}%）<span class="xpchip">${stars(n)}</span><br>
-    🦉 <b>估咕這樣算：</b><ul>
+    🦉 <b>估小泰這樣算：</b><ul>
     ${st.outlier>=0?`<li>案例 ${st.comps[st.outlier].name} 是不正常交易（${esc(st.comps[st.outlier].note)}），<b>剔除不用</b>。</li>`:''}
     ${valid.map(c=>`<li>案例 ${c.name}：${c.price} ÷ (1 ${c.adj>=0?'+':'−'} ${Math.abs(Math.round(c.adj*100))}%) ≈ <b>${(c.price/(1+c.adj)).toFixed(1)}</b> 萬</li>`).join('')}
     <li>取平均 ≈ <b>${(valid.reduce((s,c)=>s+c.price/(1+c.adj),0)/valid.length).toFixed(1)}</b> 萬／坪。</li></ul>`;
@@ -273,7 +273,7 @@ compAnswer = function(i){
     st.done=true; const ok=st.correctSet.includes(i); const hs=document.querySelectorAll('#cands .house'); hs[st.correctSet[0]].classList.add('win'); hs.forEach((h,k)=>{ if(!st.correctSet.includes(k)) h.classList.add('lose'); });
     logEvent({game:'comp', question:`${st.subj.d} ${st.subj.type} ${st.subj.age}年 ${st.subj.area}坪（中階五選一）`, chosen:'案例 '+(i+1), correct:'案例 '+(st.correctSet[0]+1), ok});
     if(ok){ ts.compCorrect=(ts.compCorrect||0)+1; save(); sfx.ok(); addXP(15,''); } else sfx.bad(); checkBadges();
-    const ex=$('comp-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！最像的是案例 '+(st.correctSet[0]+1)+'。'}</b><br>🦉 <b>估咕這樣想：</b>差異越小越好，但「地區／類型」不同是硬傷，屋齡差 8 年以上、面積差 12 坪以上、成交超過一年也都要扣分。<ul>${st.cands.map((c,k)=>k===st.correctSet[0]?'':`<li>案例 ${k+1}：${compWhy(c,st.subj).join('、')||'條件接近'}</li>`).join('')}</ul>`; ex.classList.add('show'); $('comp-next').style.display='inline-block';
+    const ex=$('comp-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 不對喔！最像的是案例 '+(st.correctSet[0]+1)+'。'}</b><br>🦉 <b>估小泰這樣想：</b>差異越小越好，但「地區／類型」不同是硬傷，屋齡差 8 年以上、面積差 12 坪以上、成交超過一年也都要扣分。<ul>${st.cands.map((c,k)=>k===st.correctSet[0]?'':`<li>案例 ${k+1}：${compWhy(c,st.subj).join('、')||'條件接近'}</li>`).join('')}</ul>`; ex.classList.add('show'); $('comp-next').style.display='inline-block';
     document.querySelector('#comp-panel .score').innerHTML=`<span class="pill">🏅 累計答對 ${ts.compCorrect||0}</span><span class="tier-chip tier-mid">🔬中階</span>`;
     return;
   }
@@ -287,7 +287,7 @@ function compConfirm(){
   logEvent({game:'comp', question:`${st.subj.d} ${st.subj.type} ${st.subj.age}年 ${st.subj.area}坪（進階六選三）`, chosen:st.picked.map(i=>i+1).sort().join(','), correct:st.correctSet.map(i=>i+1).sort().join(','), ok});
   if(ok){ ts.compCorrect=(ts.compCorrect||0)+1; save(); sfx.ok(); addXP(20,''); } else sfx.bad(); checkBadges(); $('comp-confirm').style.display='none';
   const hit=st.picked.filter(i=>st.correctSet.includes(i)).length;
-  const ex=$('comp-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 三個全對！':'❌ 選對 '+hit+' 個。正確是案例 '+st.correctSet.map(i=>i+1).sort().join('、')+'。'}</b><br>🦉 <b>估咕這樣想：</b><ul>${st.cands.map((c,k)=>`<li>案例 ${k+1}${st.correctSet.includes(k)?' ✅':''}：${compWhy(c,st.subj).join('、')||'條件最接近'}</li>`).join('')}</ul>`; ex.classList.add('show'); $('comp-next').style.display='inline-block';
+  const ex=$('comp-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 三個全對！':'❌ 選對 '+hit+' 個。正確是案例 '+st.correctSet.map(i=>i+1).sort().join('、')+'。'}</b><br>🦉 <b>估小泰這樣想：</b><ul>${st.cands.map((c,k)=>`<li>案例 ${k+1}${st.correctSet.includes(k)?' ✅':''}：${compWhy(c,st.subj).join('、')||'條件最接近'}</li>`).join('')}</ul>`; ex.classList.add('show'); $('comp-next').style.display='inline-block';
   document.querySelector('#comp-panel .score').innerHTML=`<span class="pill">🏅 累計答對 ${ts.compCorrect||0}</span><span class="tier-chip tier-adv">🐉進階</span>`;
 }
 
@@ -415,7 +415,7 @@ function calcAnswer(k){
   document.querySelectorAll('#calc-panel .opt').forEach((b,i)=>{ b.disabled=true; if(q.opts[i]===q.ans) b.classList.add('correct'); else if(i===k) b.classList.add('wrong'); });
   logEvent({game:'calc', question:q.q, chosen:q.opts[k]+(q.unit?' '+q.unit:''), correct:q.ans+(q.unit?' '+q.unit:''), ok});
   if(ok){ st.score++; sfx.ok(); addXP(10,''); } else sfx.bad();
-  const ex=$('calc-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 正確答案是 '+q.ans+(q.unit?' '+q.unit:'')+'。'}</b><br>🦉 估咕這樣算：${esc(q.e)}`; ex.classList.add('show'); $('calc-next').style.display='inline-block';
+  const ex=$('calc-explain'); ex.innerHTML=`${ok?stkOK('stk-r'):stkNO('stk-r')}<b>${ok?'✅ 答對了！':'❌ 正確答案是 '+q.ans+(q.unit?' '+q.unit:'')+'。'}</b><br>🦉 估小泰這樣算：${esc(q.e)}`; ex.classList.add('show'); $('calc-next').style.display='inline-block';
 }
 function calcEnd(){
   const st=calcState; const ts=S.t[st.tier]=S.t[st.tier]||{}; if(st.score===10){ ts.calcPerfect=(ts.calcPerfect||0)+1; addXP(40,'計算所全對'); } save(); checkBadges();
@@ -433,14 +433,15 @@ renderBadges = function(){
   refreshMeta();
 };
 
-/* ---------- 證書：三張估咕認證 ---------- */
+/* ---------- 證書：三張估小泰認證 ---------- */
 renderCert = function(){
   const L=levelOf(S.xp); const d=new Date(); const top=CERTS.slice().reverse().find(c=>S.badges.includes(c.badge));
   $('cert-name').value=S.name||'';
   $('cert').innerHTML=`
     <div class="cert-border"><div class="cert-inner">
-      <img class="cert-owl" src="assets/owl-glasses.png" alt="估咕貓頭鷹">
+      <img class="cert-owl" src="assets/gxt-wink.png" alt="估小泰">
       <div class="cert-top">小小估價師大冒險</div>
+      <div class="cert-slogan">估專業 ・ 泰安心</div>
       <h2>${top? top.full+'證書' : '學習歷程證明'}</h2>
       <p class="cert-to">茲證明</p>
       <div class="cert-who">${esc(S.name||'＿＿＿＿＿')}</div>
@@ -449,7 +450,7 @@ renderCert = function(){
       <div class="cert-seals">${CERTS.map(c=>`<div class="cert-seal ${S.badges.includes(c.badge)?'got':''}"><span>${c.ico}</span><b>${c.name}</b><small>${c.full}</small></div>`).join('')}</div>
       <div class="cert-stats"><div><b>${L.lv.ico} ${L.lv.name}</b><small>等級</small></div><div><b>${S.xp}</b><small>XP</small></div><div><b>${S.read.length}/${CARDS.length}</b><small>知識卡</small></div><div><b>${S.badges.length}/${BADGES.length}</b><small>徽章</small></div><div><b>${Object.keys(S.missions).length}/${MISSIONS.length}</b><small>任務</small></div></div>
       <div class="cert-date">${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日</div>
-      <div class="cert-stamp">🦉 估咕認證</div>
+      <div class="cert-stamp">🦉 估小泰認證</div>
       <div class="cert-sign">估價師簽證 ✍️ ＿＿＿＿＿＿</div>
     </div></div>`;
 };
@@ -461,7 +462,7 @@ function lockPanel(id, ms){
   qShownAt = Date.now(); qLockMs = ms; const seq = ++qLockSeq;
   p.classList.add('q-locked');
   if(ms >= 1500){
-    const bar = document.createElement('div'); bar.className = 'q-lockbar'; bar.innerHTML = '<i></i><span>👀 先把題目看完再作答…</span>';
+    const bar = document.createElement('div'); bar.className = 'q-lockbar'; bar.innerHTML = '<i></i><span>👀 估小泰：先把題目看完再作答…</span>';
     bar.firstChild.style.animationDuration = ms + 'ms';
     const q = p.querySelector('.question'); if(q) q.after(bar); else p.prepend(bar);
   }
@@ -513,7 +514,7 @@ logEvent = function(ev){ if(qShownAt && SCORED.includes(ev.game)){ ev.extra = Ob
     const nb = $('calc-next'); if(!nb || !wrong) return;
     const wait = st.wrongRun >= 3 ? 8000 : 3000; const label = nb.textContent;
     nb.disabled = true; let left = Math.ceil(wait / 1000); nb.textContent = `先看算法（${left}）`;
-    if(st.wrongRun >= 3){ const ex = $('calc-explain'); if(ex) ex.insertAdjacentHTML('beforeend', '<div class="fine" style="margin-top:6px">🦉 估咕提醒：連續錯三題了。拿出紙筆，照上面的算式自己算一次再繼續，不用急。</div>'); }
+    if(st.wrongRun >= 3){ const ex = $('calc-explain'); if(ex) ex.insertAdjacentHTML('beforeend', '<div class="fine" style="margin-top:6px"><img class="stk stk-sm" src="assets/gxt-worried.png" alt="估小泰：擔心"> 估小泰提醒：連續錯三題了。拿出紙筆，照上面的算式自己算一次再繼續，不用急。</div>'); }
     const t = setInterval(()=>{ left--; if(left <= 0){ clearInterval(t); if($('calc-next') === nb){ nb.disabled = false; nb.textContent = label; } } else nb.textContent = `先看算法（${left}）`; }, 1000);
     timers.push(t);
   };

@@ -1,9 +1,9 @@
 :root{
-  /* 品牌色（取自 LOGO 與估咕貓頭鷹貼圖）：深青、深灰、淺灰、暖米白 */
-  --teal:#004c56; --teal2:#1e7f98; --teal3:#8ab6bd; --grey:#545759; --grey2:#b4b4b4; --cream:#e4d8cc;
-  --bg:#f6f1e8; --ink:#2f3435; --muted:#6b7275;
-  --y:#f2b544; --o:#f08a24; --r:#e4553f; --g:#3bb273; --b:#1b7f8e; --p:#6c7a89; --t:#2a9d8f; --dk:#004c56;
-  --card:#ffffff; --shadow:0 6px 0 rgba(0,76,86,.08), 0 10px 24px rgba(0,76,86,.10);
+  /* 品牌色（取自吉祥物「估小泰」代表色）：品牌藍、白、黃 */
+  --teal:#006b85; --teal2:#0098bc; --teal3:#8fd0e0; --grey:#545759; --grey2:#b4b4b4; --cream:#d8ecf2;
+  --bg:#f2f9fc; --ink:#22323a; --muted:#5f6f77;
+  --y:#f8c008; --o:#f08a24; --r:#e4553f; --g:#3bb273; --b:#007f9e; --p:#6c7a89; --t:#2a9d8f; --dk:#006b85;
+  --card:#ffffff; --shadow:0 6px 0 rgba(0,107,133,.08), 0 10px 24px rgba(0,107,133,.10);
   --radius:22px;
 }
 *{box-sizing:border-box}
@@ -12,22 +12,22 @@ body{
   font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC","Heiti TC",sans-serif;
   background:var(--bg);
   background-image:
-    radial-gradient(circle at 10% 10%, rgba(242,181,68,.30) 0 120px, transparent 121px),
-    radial-gradient(circle at 90% 20%, rgba(27,127,142,.20) 0 160px, transparent 161px),
-    radial-gradient(circle at 80% 90%, rgba(84,87,89,.14) 0 180px, transparent 181px),
-    radial-gradient(circle at 15% 85%, rgba(0,76,86,.16) 0 140px, transparent 141px);
+    radial-gradient(circle at 10% 10%, rgba(248,192,8,.24) 0 120px, transparent 121px),
+    radial-gradient(circle at 90% 20%, rgba(0,152,188,.16) 0 160px, transparent 161px),
+    radial-gradient(circle at 80% 90%, rgba(248,192,8,.16) 0 180px, transparent 181px),
+    radial-gradient(circle at 15% 85%, rgba(0,152,188,.14) 0 140px, transparent 141px);
   background-attachment:fixed;
   color:var(--ink); line-height:1.6; font-size:18px;
 }
 #confetti{position:fixed; inset:0; pointer-events:none; z-index:90; display:none}
 
 /* ---------- header ---------- */
-header{position:sticky; top:0; z-index:20; background:rgba(246,241,232,.94); backdrop-filter:blur(8px); border-bottom:3px dashed rgba(0,76,86,.18)}
+header{position:sticky; top:0; z-index:20; background:rgba(242,249,252,.94); backdrop-filter:blur(8px); border-bottom:3px dashed rgba(0,107,133,.18)}
 .wrap{max-width:1060px; margin:0 auto; padding:10px 18px}
 .hdr{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:4px}
 .brand{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none}
 .brand .logo{font-size:38px; filter:drop-shadow(0 3px 0 rgba(0,0,0,.12))}
-.brand .logo-img{height:54px; width:54px; object-fit:contain; filter:drop-shadow(0 3px 0 rgba(0,76,86,.18))}
+.brand .logo-img{height:54px; width:54px; object-fit:contain; filter:drop-shadow(0 3px 0 rgba(0,107,133,.18))}
 .brand h1{font-size:23px; margin:0; letter-spacing:1px; line-height:1.2}
 .brand small{display:block; font-size:12.5px; color:var(--muted); font-weight:normal}
 .hdr-right{display:flex; align-items:center; gap:10px}
@@ -49,11 +49,11 @@ main{padding-bottom:80px}
 @keyframes pop{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 
 /* ---------- common ---------- */
-.hero{background:linear-gradient(135deg,#e6f1f2 0%,#fbe9c2 100%); border:4px solid #fff; border-radius:var(--radius); padding:30px 30px; box-shadow:var(--shadow); display:grid; grid-template-columns:1.3fr .7fr; gap:18px; align-items:center; margin-top:10px}
+.hero{background:linear-gradient(135deg,#d9f1f8 0%,#fff3c2 100%); border:4px solid #fff; border-radius:var(--radius); padding:30px 30px; box-shadow:var(--shadow); display:grid; grid-template-columns:1.3fr .7fr; gap:18px; align-items:center; margin-top:10px}
 .hero h2{font-size:32px; margin:0 0 8px; line-height:1.25}
 .hero p{font-size:18px; margin:0 0 14px}
 .hero .art{font-size:110px; text-align:center; line-height:1; filter:drop-shadow(0 6px 0 rgba(0,0,0,.12))}
-.hero-owl{width:min(280px,80%); height:auto; filter:drop-shadow(0 8px 0 rgba(0,76,86,.15)); animation:float 3s ease-in-out infinite}
+.hero-owl{height:240px; width:auto; max-width:100%; object-fit:contain; cursor:pointer; filter:drop-shadow(0 8px 0 rgba(0,107,133,.15)); animation:float 3s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}}
 .btn{display:inline-block; border:0; border-radius:16px; padding:12px 22px; font-size:18px; font-weight:800; cursor:pointer; color:#fff; background:var(--b); box-shadow:0 5px 0 rgba(0,0,0,.15); transition:transform .08s; font-family:inherit; text-decoration:none; margin:3px 2px}
 .btn:active{transform:translateY(4px); box-shadow:0 1px 0 rgba(0,0,0,.15)}
@@ -334,7 +334,7 @@ footer a{color:var(--b); font-weight:700; text-decoration:none}
 footer a:hover{text-decoration:underline}
 .note a{color:var(--b); font-weight:700}
 
-/* ---------- 估咕貓頭鷹 ---------- */
+/* ---------- 估小泰 ---------- */
 .stk{height:86px; width:auto; vertical-align:middle; user-select:none; -webkit-user-drag:none}
 .stk-r{float:right; height:96px; margin:-8px 0 6px 12px}
 .stk-big{display:block; height:160px; margin:0 auto 6px}
@@ -343,11 +343,11 @@ footer a:hover{text-decoration:underline}
 .tf-fb .stk{height:58px; margin-left:8px}
 .owl-say{display:flex; align-items:center; gap:14px; background:#fff; border-radius:var(--radius); padding:14px 18px; box-shadow:var(--shadow); margin-top:16px}
 .owl-say img{height:84px; width:auto}
-.owl-say .bubble{position:relative; background:#e6f1f2; border-radius:16px; padding:10px 14px; font-size:16px; flex:1}
-.owl-say .bubble::before{content:''; position:absolute; left:-10px; top:22px; border:8px solid transparent; border-right-color:#e6f1f2; border-left:0}
+.owl-say .bubble{position:relative; background:#e1f3f8; border-radius:16px; padding:10px 14px; font-size:16px; flex:1}
+.owl-say .bubble::before{content:''; position:absolute; left:-10px; top:22px; border:8px solid transparent; border-right-color:#e1f3f8; border-left:0}
 .cert-owl{height:120px; width:auto; display:block; margin:0 auto 6px}
 .cert-stamp{display:inline-block; border:3px solid var(--teal); color:var(--teal); border-radius:12px; padding:4px 12px; font-weight:900; letter-spacing:2px; transform:rotate(-6deg); margin-top:10px}
-.about-owl{display:grid; grid-template-columns:150px 1fr; gap:18px; align-items:center; background:#e6f1f2; border-radius:16px; padding:16px}
+.about-owl{display:grid; grid-template-columns:150px 1fr; gap:18px; align-items:center; background:#e1f3f8; border-radius:16px; padding:16px}
 .about-owl img.main{width:100%; height:auto}
 .about-stk{display:flex; gap:8px; margin-top:8px}
 .about-stk img{width:32%; height:auto; background:#fff; border-radius:12px; padding:6px}
@@ -362,7 +362,7 @@ footer a:hover{text-decoration:underline}
 }
 
 /* 升級慶祝 */
-.cele{position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,76,86,.45); z-index:85; opacity:0; pointer-events:none; transition:opacity .25s}
+.cele{position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,107,133,.45); z-index:85; opacity:0; pointer-events:none; transition:opacity .25s}
 .cele.show{opacity:1; pointer-events:auto}
 .cele-img{height:min(300px,55vw) !important; width:auto; animation:bounce .6s}
 .cele-msg{background:#fff; color:var(--teal); font-weight:900; font-size:22px; padding:12px 22px; border-radius:16px; margin-top:12px; box-shadow:var(--shadow); text-align:center; max-width:90vw}
@@ -402,7 +402,7 @@ footer a:hover{text-decoration:underline}
 .comps.comps4{grid-template-columns:repeat(2,1fr)}
 .comp-warn{border-color:#f6c1b8; background:#fff6f4} .chip.warn{background:var(--r)}
 .cands.cands-many{grid-template-columns:repeat(3,1fr)}
-.house.pick.sel{border-color:var(--teal); background:#e6f1f2; transform:translateY(-3px)}
+.house.pick.sel{border-color:var(--teal); background:#e1f3f8; transform:translateY(-3px)}
 .house.pick.sel .tag{display:block; background:var(--teal); color:#fff}
 .citygrid.big .c-ico{font-size:22px} .citygrid.big .c-val{font-size:11px}
 .cell.fixed{cursor:not-allowed; opacity:.95} .cell.fixed.water{background:#bfe3f5} .cell.fixed.mountain{background:#d9d2c5}
@@ -410,17 +410,58 @@ footer a:hover{text-decoration:underline}
 .calc-opts .opt span:last-child{font-size:20px; font-weight:800}
 @media (max-width:760px){ .cands.cands-many{grid-template-columns:repeat(2,1fr)} .comps.comps4{grid-template-columns:1fr} .tier-tab{padding:8px 12px; font-size:15px} }
 
-/* 三張估咕認證 */
+/* 三張估小泰認證 */
 .cert-seals{display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:6px 0 12px}
 .cert-seal{display:flex; flex-direction:column; align-items:center; border:3px dashed #d5d5d5; border-radius:16px; padding:8px 14px; min-width:120px; opacity:.4; filter:grayscale(1)}
-.cert-seal.got{opacity:1; filter:none; border:3px solid var(--teal); background:#e6f1f2}
+.cert-seal.got{opacity:1; filter:none; border:3px solid var(--teal); background:#e1f3f8}
 .cert-seal span{font-size:30px; line-height:1.1} .cert-seal b{font-size:16px} .cert-seal small{font-size:12px; color:var(--muted)}
 .cert-stats{flex-wrap:wrap; gap:18px}
 .cert-stats b{font-size:20px}
 
 /* 防連點：看題時間 */
 .q-locked .opt, .q-locked .house:not(.subject), .q-locked .tf-btns .btn, .q-locked #est-submit, .q-locked #est-slider{pointer-events:none; opacity:.5; filter:grayscale(.4)}
-.q-lockbar{position:relative; height:24px; background:#e6f1f2; border-radius:99px; overflow:hidden; margin:0 0 12px}
+.q-lockbar{position:relative; height:24px; background:#e1f3f8; border-radius:99px; overflow:hidden; margin:0 0 12px}
 .q-lockbar i{position:absolute; inset:0; background:var(--teal3); transform-origin:left center; transform:scaleX(0); animation:lockfill linear forwards}
 .q-lockbar span{position:relative; display:block; text-align:center; line-height:24px; font-size:13px; font-weight:800; color:var(--teal)}
 @keyframes lockfill{from{transform:scaleX(0)} to{transform:scaleX(1)}}
+
+/* ---------- 估小泰新版識別 ---------- */
+.brand .logo-img{filter:none; border-radius:50%; box-shadow:0 3px 0 rgba(0,107,133,.18)}
+.slogan-chip{display:inline-block; background:var(--teal2); color:#fff; font-weight:900; letter-spacing:3px; font-size:15px; border-radius:99px; padding:4px 16px; margin-bottom:10px; box-shadow:0 3px 0 rgba(0,107,133,.25)}
+.hero .art{position:relative; font-size:0}
+.hero-say{display:inline-block; position:relative; background:#fff; color:var(--teal); font-size:15.5px; font-weight:800; line-height:1.4; border-radius:14px; padding:8px 14px; margin-bottom:12px; max-width:240px; box-shadow:0 3px 0 rgba(0,107,133,.15)}
+.hero-say::after{content:''; position:absolute; left:50%; bottom:-9px; margin-left:-8px; border:8px solid transparent; border-top-color:#fff; border-bottom:0}
+.hero-owl.boing{animation:boing .45s ease, float 3s ease-in-out .45s infinite}
+@keyframes boing{0%{transform:scale(.82) rotate(-6deg)} 55%{transform:scale(1.08) rotate(3deg)} 100%{transform:scale(1) rotate(0)}}
+.note h4{margin:18px 0 6px; font-size:17px; color:var(--teal)}
+.gxt-profile{display:grid; grid-template-columns:190px 1fr; gap:20px; align-items:center; background:linear-gradient(135deg,#e1f3f8,#f6fbfd); border:3px solid #fff; border-radius:18px; padding:18px; box-shadow:0 3px 0 rgba(0,107,133,.10)}
+.gxt-id{text-align:center}
+.gxt-id img{width:100%; max-width:190px; height:auto}
+.gxt-slogan{display:inline-block; margin-top:6px; background:var(--y); color:var(--ink); font-weight:900; letter-spacing:2px; border-radius:99px; padding:3px 14px; font-size:15px}
+.gxt-dl{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; font-size:16px}
+.gxt-dl dt{font-weight:900; color:var(--teal); white-space:nowrap}
+.gxt-dl dd{margin:0}
+.gxt-dl .sw{display:inline-block; width:16px; height:16px; border-radius:50%; border:2px solid rgba(0,0,0,.18); vertical-align:-3px; margin-right:4px}
+.gxt-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+.gxt-tags span{background:#fff; border:2px solid var(--teal2); color:var(--teal); font-weight:800; font-size:14px; border-radius:99px; padding:1px 12px}
+.gxt-traits{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px}
+.gxt-traits div{background:#fff; border-radius:14px; border-top:5px solid var(--teal2); padding:10px 12px; font-size:14.5px; box-shadow:0 3px 0 rgba(0,0,0,.06)}
+.gxt-traits div:nth-child(even){border-top-color:var(--y)}
+.gxt-traits b{display:block; font-size:15.5px; color:var(--teal)}
+.gxt-gallery{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px}
+.gxt-gallery button{border:3px solid transparent; background:#fff; border-radius:14px; padding:6px 4px 4px; cursor:pointer; font-family:inherit; box-shadow:0 3px 0 rgba(0,0,0,.07); transition:transform .08s}
+.gxt-gallery button:hover{transform:translateY(-3px)}
+.gxt-gallery button.on{border-color:var(--teal2); background:#e1f3f8}
+.gxt-gallery img{width:100%; height:auto; display:block}
+.gxt-gallery span{display:block; font-size:13px; font-weight:800; color:var(--ink)}
+.gxt-quote{margin-top:10px; background:#fff8dc; border-left:6px solid var(--y); border-radius:12px; padding:9px 14px; font-size:16px; min-height:44px}
+.gxt-turn{display:block; width:100%; max-width:760px; height:auto; margin:0 auto; background:#fff; border-radius:16px; padding:10px; box-shadow:0 3px 0 rgba(0,0,0,.06)}
+.cert-slogan{display:inline-block; margin-top:4px; font-size:13px; font-weight:900; letter-spacing:4px; color:#fff; background:var(--teal2); border-radius:99px; padding:2px 14px; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+.explain .fine .stk-sm{height:48px}
+@media (max-width:760px){
+  .hero-owl{height:190px}
+  .gxt-profile{grid-template-columns:1fr}
+  .gxt-id img{max-width:150px}
+  .gxt-traits{grid-template-columns:repeat(2,1fr)}
+  .gxt-gallery{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+}
