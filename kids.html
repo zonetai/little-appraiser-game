@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0098bc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>幼兒園版｜小小估價師大冒險</title>
+<meta name="description" content="給幼兒園小朋友的房子圖像遊戲：不用識字，跟著估小泰的聲音蓋房子、比大小、數一數、翻翻卡、找找哪裡壞掉，收集估小泰貼紙。">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="kids.css?v=1">
+</head>
+<body>
+
+<header class="kh">
+  <button class="kbtn" id="k-home" aria-label="回到選遊戲">🏠</button>
+  <div class="k-dots" id="k-dots"></div>
+  <div class="k-right">
+    <button class="kpill" id="k-stars" aria-label="我的星星">⭐<b id="k-star-n">0</b></button>
+    <button class="kpill" id="k-book" aria-label="貼紙簿">📒<b id="k-book-n">0</b></button>
+    <button class="kbtn" id="k-sound" aria-label="聲音開關">🔊</button>
+  </div>
+</header>
+
+<main id="stage"></main>
+
+<button class="k-adult" id="k-adult" aria-label="按住兩秒回到大人版"><i></i><span>👨‍👩‍👧 按住回大人版</span></button>
+
+<div class="k-start" id="k-start">
+  <div class="k-start-title">小小估價師大冒險<small>幼兒園版 ・ 估小泰陪你玩</small></div>
+  <img src="assets/gxt-ok.png" alt="估小泰" draggable="false">
+  <button class="k-play" id="k-play" aria-label="開始玩">▶</button>
+  <p class="k-start-note">請打開聲音 🔊 ・ 估小泰會用說的告訴你怎麼玩</p>
+</div>
+
+<canvas id="k-confetti"></canvas>
+
+<script src="kids.js?v=1"></script>
+</body>
+</html>
