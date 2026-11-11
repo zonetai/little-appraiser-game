@@ -9,9 +9,26 @@
 <title>幼兒園版｜小小估價師大冒險</title>
 <meta name="description" content="給幼兒園小朋友的房子圖像遊戲：不用識字，跟著估小泰的聲音蓋房子、比大小、數一數、翻翻卡、找找哪裡壞掉，收集估小泰貼紙。">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="kids.css?v=1">
+<link rel="stylesheet" href="kids.css?v=2">
 </head>
 <body>
+
+<div class="k-sky" aria-hidden="true">
+  <svg class="sun" viewBox="0 0 200 200"><g class="rays" fill="#ffd23f">
+    <path d="M100 4 L108 40 L92 40Z"/><path d="M100 196 L92 160 L108 160Z"/><path d="M4 100 L40 92 L40 108Z"/><path d="M196 100 L160 108 L160 92Z"/>
+    <path d="M32 32 L62 52 L52 62Z"/><path d="M168 168 L138 148 L148 138Z"/><path d="M168 32 L148 62 L138 52Z"/><path d="M32 168 L52 138 L62 148Z"/></g>
+    <circle cx="100" cy="100" r="52" fill="#ffd23f" stroke="#f5a623" stroke-width="5"/>
+    <path d="M78 94 q6 -8 12 0 M110 94 q6 -8 12 0" fill="none" stroke="#7a4b1f" stroke-width="5" stroke-linecap="round"/>
+    <ellipse cx="74" cy="112" rx="9" ry="5" fill="#ff8fb1" opacity=".7"/><ellipse cx="126" cy="112" rx="9" ry="5" fill="#ff8fb1" opacity=".7"/>
+    <path d="M86 116 q14 14 28 0" fill="none" stroke="#7a4b1f" stroke-width="5" stroke-linecap="round"/></svg>
+  <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  <svg class="hills" viewBox="0 0 1200 240" preserveAspectRatio="none">
+    <path d="M0 120 Q200 40 420 110 T820 90 T1200 100 V240 H0Z" fill="#a8e6a1"/>
+    <path d="M0 170 Q260 100 520 160 T1000 150 T1200 140 V240 H0Z" fill="#7fd48a"/>
+    <g fill="#5cb96b"><circle cx="150" cy="128" r="16"/><circle cx="175" cy="134" r="12"/><circle cx="980" cy="118" r="18"/><circle cx="1010" cy="126" r="12"/></g>
+    <g fill="#8a5a3b"><rect x="146" y="140" width="6" height="14"/><rect x="976" y="132" width="7" height="16"/></g>
+  </svg>
+</div>
 
 <header class="kh">
   <button class="kbtn" id="k-home" aria-label="回到選遊戲">🏠</button>
@@ -29,13 +46,14 @@
 
 <div class="k-start" id="k-start">
   <div class="k-start-title">小小估價師大冒險<small>幼兒園版 ・ 估小泰陪你玩</small></div>
-  <img src="assets/gxt-ok.png" alt="估小泰" draggable="false">
+  <div class="k-start-owl"><span class="k-rays"></span><img src="assets/gxt-ok.png" alt="估小泰" draggable="false"></div>
   <button class="k-play" id="k-play" aria-label="開始玩">▶</button>
   <p class="k-start-note">請打開聲音 🔊 ・ 估小泰會用說的告訴你怎麼玩</p>
 </div>
 
 <canvas id="k-confetti"></canvas>
 
-<script src="kids.js?v=1"></script>
+<script src="kids-voice.js?v=2"></script>
+<script src="kids.js?v=2"></script>
 </body>
 </html>
