@@ -37,6 +37,7 @@ const T = {
   bigQ:'哪一間房子比較大？', smallQ:'哪一間房子比較小？', tallQ:'哪一棟房子比較高？', winQ:'哪一間房子的窗戶比較多？',
   bigA:'答對了！這間比較大！', bigA2:'大房子通常比較貴喔！', smallA:'答對了！這間比較小！',
   winCountQ:'數一數，這間房子有幾扇窗戶？',
+  countNo:'不對喔，我們再數一次。', same:'一樣！找到了！', take:'拿走！', gotSticker:'你得到一張新貼紙！',
   yardFull:'院子滿了，最多放三個喔！', appraise:'估小泰來估價囉！房子越大，越值錢喔！',
 };
 const PRAISE = ['答對了！','好棒！','你好厲害！','沒錯，就是這個！','太棒了！'];
@@ -44,17 +45,13 @@ const TRYAGAIN = ['再試試看！','不是這個喔，再看一看。','差一�
 const tTall   = n => `答對了！這棟比較高，有${ZH[n]}層樓！`;
 const tWin    = n => `答對了！這間有${ZH[n]}扇窗戶！`;
 const tCountQ = (u, nm) => `數一數，有幾${u}${nm}？`;
-const tCountNo = v => `不是${ZH[v]}喔，我們再數一次。`;
-const tCountA = (n, u, nm) => `${ZH[n]}${u}${nm}！`;
+const tCountA = n => `答對了，就是${ZHC[n]}！`;
 const tJobQ   = j => `${j.job}要去哪裡上班呢？`;
 const tJobA   = j => `答對了！${j.job}在${j.place}上班！`;
 const tPlace  = p => `這是${p}喔！`;
 const tNotBroken = n => `這是${n}，沒有壞掉喔。`;
-const tSame   = n => `一樣！是${n}！`;
 const tPick   = n => `${n}！`;
-const tTake   = n => `拿走${n}`;
 const tWorth  = n => `你的房子值${ZH[n]}個金幣！`;
-const tGot    = s => `是${s[1]}的估小泰！`;
 
 /* ---------- 聲音：預錄 mp3 → 瀏覽器語音備援 ---------- */
 const VOX = (typeof window !== 'undefined' && window.KIDS_VOX) || {};
@@ -350,11 +347,11 @@ function qCount(lv){
   const set = new Set([N]); while (set.size < 3){ const d = N + rnd([-2, -1, 1, 2]); if (d >= 1 && d <= 10) set.add(d); }
   return {
     say:txt, scene, sceneCls:unit === '扇' ? '' : 'meadow', optCls:'col',
-    opts:shuffle([...set]).map(v => ({ ok:v === N, label:String(v), html:`<b class="num">${v}</b><span class="dots">${dotStr(v)}</span>`, no:tCountNo(v) })),
+    opts:shuffle([...set]).map(v => ({ ok:v === N, label:String(v), html:`<b class="num">${v}</b><span class="dots">${dotStr(v)}</span>`, no:T.countNo })),
     onRight: async () => {
       const els = [...document.querySelectorAll('#k-scene .cnt, #k-scene .win')];
       for (let k = 0; k < els.length; k++){ els[k].classList.add('lit'); els[k].setAttribute('data-n', k + 1); sfx.tap(); await say(ZHC[k + 1]); }
-      await say(tCountA(N, unit, name));
+      await say(tCountA(N));
     },
   };
 }
@@ -429,7 +426,7 @@ function startMemory(run){
     if (deck[+a.dataset.i][0] === deck[+b.dataset.i][0]){
       await sleep(420); a.classList.add('done'); b.classList.add('done'); sfx.ok(); burst(a); burst(b);
       owl(rnd(['happy','sparkle','wink'])); done++; setDots(pairs, done);
-      const sp = say(tSame(d[1])); busy = false;
+      const sp = say(T.same); busy = false;
       if (done === pairs){ QLIVE = false; await sp; await sleep(300); if (run === RUN) finish('memory', miss <= pairs ? 3 : miss <= pairs * 2 ? 2 : 1, run); }
       else armIdle();
     } else {
@@ -488,7 +485,7 @@ function pickBuild(k, b){
   const v = b.dataset.v, n = b.dataset.n;
   if (k === 'yard'){
     const i = +v, at = B.yard.indexOf(i);
-    if (at >= 0){ B.yard.splice(at, 1); sfx.flip(); say(tTake(n)); }
+    if (at >= 0){ B.yard.splice(at, 1); sfx.flip(); say(T.take); }
     else if (B.yard.length >= 3){ sfx.no(); owl('sweat'); say(T.yardFull); armIdle(); return; }
     else { B.yard.push(i); sfx.pop(); owl(rnd(['happy','sparkle'])); say(n); }
   } else {
@@ -537,7 +534,7 @@ async function finish(id, stars, run){
   const openGift = async () => {
     if (opened || run !== RUN) return; opened = true; clearTimeout(idleT); QLIVE = false;
     $('k-gift').classList.add('open'); sfx.win(); burst($('k-gift'));
-    await sleep(500); await say([tGot(got), got[2]]);
+    await sleep(500); await say([T.gotSticker, got[2]]);
   };
   if (got) $('k-gift').addEventListener('click', openGift);
   await say(stars === 3 ? T.star3 : stars === 2 ? T.star2 : T.star1);
@@ -563,19 +560,24 @@ function book(){
 }
 
 /* ---------- 產生語音檔用：列出估小泰會說的每一句話 ---------- */
-function allPhrases(){
-  const L = new Set();
-  const add = (...a) => a.flat(Infinity).forEach(t => t && L.add(t));
-  add(Object.values(T), PRAISE, TRYAGAIN, GAMES.map(g => g.intro), STICKERS.map(s => [s[2], tGot(s)]));
-  [2, 3, 4].forEach(n => add(tTall(n))); [3, 4, 6].forEach(n => add(tWin(n)));
-  for (let v = 1; v <= 10; v++){ add(ZHC[v], tCountNo(v), tWorth(v), tCountA(v, '扇', '窗戶')); CNT.forEach(c => add(tCountA(v, c[1], c[2]))); }
-  CNT.forEach(c => add(tCountQ(c[1], c[2])));
-  JOBS.forEach(j => add(tJobQ(j), tJobA(j), tPlace(j.place)));
-  PROBS.forEach(p => add(p.t)); NICE.forEach(d => add(tNotBroken(d[1])));
-  MEM.forEach(m => add(m[1], tSame(m[1])));
-  add(BSTEPS.map(s => s.t), WALLS.map(w => tPick(w[1])), ROOFS.map(r => tPick(r[1])), [1, 2, 3].map(f => tPick(`${ZH[f]}層樓`)), WSTYLE.map(w => tPick(w[1])), YARD.map(y => [y[1], tTake(y[1])]));
-  return [...L];
+function phraseGroups(){
+  const G = (g, tip, list) => ({ g, tip, list:list.flat(Infinity).filter(Boolean).map(x => typeof x === 'string' ? { t:x } : x) });
+  return [
+    G('開場與選單', '親切、有精神，像在跟小朋友打招呼', [T.welcome, T.homeAgain, T.starsHave, T.starsNone, T.soundOn, T.bookHave, T.bookNone, T.bookLocked]),
+    G('稱讚與鼓勵', '答對時很開心；答錯時溫柔、不責備', [PRAISE, TRYAGAIN, T.countNo]),
+    G('完成與禮物', '興奮、驚喜', [T.star3, T.star2, T.star1, T.gift, T.gotSticker, T.allDone]),
+    G('遊戲開場', '活潑，像要開始玩遊戲', GAMES.map(g => g.intro)),
+    G('比大小', '問題要問得好奇；答對時開心', [T.bigQ, T.smallQ, T.tallQ, T.winQ, T.bigA, T.bigA2, T.smallA, [2, 3, 4].map(tTall), [3, 4, 6].map(tWin)]),
+    G('數一數', '數字一個一個、清楚地念，像陪小朋友數東西', [T.winCountQ, CNT.map(c => tCountQ(c[1], c[2])), ZHC.slice(1), ZHC.slice(1).map((_, i) => tCountA(i + 1))]),
+    G('去哪裡上班', '像在講故事，帶一點好奇', [T.owlQ, T.owlA, JOBS.map(j => [tJobQ(j), tJobA(j), tPlace(j.place)])]),
+    G('找找哪裡壞掉', '「找到了」要有發現的驚喜感', [T.fixQ0, T.fixQ1, T.found, PROBS.map(p => p.t), NICE.map(d => tNotBroken(d[1]))]),
+    G('翻翻卡', '翻卡時念出名稱，短短的、清楚', [T.memQ, T.same, MEM.map(m => m[1])]),
+    G('蓋房子', '選東西時開心地念出來；估價時數金幣要有節奏', [BSTEPS.map(s => s.t), WALLS.map(w => tPick(w[1])), ROOFS.map(r => tPick(r[1])), [1, 2, 3].map(f => tPick(`${ZH[f]}層樓`)), WSTYLE.map(w => tPick(w[1])), YARD.map(y => y[1]), T.take, T.yardFull, T.appraise, ZHC.slice(1).map((_, i) => tWorth(i + 1))]),
+    G('估小泰貼紙', '照著貼紙上估小泰的表情演出來', STICKERS.map(s => ({ t:s[2], img:'assets/gxt-' + s[0] + '.png' }))),
+  ];
 }
+/* 產生語音檔用：列出估小泰會說的每一句話（不重複） */
+function allPhrases(){ const L = new Set(); phraseGroups().forEach(g => g.list.forEach(x => L.add(x.t))); return [...L]; }
 
 /* ---------- 上方按鈕、大人版、開始 ---------- */
 function init(){
@@ -602,5 +604,5 @@ function init(){
   document.addEventListener('contextmenu', e => { if (e.target.closest('img')) e.preventDefault(); });
   refreshTop();
 }
-if (HAS_DOM) init();
-if (typeof module !== 'undefined') module.exports = { allPhrases, vh };
+if (HAS_DOM && document.getElementById('k-home')) init();
+if (typeof module !== 'undefined') module.exports = { allPhrases, phraseGroups, vh };

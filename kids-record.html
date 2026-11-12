@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0098bc">
+<title>估小泰錄音室｜小小估價師大冒險</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+  :root{--blue:#0098bc; --deep:#006b85; --y:#ffd23f; --ink:#2f3a40; --muted:#6b7a82; --ok:#2fa866; --rec:#e5484d; --bg:#eef8fc; --sh:0 6px 0 rgba(0,90,120,.12), 0 12px 24px rgba(0,90,120,.08)}
+  *{box-sizing:border-box}
+  body{margin:0; font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif; color:var(--ink); background:linear-gradient(180deg,#bfe9ff,#eef8fc 260px); min-height:100vh}
+  header{display:flex; align-items:center; gap:12px; max-width:860px; margin:0 auto; padding:14px 16px 6px}
+  header img{width:58px; height:58px; border-radius:50%}
+  header h1{margin:0; font-size:24px; color:var(--deep)}
+  header small{display:block; font-size:14px; color:var(--muted); font-weight:normal}
+  main{max-width:860px; margin:0 auto; padding:8px 16px 60px}
+  .card{background:#fff; border-radius:22px; box-shadow:var(--sh); padding:18px 20px; margin-top:16px}
+  .card h2{margin:0 0 8px; font-size:20px; color:var(--deep)}
+  .card h3{margin:0 0 8px; font-size:17px; color:var(--deep)}
+  ol.tips{margin:6px 0 0; padding-left:22px; line-height:1.75}
+  button{font-family:inherit; cursor:pointer; border:0; border-radius:16px; font-weight:800; font-size:17px; padding:12px 18px; background:#e7f4fa; color:var(--ink); box-shadow:0 4px 0 rgba(0,0,0,.08)}
+  button:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  button:disabled{opacity:.45; cursor:default}
+  .big{font-size:20px; padding:16px 26px; background:linear-gradient(#ffe066,#ffc300)}
+  .prog{display:flex; align-items:center; gap:12px; font-weight:800}
+  .bar{flex:1; height:16px; background:#e3eef3; border-radius:99px; overflow:hidden}
+  .bar i{display:block; height:100%; width:0; background:linear-gradient(90deg,#4fc3f7,#0098bc); transition:width .3s}
+  .filters{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:15px}
+  select{font-family:inherit; font-size:15px; padding:8px 10px; border-radius:12px; border:2px solid #d6e6ee}
+  .line .meta{font-size:14px; color:var(--muted)}
+  .line .meta b{color:var(--deep)}
+  .line .tip{display:inline-block; margin-top:6px; background:#fff6d6; border-radius:99px; padding:3px 12px; font-size:14px}
+  .line .text{font-size:clamp(28px, 6vw, 44px); font-weight:900; line-height:1.35; margin:16px 0 10px; letter-spacing:1px}
+  .line .who{display:flex; align-items:center; gap:14px}
+  .line .who img{height:110px; width:auto}
+  .status{font-size:15px; font-weight:800; min-height:22px}
+  .status.ok{color:var(--ok)} .status.no{color:var(--muted)} .status.live{color:var(--rec)}
+  .meter{height:12px; background:#eef3f5; border-radius:99px; overflow:hidden; margin:10px 0 14px}
+  .meter i{display:block; height:100%; width:0; background:linear-gradient(90deg,#7ed957,#ffd23f,#e5484d); transition:width .06s}
+  .btns{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+  .btns button{padding:14px 6px; font-size:16px}
+  #brec{background:var(--rec); color:#fff; font-size:18px}
+  #brec.on{animation:blink 1s infinite}
+  #bnext{background:linear-gradient(#ffe066,#ffc300)}
+  @keyframes blink{50%{opacity:.6}}
+  .keys{font-size:13px; color:var(--muted); margin-top:10px}
+  .opts{display:flex; gap:16px; flex-wrap:wrap; font-size:15px; margin-top:10px}
+  #all{position:relative; list-style:none; margin:0; padding:0; max-height:420px; overflow:auto; border:2px solid #eef3f5; border-radius:14px}
+  #all li{display:flex; gap:10px; align-items:baseline; padding:8px 12px; border-bottom:1px solid #f0f4f6; cursor:pointer; font-size:15px}
+  #all li:hover{background:#f5fbfe}
+  #all li.cur{background:#fff6d6}
+  #all li .st{flex:0 0 22px; text-align:center}
+  #all li .g{flex:0 0 auto; font-size:12px; color:var(--muted); background:#eef6fa; border-radius:99px; padding:1px 8px}
+  #all li.done .t{color:var(--muted)}
+  .danger{background:#fde8e8; color:#b42318}
+  .note{font-size:14px; color:var(--muted); line-height:1.7}
+  .err{background:#fde8e8; color:#b42318; border-radius:12px; padding:10px 14px; font-weight:700; margin-top:10px}
+  @media (max-width:640px){ .btns{grid-template-columns:repeat(2,1fr)} #brec{grid-column:1 / -1; order:-1; font-size:22px; padding:20px} .line .who img{height:80px} }
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/gxt-head.png" alt="估小泰">
+  <h1>估小泰錄音室<small>幫幼兒園版錄下估小泰的聲音（給家長使用）</small></h1>
+</header>
+<main>
+  <section class="card" id="intro">
+    <h2>開始之前</h2>
+    <ol class="tips">
+      <li>找一個安靜的地方，手機或麥克風離嘴巴大約一個手掌遠。</li>
+      <li>用跟小朋友說話的語氣：開心、慢一點、咬字清楚。每句上方有語氣提示。</li>
+      <li>按「● 開始錄」後停半秒再說，說完按「■ 停止」。錄完會自動播放給你聽，不滿意就再錄一次。</li>
+      <li>錄音只存在這個瀏覽器裡，不會自動上傳；可以分好幾次錄，關掉網頁再回來也還在（請用同一支手機、同一個瀏覽器）。</li>
+      <li>錄好（或錄一部分）就按最下面的「下載錄音檔」，把 zip 檔交給 Claude，就會換到幼兒園版裡。還沒錄的句子會先沿用電腦語音。</li>
+    </ol>
+    <p class="note">共 <b id="n-total">–</b> 句，一句大約 10 秒，全部錄完約 30–40 分鐘。網站上線後，錄下的聲音會公開在幼兒園版中播放。</p>
+    <button class="big" id="bstart">🎙️ 允許使用麥克風，開始錄音</button>
+    <div class="err" id="err" hidden></div>
+  </section>
+
+  <section id="studio" hidden>
+    <div class="card">
+      <div class="prog"><span>已錄 <b id="p-done">0</b> / <span id="p-total">0</span></span><div class="bar"><i id="p-bar"></i></div></div>
+      <div class="filters">
+        <label>分類 <select id="f-group"><option value="">全部</option></select></label>
+        <label><input type="checkbox" id="f-todo"> 只看還沒錄的</label>
+      </div>
+    </div>
+
+    <div class="card line">
+      <div class="meta"><b id="l-group"></b> ・ 第 <b id="l-idx"></b> 句（共 <span id="l-tot"></span> 句）</div>
+      <div class="tip" id="l-tip"></div>
+      <div class="who"><img id="l-img" alt="" hidden><div class="text" id="l-text"></div></div>
+      <div class="status" id="l-status"></div>
+      <div class="meter"><i id="meter"></i></div>
+      <div class="btns">
+        <button id="bprev">⬅ 上一句</button>
+        <button id="bref" title="先聽電腦版，了解這句在遊戲裡的用法">🔈 電腦版</button>
+        <button id="brec">● 開始錄</button>
+        <button id="bplay">▶ 聽我錄的</button>
+        <button id="bnext">下一句 ➡</button>
+      </div>
+      <div class="opts">
+        <label><input type="checkbox" id="o-play" checked> 錄完自動播放</label>
+        <label><input type="checkbox" id="o-next"> 錄完自動跳下一句</label>
+      </div>
+      <div class="keys">電腦鍵盤：空白鍵＝開始／停止錄音，→＝下一句，←＝上一句，P＝聽我錄的</div>
+    </div>
+
+    <div class="card">
+      <h3>📦 交給 Claude</h3>
+      <button class="big" id="bzip">下載錄音檔（zip）</button> <span id="zip-info" class="note"></span>
+      <p class="note">下載後把 zip 檔存到電腦（例如「下載」資料夾或 OneDrive），再告訴 Claude 檔案放在哪裡。用手機錄的話，可以用 LINE、AirDrop 或 OneDrive 傳到電腦。</p>
+      <button class="danger" id="bclear">清除這台裝置上的全部錄音</button>
+    </div>
+
+    <div class="card">
+      <h3>全部台詞</h3>
+      <ol id="all"></ol>
+    </div>
+  </section>
+</main>
+
+<script src="kids-voice.js?v=3"></script>
+<script src="kids.js?v=3"></script>
+<script>
+'use strict';
+/* ---------- 台詞清單（跟遊戲用同一份，永遠同步） ---------- */
+const LINES = [];
+(() => { const seen = new Set();
+  phraseGroups().forEach(g => g.list.forEach(x => { const h = vh(x.t); if (seen.has(h)) return; seen.add(h); LINES.push({ h, t:x.t, img:x.img, g:g.g, tip:g.tip }); })); })();
+const el = id => document.getElementById(id);
+el('n-total').textContent = LINES.length;
+
+/* ---------- 錄音保存在瀏覽器（IndexedDB） ---------- */
+let DB = null;
+const TAKES = new Map();          // h -> { blob, mime, dur }
+function dbOpen(){ return new Promise((res, rej) => { const r = indexedDB.open('gxt-record', 1); r.onupgradeneeded = () => r.result.createObjectStore('takes', { keyPath:'h' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+function dbAll(){ return new Promise(res => { const out = []; const tx = DB.transaction('takes').objectStore('takes').openCursor(); tx.onsuccess = e => { const c = e.target.result; if (c){ out.push(c.value); c.continue(); } else res(out); }; tx.onerror = () => res(out); }); }
+function dbPut(v){ return new Promise((res, rej) => { const tx = DB.transaction('takes', 'readwrite'); tx.objectStore('takes').put(v); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
+function dbClear(){ return new Promise(res => { const tx = DB.transaction('takes', 'readwrite'); tx.objectStore('takes').clear(); tx.oncomplete = res; }); }
+
+/* ---------- 麥克風與音量表 ---------- */
+let STREAM = null, ACX = null, AN = null, REC = null, chunks = [], recTimer = null, recStart = 0;
+const MIME = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg;codecs=opus'].find(m => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+async function startMic(){
+  STREAM = await navigator.mediaDevices.getUserMedia({ audio:{ channelCount:1, echoCancellation:true, noiseSuppression:true, autoGainControl:true } });
+  ACX = new (window.AudioContext || window.webkitAudioContext)();
+  AN = ACX.createAnalyser(); AN.fftSize = 1024; ACX.createMediaStreamSource(STREAM).connect(AN);
+  const buf = new Float32Array(AN.fftSize);
+  (function loop(){ AN.getFloatTimeDomainData(buf); let m = 0; for (const v of buf) m = Math.max(m, Math.abs(v)); el('meter').style.width = Math.min(100, m * 140) + '%'; requestAnimationFrame(loop); })();
+}
+function recording(){ return REC && REC.state === 'recording'; }
+function toggleRec(){
+  if (recording()){ REC.stop(); return; }
+  stopPlay(); chunks = [];
+  try { REC = MIME ? new MediaRecorder(STREAM, { mimeType:MIME }) : new MediaRecorder(STREAM); } catch(e){ REC = new MediaRecorder(STREAM); }
+  const line = LINES[cur];
+  REC.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  REC.onstop = async () => {
+    clearTimeout(recTimer); setRecUI(false);
+    const dur = (performance.now() - recStart) / 1000;
+    if (dur < 0.4 || !chunks.length){ setStatus('太短了，再錄一次', 'no'); return; }
+    const blob = new Blob(chunks, { type:REC.mimeType || MIME || 'audio/webm' });
+    const take = { h:line.h, t:line.t, blob, mime:blob.type, dur:Math.round(dur * 10) / 10, at:Date.now() };
+    TAKES.set(line.h, take); await dbPut(take); renderList(); renderProg(); renderLine();
+    if (el('o-play').checked){ await playTake(line.h); }
+    if (el('o-next').checked && LINES[cur] === line) go(1);
+  };
+  REC.start(); recStart = performance.now(); setRecUI(true);
+  recTimer = setTimeout(() => { if (recording()) REC.stop(); }, 15000);
+}
+function setRecUI(on){ const b = el('brec'); b.classList.toggle('on', on); b.textContent = on ? '■ 停止' : (TAKES.has(LINES[cur].h) ? '● 重錄' : '● 開始錄'); ['bprev','bnext','bplay','bref'].forEach(id => el(id).disabled = on); if (on) setStatus('錄音中…說完按「■ 停止」', 'live'); }
+function setStatus(t, cls){ const s = el('l-status'); s.textContent = t; s.className = 'status ' + (cls || ''); }
+
+/* ---------- 播放 ---------- */
+const PLAYER = new Audio(); let playURL = null;
+function stopPlay(){ try { PLAYER.pause(); } catch(e){} }
+function playSrc(src){ return new Promise(res => { stopPlay(); PLAYER.onended = res; PLAYER.onerror = res; PLAYER.src = src; const p = PLAYER.play(); if (p && p.catch) p.catch(res); }); }
+function playTake(h){ const t = TAKES.get(h); if (!t) return Promise.resolve(); if (playURL) URL.revokeObjectURL(playURL); playURL = URL.createObjectURL(t.blob); return playSrc(playURL); }
+
+/* ---------- 畫面 ---------- */
+let cur = 0;
+function visible(){ const g = el('f-group').value, todo = el('f-todo').checked; return LINES.map((l, i) => i).filter(i => (!g || LINES[i].g === g) && (!todo || !TAKES.has(LINES[i].h) || i === cur)); }
+function go(d){ const v = visible(); let k = v.indexOf(cur); k = Math.max(0, Math.min(v.length - 1, (k < 0 ? 0 : k + d))); if (v.length) cur = v[k]; renderLine(); renderList(); }
+function renderLine(){
+  const l = LINES[cur];
+  el('l-group').textContent = l.g; el('l-idx').textContent = cur + 1; el('l-tot').textContent = LINES.length;
+  el('l-tip').textContent = '語氣：' + l.tip; el('l-text').textContent = l.t;
+  const im = el('l-img'); if (l.img){ im.src = l.img; im.hidden = false; } else im.hidden = true;
+  const t = TAKES.get(l.h);
+  setStatus(t ? `✓ 已錄好（${t.dur} 秒）` : '還沒錄', t ? 'ok' : 'no');
+  el('bplay').disabled = !t; el('brec').textContent = t ? '● 重錄' : '● 開始錄';
+  el('bref').disabled = !(window.KIDS_VOX && KIDS_VOX[l.h]);
+  el('bprev').disabled = visible().indexOf(cur) <= 0;
+}
+function renderProg(){ const n = LINES.filter(l => TAKES.has(l.h)).length; el('p-done').textContent = n; el('p-total').textContent = LINES.length; el('p-bar').style.width = (n / LINES.length * 100) + '%'; el('zip-info').textContent = n ? `目前可下載 ${n} 句` : ''; el('bzip').disabled = !n; }
+function renderList(){
+  const v = new Set(visible());
+  el('all').innerHTML = LINES.map((l, i) => v.has(i) ? `<li data-i="${i}" class="${TAKES.has(l.h) ? 'done' : ''} ${i === cur ? 'cur' : ''}"><span class="st">${TAKES.has(l.h) ? '✅' : '⬜'}</span><span class="g">${l.g}</span><span class="t">${l.t.replace(/</g, '&lt;')}</span></li>` : '').join('');
+  const L = el('all'), c = L.querySelector('.cur'); if (c && (c.offsetTop < L.scrollTop || c.offsetTop > L.scrollTop + L.clientHeight - 40)) L.scrollTop = c.offsetTop - 80;
+}
+
+/* ---------- 匯出：轉成 24kHz 單聲道 WAV，打包 zip ---------- */
+async function toWav(blob){
+  const ctx = ACX || new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await new Promise((res, rej) => blob.arrayBuffer().then(ab => { const p = ctx.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); }, rej));
+  const SR = 24000, off = new OfflineAudioContext(1, Math.max(1, Math.ceil(buf.duration * SR)), SR);
+  const src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+  const data = (await off.startRendering()).getChannelData(0);
+  const out = new DataView(new ArrayBuffer(44 + data.length * 2));
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) out.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); out.setUint32(4, 36 + data.length * 2, true); w(8, 'WAVE'); w(12, 'fmt '); out.setUint32(16, 16, true);
+  out.setUint16(20, 1, true); out.setUint16(22, 1, true); out.setUint32(24, SR, true); out.setUint32(28, SR * 2, true); out.setUint16(32, 2, true); out.setUint16(34, 16, true);
+  w(36, 'data'); out.setUint32(40, data.length * 2, true);
+  for (let i = 0; i < data.length; i++){ const v = Math.max(-1, Math.min(1, data[i])); out.setInt16(44 + i * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true); }
+  return new Uint8Array(out.buffer);
+}
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++){ let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8){ let c = 0xffffffff; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+function makeZip(files){            // files: [{name, data:Uint8Array}]，不壓縮
+  const enc = new TextEncoder(), parts = [], central = []; let off = 0;
+  for (const f of files){
+    const name = enc.encode(f.name), crc = crc32(f.data), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, 0, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true); h.setUint32(18, f.data.length, true); h.setUint32(22, f.data.length, true);
+    h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), name, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, 0, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, f.data.length, true); c.setUint32(24, f.data.length, true);
+    c.setUint16(28, name.length, true); c.setUint32(42, off, true);
+    central.push(new Uint8Array(c.buffer), name);
+    off += 30 + name.length + f.data.length;
+  }
+  const cdSize = central.reduce((a, p) => a + p.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cdSize, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...central, new Uint8Array(e.buffer)], { type:'application/zip' });
+}
+async function exportZip(){
+  const b = el('bzip'); b.disabled = true;
+  const takes = LINES.filter(l => TAKES.has(l.h)), files = [], meta = [];
+  try {
+    for (let i = 0; i < takes.length; i++){
+      b.textContent = `打包中… ${i + 1} / ${takes.length}`;
+      files.push({ name:takes[i].h + '.wav', data:await toWav(TAKES.get(takes[i].h).blob) });
+      meta.push({ h:takes[i].h, t:takes[i].t, g:takes[i].g });
+    }
+    files.push({ name:'lines.json', data:new TextEncoder().encode(JSON.stringify(meta, null, 1)) });
+    const d = new Date(), stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(makeZip(files)); a.download = `gxt-voice-${stamp}.zip`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  } catch(e){ alert('打包失敗：' + e.message); }
+  b.textContent = '下載錄音檔（zip）'; b.disabled = false;
+}
+
+/* ---------- 開始 ---------- */
+(async function boot(){
+  try { DB = await dbOpen(); (await dbAll()).forEach(t => TAKES.set(t.h, t)); } catch(e){ el('err').hidden = false; el('err').textContent = '這個瀏覽器無法保存錄音（可能是無痕模式），請改用一般視窗。'; }
+  const gs = [...new Set(LINES.map(l => l.g))]; el('f-group').innerHTML += gs.map(g => `<option>${g}</option>`).join('');
+  const firstTodo = LINES.findIndex(l => !TAKES.has(l.h)); cur = firstTodo < 0 ? 0 : firstTodo;
+})();
+el('bstart').addEventListener('click', async () => {
+  const err = el('err');
+  if (!navigator.mediaDevices || !window.MediaRecorder){ err.hidden = false; err.textContent = '這個瀏覽器不支援錄音，請改用新版 Chrome、Edge 或 iPhone／iPad 的 Safari。'; return; }
+  try { await startMic(); } catch(e){ err.hidden = false; err.textContent = '沒有拿到麥克風權限：請在網址列旁的設定允許「麥克風」，再按一次。'; return; }
+  el('intro').hidden = true; el('studio').hidden = false;
+  renderProg(); renderLine(); renderList();
+});
+el('brec').addEventListener('click', toggleRec);
+el('bnext').addEventListener('click', () => { stopPlay(); go(1); });
+el('bprev').addEventListener('click', () => { stopPlay(); go(-1); });
+el('bplay').addEventListener('click', () => playTake(LINES[cur].h));
+el('bref').addEventListener('click', () => { const h = LINES[cur].h; if (KIDS_VOX[h]) playSrc('assets/voice/' + h + '.mp3'); });
+el('f-group').addEventListener('change', () => { const v = visible(); if (v.length && !v.includes(cur)) cur = v[0]; renderLine(); renderList(); });
+el('f-todo').addEventListener('change', () => { renderList(); });
+el('all').addEventListener('click', e => { const li = e.target.closest('li'); if (!li || recording()) return; stopPlay(); cur = +li.dataset.i; renderLine(); renderList(); });
+el('bzip').addEventListener('click', exportZip);
+el('bclear').addEventListener('click', async () => { if (!confirm('確定要刪除這台裝置上的全部錄音嗎？刪除後無法復原。')) return; await dbClear(); TAKES.clear(); renderProg(); renderLine(); renderList(); });
+document.addEventListener('keydown', e => {
+  if (el('studio').hidden || e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space'){ e.preventDefault(); toggleRec(); }
+  else if (e.key === 'ArrowRight' && !recording()){ stopPlay(); go(1); }
+  else if (e.key === 'ArrowLeft' && !recording()){ stopPlay(); go(-1); }
+  else if ((e.key === 'p' || e.key === 'P') && !recording()) playTake(LINES[cur].h);
+});
+window.addEventListener('beforeunload', e => { if (recording()){ e.preventDefault(); e.returnValue = ''; } });
+</script>
+</body>
+</html>
