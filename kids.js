@@ -230,6 +230,27 @@ function starRow(n){ return '⭐'.repeat(n) + '<i>⭐</i>'.repeat(3 - n); }
 let RUN = 0;
 function stopAll(){ RUN++; QLIVE = false; clearTimeout(idleT); stopVoice(); }
 function stage(html){ $('stage').innerHTML = html; window.scrollTo(0, 0); }
+/* 目前在哪個畫面：首頁不顯示「回遊樂園」；進遊戲時記一筆瀏覽紀錄，手機的「上一頁」就會回到遊樂園而不是離開網站 */
+let VIEW = 'home', skipPop = false;
+function setView(v){
+  VIEW = v; document.body.dataset.view = v; $('k-home').hidden = v === 'home';
+  try { if (v !== 'home' && !(history.state && history.state.k)) history.pushState({ k:1 }, ''); } catch(e){}
+}
+function goHome(){
+  sfx.pop(); home(); say(T.homeAgain);
+  try { if (history.state && history.state.k){ skipPop = true; setTimeout(() => { skipPop = false; }, 600); history.back(); } } catch(e){}
+}
+const BACKBTN = '<div class="k-backrow"><button class="k-bigbtn home wide" onclick="goHome()" aria-label="回遊樂園"><span>⬅️ 🏠</span><small>回遊樂園</small></button></div>';
+/* 前往學齡版：要按住約一秒，避免小朋友誤觸 */
+function bindAdult(){
+  const b = $('k-adult'); if (!b) return; let t = null;
+  const start = e => { e.preventDefault(); b.classList.add('hold'); t = setTimeout(() => { location.href = './'; }, 1300); };
+  const end = () => { if (t){ clearTimeout(t); t = null; } b.classList.remove('hold'); };
+  b.addEventListener('pointerdown', start);
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, end));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  b.addEventListener('keydown', e => { if (e.key === 'Enter') location.href = './'; });
+}
 function setDots(n, done){ $('k-dots').innerHTML = n ? Array.from({ length:n }, (_, i) => `<i class="${i < done ? 'on' : ''}">⭐</i>`).join('') : ''; }
 function refreshTop(bump){
   $('k-star-n').textContent = K.stars; $('k-book-n').textContent = K.stickers.length;
@@ -247,7 +268,7 @@ const GAMES = [
 ];
 
 function home(){
-  stopAll(); setDots(0);
+  stopAll(); setDots(0); setView('home');
   const title = '估小泰遊樂園'.split('').map((c, i) => `<span style="--i:${i}">${c}</span>`).join('');
   stage(`<section class="k-home">
     <div class="k-hero">
@@ -257,13 +278,14 @@ function home(){
     <div class="k-tiles">${GAMES.map((g, i) => `<button class="k-tile" style="--c:${g.color};--c2:${shade(g.color, -.08)};--r:${g.roof};--r2:${shade(g.roof, -.2)};--d:${i * .18}s" onclick="startGame('${g.id}')" aria-label="${g.name}">
       <span class="t-roof"></span><span class="t-body"><span class="t-win"><span class="k-ico">${g.ico}</span></span>
       <span class="k-starrow">${starRow((K.games[g.id] || {}).best || 0)}</span><small>${g.name}</small></span></button>`).join('')}</div>
+    <div class="k-foot"><button class="k-adult" id="k-adult" aria-label="按住一秒，前往學齡版"><i></i><span>🎒 學齡版<small>哥哥姊姊玩的・按住前往</small></span></button></div>
   </section>`);
-  refreshTop();
+  bindAdult(); refreshTop();
 }
 function heroTap(){ const s = rnd(STICKERS); owl(s[0]); sfx.boing(); say(s[2]); }
 
 function startGame(id){
-  stopAll(); sfx.pop(); const run = RUN;
+  stopAll(); sfx.pop(); setView('game'); const run = RUN;
   if (id === 'build') return startBuild(run);
   if (id === 'memory') return startMemory(run);
   runQuiz(id, 5, { big:qBig, count:qCount, who:qWho, fix:qFix }[id], run);
@@ -520,6 +542,7 @@ async function appraise(){
 /* ---------- 完成：星星＋打開禮物拿貼紙 ---------- */
 async function finish(id, stars, run){
   QLIVE = false; clearTimeout(idleT); setDots(0);
+  setView('reward');
   const st = K.games[id] || { plays:0, best:0 }; st.plays++; st.best = Math.max(st.best, stars); K.games[id] = st;
   K.stars += stars;
   const left = STICKERS.filter(s => !K.stickers.includes(s[0])), got = left.length ? rnd(left) : null;
@@ -530,7 +553,7 @@ async function finish(id, stars, run){
     <div class="k-giftwrap"><span class="k-rays"></span>
     ${got ? `<button class="k-gift" id="k-gift" aria-label="打開禮物"><span class="in"><span class="f">🎁</span><span class="b"><img src="assets/gxt-${got[0]}.png" alt="估小泰：${got[1]}" draggable="false"></span></span></button>`
           : `<img class="k-allstk" src="assets/gxt-moved.png" alt="估小泰" draggable="false">`}</div>
-    <div class="k-row"><button class="k-bigbtn again" onclick="startGame('${id}')" aria-label="再玩一次">🔁</button><button class="k-bigbtn" onclick="home()" aria-label="選別的遊戲">🏠</button><button class="k-bigbtn" onclick="book()" aria-label="貼紙簿">📒</button></div>
+    <div class="k-row"><button class="k-bigbtn again" onclick="startGame('${id}')" aria-label="再玩一次"><span>🔁</span><small>再玩一次</small></button><button class="k-bigbtn home" onclick="goHome()" aria-label="回遊樂園"><span>🏠</span><small>回遊樂園</small></button><button class="k-bigbtn" onclick="book()" aria-label="貼紙簿"><span>📒</span><small>貼紙簿</small></button></div>
   </section>`);
   let opened = false;
   const openGift = async () => {
@@ -547,12 +570,13 @@ async function finish(id, stars, run){
 
 /* ---------- 📒 貼紙簿 ---------- */
 function book(){
-  stopAll(); setDots(0); sfx.pop();
+  stopAll(); setDots(0); sfx.pop(); setView('book');
   const n = K.stickers.length, all = STICKERS.length;
   stage(`<section class="k-game k-book">
     <div class="k-bookhead"><img src="assets/gxt-${n === all ? 'moved' : 'wink'}.png" alt="估小泰" draggable="false"><div class="k-bookbar"><i style="width:${n / all * 100}%"></i><b>${n} / ${all}</b></div></div>
     <div class="k-stks">${STICKERS.map((s, i) => `<button class="k-stk ${K.stickers.includes(s[0]) ? '' : 'no'}" data-i="${i}" style="--d:${(i % 7) * .06}s" aria-label="${K.stickers.includes(s[0]) ? s[1] : '還沒拿到'}"><img src="assets/gxt-${s[0]}.png" alt="" draggable="false" loading="lazy"></button>`).join('')}</div>
   </section>`);
+  $('stage').querySelector('.k-book').insertAdjacentHTML('beforeend', BACKBTN);
   say(n ? T.bookHave : T.bookNone);
   document.querySelectorAll('.k-stk').forEach(b => b.addEventListener('click', () => {
     const s = STICKERS[+b.dataset.i];
@@ -581,21 +605,13 @@ function phraseGroups(){
 /* 產生語音檔用：列出估小泰會說的每一句話（不重複） */
 function allPhrases(){ const L = new Set(); phraseGroups().forEach(g => g.list.forEach(x => L.add(x.t))); return [...L]; }
 
-/* ---------- 上方按鈕、大人版、開始 ---------- */
+/* ---------- 上方按鈕、開始 ---------- */
 function init(){
-  $('k-home').addEventListener('click', () => { sfx.pop(); home(); say(T.homeAgain); });
+  $('k-home').addEventListener('click', goHome);
+  window.addEventListener('popstate', () => { if (skipPop){ skipPop = false; return; } if (VIEW !== 'home'){ home(); say(T.homeAgain); } });
   $('k-stars').addEventListener('click', () => { sfx.coin(); say(K.stars ? T.starsHave : T.starsNone); });
   $('k-book').addEventListener('click', book);
   $('k-sound').addEventListener('click', () => { K.sound = !K.sound; save(); refreshTop(); if (K.sound){ sfx.pop(); say(T.soundOn); } else stopVoice(); });
-  (function adultGate(){
-    const b = $('k-adult'); let t = null;
-    const start = e => { e.preventDefault(); b.classList.add('hold'); t = setTimeout(() => { location.href = './'; }, 1300); };
-    const end = () => { if (t){ clearTimeout(t); t = null; } b.classList.remove('hold'); };
-    b.addEventListener('pointerdown', start);
-    ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, end));
-    b.addEventListener('contextmenu', e => e.preventDefault());
-    b.addEventListener('keydown', e => { if (e.key === 'Enter') location.href = './'; });
-  })();
   $('k-play').addEventListener('click', () => {
     ac(); $('k-start').classList.add('hide');
     home(); say(T.welcome);                       // 在按鈕當下開始播放，iPad／手機才會允許出聲

@@ -215,7 +215,7 @@ button:focus-visible{outline:4px solid var(--y); outline-offset:3px}
 .k-stk.no img{filter:brightness(0); opacity:.08}
 .k-stk.boing img{animation:boing .5s}
 
-/* ---------- 大人版按鈕、開始畫面、彩帶 ---------- */
+/* ---------- 學齡版入口、開始畫面、彩帶 ---------- */
 .k-adult{position:fixed; left:12px; bottom:max(12px, env(safe-area-inset-bottom)); z-index:30; overflow:hidden; border:0; border-radius:99px; background:rgba(255,255,255,.85); color:var(--muted); font-size:13px; font-weight:700; padding:9px 14px; box-shadow:0 3px 0 rgba(0,0,0,.06)}
 .k-adult i{position:absolute; inset:0; background:rgba(0,152,188,.3); transform:scaleX(0); transform-origin:left center}
 .k-adult.hold i{transition:transform 1.3s linear; transform:scaleX(1)}
@@ -307,4 +307,62 @@ button:focus-visible{outline:4px solid var(--y); outline-offset:3px}
 @media (max-width:380px){
   .k-dots{display:none}
   .k-title{font-size:24px}
+}
+
+/* ================= v3：導覽更清楚、版面微調 ================= */
+/* 左上角「回遊樂園」：只在遊戲、完成畫面、貼紙簿出現 */
+.kback{flex:0 0 auto; display:flex; align-items:center; gap:6px; height:62px; padding:0 18px 0 14px; border:4px solid #fff; border-radius:99px; background:linear-gradient(#ffe066,#ffc300); box-shadow:var(--sh); line-height:1; animation:tileIn .4s both}
+.kback[hidden]{display:none}
+.kback b{font-size:22px; color:#8a5a00}
+.kback span{font-size:30px}
+.kback small{font-size:17px; font-weight:900; color:#6b4500; white-space:nowrap}
+.kback:active{transform:translateY(6px); box-shadow:0 2px 0 rgba(40,90,120,.18)}
+.k-dots:not(:empty){flex:0 1 auto; margin:0 auto; background:rgba(255,255,255,.65); border-radius:99px; padding:6px 16px; box-shadow:0 3px 0 rgba(40,90,120,.1)}
+#stage{padding-bottom:28px}
+
+/* 首頁：精簡高度（平板橫放一頁看得完）、房子有名牌與影子 */
+.k-hero{margin-bottom:10px}
+.k-hero img{height:140px}
+.k-tiles{gap:14px 18px}
+.k-tile .t-roof{height:46px}
+.k-tile .t-body{padding:8px 8px 9px; gap:3px}
+.k-tile .t-win{width:92px; height:92px}
+.k-tile .k-ico{font-size:58px}
+.k-tile small{font-size:18px; color:#4a3b3b; background:rgba(255,255,255,.8); border-radius:99px; padding:1px 16px; box-shadow:0 2px 0 rgba(0,0,0,.06)}
+.k-tile::after{content:''; display:block; width:78%; height:12px; margin-top:7px; border-radius:50%; background:rgba(40,90,60,.16)}
+.k-foot{display:flex; justify-content:center; margin-top:22px}
+.k-adult{position:relative; left:auto; bottom:auto; z-index:1; padding:8px 18px; background:rgba(255,255,255,.7); border:3px solid rgba(255,255,255,.9); font-size:15px; color:var(--deep); box-shadow:0 3px 0 rgba(40,90,120,.1)}
+.k-adult span{display:flex; align-items:baseline; gap:8px; font-weight:900}
+.k-adult small{font-size:12px; font-weight:700; color:var(--muted)}
+
+/* 完成畫面：白色面板＋有文字的三個大按鈕 */
+.k-reward{align-self:center; overflow:hidden; width:min(580px,100%); background:rgba(255,255,255,.74); border:5px solid #fff; border-radius:38px; padding:18px 16px 22px; box-shadow:var(--sh); margin-top:4px}
+.k-bigbtn{width:128px; height:auto; min-height:124px; padding:12px 6px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px}
+.k-bigbtn span{font-size:52px; line-height:1}
+.k-bigbtn small{font-size:17px; font-weight:900; color:var(--ink); white-space:nowrap}
+.k-bigbtn.home{background:linear-gradient(#d4f1ff,#8fd8ff)}
+.k-bigbtn.wide{width:auto; min-height:0; flex-direction:row; gap:12px; padding:14px 30px}
+.k-bigbtn.wide span{font-size:38px}
+.k-bigbtn.wide small{font-size:20px}
+.k-backrow{display:flex; justify-content:center; margin-top:18px}
+
+@media (max-width:640px){
+  .kback{height:52px; padding:0 12px 0 10px; border-width:3px; gap:4px}
+  .kback b{font-size:17px} .kback span{font-size:24px} .kback small{font-size:14px}
+  .k-dots:not(:empty){padding:4px 10px}
+  .k-sky .sun{top:auto; bottom:calc(26vh - 30px); right:-34px; width:120px; height:120px; opacity:.85}
+  .k-hero img{height:120px}
+  .k-tiles{gap:12px 12px}
+  .k-tile .t-roof{height:44px}
+  .k-tile .t-win{width:84px; height:84px}
+  .k-tile .k-ico{font-size:50px}
+  .k-tile small{font-size:16px; padding:1px 12px}
+  .k-reward{padding:14px 10px 18px; border-radius:30px}
+  .k-bigbtn{width:98px; min-height:104px; border-width:4px; border-radius:28px}
+  .k-bigbtn span{font-size:42px}
+  .k-bigbtn small{font-size:14px}
+  .k-row{gap:10px}
+}
+@media (max-width:400px){
+  .kback small{display:none}
 }

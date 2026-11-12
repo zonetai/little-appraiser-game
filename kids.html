@@ -9,7 +9,7 @@
 <title>幼兒園版｜小小估價師大冒險</title>
 <meta name="description" content="給幼兒園小朋友的房子圖像遊戲：不用識字，跟著估小泰的聲音蓋房子、比大小、數一數、翻翻卡、找找哪裡壞掉，收集估小泰貼紙。">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="kids.css?v=3">
+<link rel="stylesheet" href="kids.css?v=5">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
 </div>
 
 <header class="kh">
-  <button class="kbtn" id="k-home" aria-label="回到選遊戲">🏠</button>
+  <button class="kback" id="k-home" aria-label="回遊樂園" hidden><b>◀</b><span>🏠</span><small>回遊樂園</small></button>
   <div class="k-dots" id="k-dots"></div>
   <div class="k-right">
     <button class="kpill" id="k-stars" aria-label="我的星星">⭐<b id="k-star-n">0</b></button>
@@ -42,8 +42,6 @@
 
 <main id="stage"></main>
 
-<button class="k-adult" id="k-adult" aria-label="按住兩秒回到大人版"><i></i><span>👨‍👩‍👧 按住回大人版</span></button>
-
 <div class="k-start" id="k-start">
   <div class="k-start-title">小小估價師大冒險<small>幼兒園版 ・ 估小泰陪你玩</small></div>
   <div class="k-start-owl"><span class="k-rays"></span><img src="assets/gxt-ok.png" alt="估小泰" draggable="false"></div>
@@ -53,7 +51,7 @@
 
 <canvas id="k-confetti"></canvas>
 
-<script src="kids-voice.js?v=4"></script>
-<script src="kids.js?v=4"></script>
+<script src="kids-voice.js?v=5"></script>
+<script src="kids.js?v=5"></script>
 </body>
 </html>
