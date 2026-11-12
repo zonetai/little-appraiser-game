@@ -123,8 +123,8 @@
   </section>
 </main>
 
-<script src="kids-voice.js?v=3"></script>
-<script src="kids.js?v=3"></script>
+<script src="kids-voice.js?v=4"></script>
+<script src="kids.js?v=4"></script>
 <script>
 'use strict';
 /* ---------- 台詞清單（跟遊戲用同一份，永遠同步） ---------- */
@@ -273,7 +273,7 @@ el('brec').addEventListener('click', toggleRec);
 el('bnext').addEventListener('click', () => { stopPlay(); go(1); });
 el('bprev').addEventListener('click', () => { stopPlay(); go(-1); });
 el('bplay').addEventListener('click', () => playTake(LINES[cur].h));
-el('bref').addEventListener('click', () => { const h = LINES[cur].h; if (KIDS_VOX[h]) playSrc('assets/voice/' + h + '.mp3'); });
+el('bref').addEventListener('click', () => { const h = LINES[cur].h; if (KIDS_VOX[h]) playSrc(voxURL(h)); });
 el('f-group').addEventListener('change', () => { const v = visible(); if (v.length && !v.includes(cur)) cur = v[0]; renderLine(); renderList(); });
 el('f-todo').addEventListener('change', () => { renderList(); });
 el('all').addEventListener('click', e => { const li = e.target.closest('li'); if (!li || recording()) return; stopPlay(); cur = +li.dataset.i; renderLine(); renderList(); });

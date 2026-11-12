@@ -55,6 +55,8 @@ const tWorth  = n => `你的房子值${ZH[n]}個金幣！`;
 
 /* ---------- 聲音：預錄 mp3 → 瀏覽器語音備援 ---------- */
 const VOX = (typeof window !== 'undefined' && window.KIDS_VOX) || {};
+const VOXV = (typeof window !== 'undefined' && window.KIDS_VOX_V) || '1';   // 語音版本，換錄音時避免讀到舊快取
+const voxURL = h => 'assets/voice/' + h + '.mp3?v=' + VOXV;
 function vh(t){ const b = new TextEncoder().encode(t); let h = 0x811c9dc5; for (const x of b){ h ^= x; h = Math.imul(h, 0x01000193) >>> 0; } return ('0000000' + h.toString(16)).slice(-8); }
 const AUD = HAS_DOM ? new Audio() : null; if (AUD) AUD.preload = 'auto';
 let VOICE = null;
@@ -83,7 +85,7 @@ function sayOne(text){
     if (!VOX[h] || !AUD){ if (HAS_DOM && !VOX[h]) console.warn('[語音檔缺少]', text); ttsOne(text).then(res); return; }
     let done = false; const fin = () => { if (!done){ done = true; if (curFin === fin) curFin = null; res(); } }; curFin = fin;
     AUD.onended = fin; AUD.onerror = () => { if (!done){ done = true; ttsOne(text).then(res); } };
-    AUD.src = 'assets/voice/' + h + '.mp3';
+    AUD.src = voxURL(h);
     const p = AUD.play(); if (p && p.catch) p.catch(() => { if (!done){ done = true; ttsOne(text).then(res); } });
     setTimeout(fin, VOX[h] * 1000 + 3000);
   });
@@ -94,7 +96,7 @@ function say(text){
   stopVoice(); const tok = ++sayTok;
   return (async () => { for (const p of parts){ if (tok !== sayTok) return; await sayOne(p); } })();
 }
-function prefetchVoice(list){ if (!HAS_DOM) return; let i = 0; const next = () => { const t = list[i++]; if (!t) return; const h = vh(t); if (!VOX[h]) return next(); fetch('assets/voice/' + h + '.mp3').catch(() => {}).finally(next); }; next(); next(); }
+function prefetchVoice(list){ if (!HAS_DOM) return; let i = 0; const next = () => { const t = list[i++]; if (!t) return; const h = vh(t); if (!VOX[h]) return next(); fetch(voxURL(h)).catch(() => {}).finally(next); }; next(); next(); }
 let lastPrompt = '';
 function prompt(text){ lastPrompt = text; return say(text); }
 function replay(){ sfx.pop(); owlJump(); say(lastPrompt); armIdle(); }
