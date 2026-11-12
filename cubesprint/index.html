@@ -177,7 +177,8 @@ table.tb th{color:var(--muted);font-size:13px}
 <body>
 <header class="top">
   <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="7" fill="#1b2333"/><g><rect x="4" y="4" width="8" height="8" rx="2" fill="#ffd500"/><rect x="13" y="4" width="8" height="8" rx="2" fill="#009b48"/><rect x="22" y="4" width="8" height="8" rx="2" fill="#b71234"/><rect x="4" y="13" width="8" height="8" rx="2" fill="#ff5800"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#ffffff"/><rect x="22" y="13" width="8" height="8" rx="2" fill="#0046ad"/><rect x="4" y="22" width="8" height="8" rx="2" fill="#009b48"/><rect x="13" y="22" width="8" height="8" rx="2" fill="#ffd500"/><rect x="22" y="22" width="8" height="8" rx="2" fill="#ff5800"/></g></svg>
-  <div><h1>魔方衝刺營 CubeSprint</h1><div class="sub">115 學年度臺北市國小一般競速組 3x3x3</div></div>
+  <div style="flex:1;min-width:0"><h1>魔方衝刺營 CubeSprint</h1><div class="sub">115 學年度臺北市國小一般競速組 3x3x3</div></div>
+  <button class="btn sm" id="syncChip" type="button" hidden data-act="go" data-to="settings" style="flex:none;font-size:13px;padding:4px 10px"></button>
 </header>
 <div id="banner" hidden><div class="inner" id="bannerText"></div></div>
 <main>
@@ -340,7 +341,7 @@ const CS = (function () {
   }
 
   /* ---------- 資料格式 ---------- */
-  function defaultDB() { return { app: 'CubeSprint', version: 1, solves: [], mockSessions: [], planChecks: [], algStatus: [], drills: [], settings: Object.assign({}, DEFAULT_SETTINGS), practiceSession: null }; }
+  function defaultDB() { return { app: 'CubeSprint', version: 1, solves: [], mockSessions: [], planChecks: [], algStatus: [], drills: [], settings: Object.assign({}, DEFAULT_SETTINGS), settings_u: 0, deleted: {}, practiceSession: null }; }
   const PEN = ['none', '+2', 'DNF'], MODES = ['practice', 'mock', 'drill'];
   function normalizeDB(o) {
     if (!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('檔案內容不是 CubeSprint 的資料格式');
@@ -364,7 +365,51 @@ const CS = (function () {
       for (const k of Object.keys(DEFAULT_SETTINGS)) if (o.settings[k] !== undefined && typeof o.settings[k] === typeof DEFAULT_SETTINGS[k]) d.settings[k] = o.settings[k];
     }
     if (o.practiceSession && typeof o.practiceSession === 'object') d.practiceSession = Object.assign({}, o.practiceSession);
+    if (typeof o.settings_u === 'number') d.settings_u = o.settings_u;
+    if (o.deleted && typeof o.deleted === 'object' && !Array.isArray(o.deleted)) for (const k of Object.keys(o.deleted)) if (typeof o.deleted[k] === 'number') d.deleted[k] = o.deleted[k];
     return d;
+  }
+
+  /* ---------- 跨裝置合併 ---------- */
+  // 以 id 聯集；同一筆兩邊都有時取 u（最後修改時間）較新的；deleted 為刪除標記（id → 時間）
+  function mergeDB(local, remote) {
+    const L = normalizeDB(local);
+    let R; try { R = normalizeDB(remote); } catch (e) { R = defaultDB(); }
+    const out = defaultDB();
+    const del = Object.assign({}, R.deleted);
+    for (const k of Object.keys(L.deleted)) del[k] = Math.max(del[k] || 0, L.deleted[k]);
+    out.deleted = del;
+    const byId = (la, ra, tkey) => {
+      const m = new Map();
+      for (const x of ra) if (x.id != null) m.set(x.id, x);
+      for (const x of la) { if (x.id == null) continue; const o = m.get(x.id); if (!o || (x.u || 0) >= (o.u || 0)) m.set(x.id, x); }
+      return Array.from(m.values()).filter(x => !del[x.id]).sort((a, b) => (Date.parse(a[tkey]) || 0) - (Date.parse(b[tkey]) || 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    };
+    out.solves = byId(L.solves, R.solves, 'timestamp');
+    out.drills = byId(L.drills, R.drills, 'timestamp');
+    out.mockSessions = byId(L.mockSessions, R.mockSessions, 'date');
+    const pc = new Map();
+    for (const p of R.planChecks) if (p.date) pc.set(p.date, p);
+    for (const p of L.planChecks) {
+      if (!p.date) continue; const o = pc.get(p.date);
+      if (!o || (p.u || 0) > (o.u || 0)) pc.set(p.date, p);
+      else if ((p.u || 0) === (o.u || 0)) pc.set(p.date, Object.assign({}, p, { items_done: Array.from(new Set(o.items_done.concat(p.items_done))) }));
+    }
+    out.planChecks = Array.from(pc.values()).sort((a, b) => (a.date < b.date ? -1 : 1));
+    const as = new Map();
+    for (const a of R.algStatus) if (a.alg_id) as.set(a.alg_id, a);
+    for (const a of L.algStatus) { if (!a.alg_id) continue; const o = as.get(a.alg_id); if (!o || (a.u || 0) >= (o.u || 0)) as.set(a.alg_id, a); }
+    out.algStatus = Array.from(as.values()).sort((a, b) => (a.alg_id < b.alg_id ? -1 : 1));
+    if (R.settings_u > L.settings_u) { out.settings = Object.assign({}, R.settings, { theme: L.settings.theme }); out.settings_u = R.settings_u; }
+    else { out.settings = Object.assign({}, L.settings); out.settings_u = L.settings_u; }
+    out.practiceSession = L.practiceSession;
+    return out;
+  }
+  // 依鍵名排序的 JSON（資料庫 jsonb 會改變鍵的順序，比較時用）
+  function canon(v) {
+    if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).filter(k => v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+    return JSON.stringify(v === undefined ? null : v);
   }
 
   /* ---------- csTimer 匯入 ---------- */
@@ -584,12 +629,23 @@ const CS = (function () {
     db.mockSessions.push({ id: 'm1', date: db.solves[0].timestamp, round: 'prelim', attempts: ['s0', 's1'], best_ms: 8000 });
     const out1 = JSON.stringify(db); const back = normalizeDB(JSON.parse(out1)); const out2 = JSON.stringify(back);
     add('匯出後再匯入：筆數與數值完全一致（30 筆樣本）', out1 === out2 && back.solves.length === 30, out1 === out2 ? '匯出內容與再匯出內容逐字相同' : '內容不同');
+    // 跨裝置合併
+    const mk = (id, t, pen, u) => ({ id, timestamp: '2026-11-1' + t + 'T10:00:00.000Z', scramble: '', ms: 15000, penalty: pen, mode: 'practice', session_id: 'x', u });
+    const A = defaultDB(), B = defaultDB();
+    A.solves = [mk('a', 3, 'none'), mk('b', 4, 'none'), mk('d', 6, 'none')];
+    B.solves = [mk('b', 4, '+2', 2000), mk('c', 5, 'none'), mk('d', 6, 'none')];
+    A.solves.pop(); A.deleted = { d: 3000 };
+    A.planChecks = [{ date: '2026-11-13', items_done: ['w1-0'], u: 10 }]; B.planChecks = [{ date: '2026-11-13', items_done: ['w1-0', 'w1-1'], u: 20 }];
+    const ab = mergeDB(A, B), ba = mergeDB(B, A);
+    const ids = ab.solves.map(s => s.id).join(',');
+    const okM = canon(Object.assign({}, ab, { practiceSession: null })) === canon(Object.assign({}, ba, { practiceSession: null })) && ids === 'a,b,c' && ab.solves[1].penalty === '+2' && ab.planChecks[0].items_done.length === 2;
+    add('跨裝置合併：兩台各自新增、修改、刪除後合併結果一致且不遺失', okM, '合併後成績 ' + ids + '；較新的 +2 修改保留；已刪除的不會復活');
     return R;
   }
 
   return { COMP_DATE, INSPECTION_MS, PLUS2_MS, LIMIT_MS, TARGETS, REF_POINTS, DEFAULT_SETTINGS, PLAN, ALGS,
     genScramble, checkScramble, eff, aoN, bestAoN, bestOf, meanValid, inspectionPenalty, runLimit, roundBest, estimateRank, bootstrap,
-    localDate, daysBetween, dow, addDays, planForDate, defaultDB, normalizeDB, parseCsTimer,
+    localDate, daysBetween, dow, addDays, planForDate, defaultDB, normalizeDB, mergeDB, canon, parseCsTimer,
     solved, applyAlg, invertAlg, pllSignature, classifyOLL, f2lIntact, topOriented, verifyAlg, verifyAll, caseState, colorMap, selfTest };
 })();
 /*CORE-END*/
@@ -619,17 +675,116 @@ const CS = (function () {
       return CS.defaultDB();
     }
   }
-  function save() {
+  function saveLocal() {
     if (!storageOK) return;
     try { window.localStorage.setItem(KEY, JSON.stringify(DB)); }
     catch (e) { storageOK = false; storageNote = '⚠️ 存檔失敗（可能空間已滿或被封鎖），之後的資料不會被保存，請先到「設定」匯出備份。'; showBanner(); }
   }
-  function showBanner() { const b = $('#banner'); if (!storageOK) { $('#bannerText').textContent = storageNote; b.hidden = false; } else b.hidden = true; }
+  function save() { saveLocal(); if (typeof schedulePush === 'function') schedulePush(); }
+  function showBanner() {
+    const b = $('#banner');
+    if (!storageOK) { $('#bannerText').textContent = storageNote + (SYNC && SYNC.code ? '（已開啟跨裝置同步：成績仍會存到雲端）' : ''); b.hidden = false; } else b.hidden = true;
+  }
 
   let DB = loadDB();
   const S = () => DB.settings;
   const ALGV = CS.verifyAll();
   const ALGS_OK = CS.ALGS.filter(a => ALGV[a.id].ok);
+
+  /* ================= 跨裝置同步（Supabase，只透過 cs_create / cs_pull / cs_push 三個資料庫函式） ================= */
+  const SB_URL = 'https://vbqglkkkvsnuobbbysfk.supabase.co';
+  const SB_KEY = 'sb_publishable_wZl0mw0Hn18udcHJOFHg4w_BMkWvyrw'; // publishable key，可公開
+  const SYNC_KEY = 'cubesprint_sync';
+  let SYNC = (() => { try { const o = JSON.parse(window.localStorage.getItem(SYNC_KEY) || 'null'); if (o && typeof o.code === 'string') return o; } catch (e) { } return { code: '', version: 0, last: 0 }; })();
+  let syncState = SYNC.code ? 'idle' : 'off', syncMsg = '', syncBusy = false, syncAgain = false, pushTimer = 0;
+  function saveSync() { try { if (SYNC.code) window.localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)); else window.localStorage.removeItem(SYNC_KEY); } catch (e) { } }
+  const cleanCode = c => String(c || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
+  const fmtCode = c => cleanCode(c).replace(/(.{4})(?=.)/g, '$1-');
+  async function rpc(fn, args, keepalive) {
+    const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(args || {}), keepalive: !!keepalive });
+    const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (e) { }
+    if (!r.ok) { const e = new Error((j && j.message) || ('HTTP ' + r.status)); e.code = j && j.message; throw e; }
+    return j;
+  }
+  function syncPayload() { const d = Object.assign({}, DB); delete d.practiceSession; return d; }
+  function setSync(st, msg) {
+    syncState = st; syncMsg = msg || '';
+    const el = $('#syncChip');
+    if (el) {
+      const ic = { off: '', idle: '☁️ 同步', syncing: '⏳ 同步中', ok: '☁️ 已同步', err: '⚠️ 同步失敗', offline: '📴 離線' };
+      el.hidden = !SYNC.code; el.textContent = ic[st] || ''; el.title = syncMsg;
+    }
+    const s = $('#syncStatus'); if (s) s.innerHTML = syncStatusHTML();
+  }
+  function syncStatusHTML() {
+    if (syncState === 'syncing') return '⏳ 同步中…';
+    if (syncState === 'err') return '<span style="color:var(--bad)">⚠️ ' + esc(syncMsg || '同步失敗') + '</span>';
+    if (syncState === 'offline') return '📴 目前離線，連上網路後會自動同步';
+    return SYNC.last ? '☁️ 最後同步：' + new Date(SYNC.last).toLocaleString('zh-TW', { hour12: false }) : '尚未同步';
+  }
+  function syncErrText(e) {
+    const m = (e && (e.code || e.message)) || '';
+    if (m === 'BAD_CODE') return '找不到這組同步碼，請確認有沒有打錯';
+    if (m === 'TOO_LARGE') return '資料太大，無法同步（請匯出備份後聯絡製作者）';
+    if (/Failed to fetch|NetworkError|network|Load failed/i.test(m)) return '連不上雲端，請檢查網路';
+    return '同步時發生問題：' + m;
+  }
+  async function syncNow() {
+    if (!SYNC.code) return false;
+    if (syncBusy) { syncAgain = true; return false; }
+    if (navigator.onLine === false) { setSync('offline'); return false; }
+    syncBusy = true; clearTimeout(pushTimer); pushTimer = 0; setSync('syncing');
+    let ok = false;
+    try {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const r = await rpc('cs_pull', { p_code: SYNC.code });
+        const before = JSON.stringify(DB);
+        const merged = CS.mergeDB(DB, r.data);
+        const changedLocal = JSON.stringify(merged) !== before;
+        DB = merged; saveLocal();
+        const remoteHasData = r.data && Array.isArray(r.data.solves);
+        if (!remoteHasData || CS.canon(syncPayload()) !== CS.canon(r.data)) {
+          try { const p = await rpc('cs_push', { p_code: SYNC.code, p_data: syncPayload(), p_version: r.version }); SYNC.version = p.version; }
+          catch (e) { if (e.code === 'CONFLICT') continue; throw e; }
+        } else SYNC.version = r.version;
+        SYNC.last = Date.now(); saveSync(); ok = true;
+        if (changedLocal) afterRemoteChange();
+        break;
+      }
+      setSync(ok ? 'ok' : 'err', ok ? '' : '另一台裝置同時在存檔，請稍後再按一次「立即同步」');
+    } catch (e) {
+      setSync(navigator.onLine === false ? 'offline' : 'err', syncErrText(e));
+      if (e.code === 'BAD_CODE') throw e;
+    } finally {
+      syncBusy = false;
+      if (syncAgain) { syncAgain = false; setTimeout(() => syncNow().catch(() => { }), 300); }
+    }
+    return ok;
+  }
+  function afterRemoteChange() { probCache = null; applyTheme(); if (!T.busy() && !modalOpen()) render(); }
+  function schedulePush() { if (!SYNC.code) return; clearTimeout(pushTimer); pushTimer = setTimeout(() => syncNow().catch(() => { }), 2500); }
+  function flushBeacon() {
+    if (!SYNC.code || !pushTimer) return;
+    clearTimeout(pushTimer); pushTimer = 0;
+    try { navigator.sendBeacon(SB_URL + '/rest/v1/rpc/cs_push?apikey=' + encodeURIComponent(SB_KEY), new Blob([JSON.stringify({ p_code: SYNC.code, p_data: syncPayload(), p_version: SYNC.version })], { type: 'application/json' })); } catch (e) { }
+  }
+  async function syncCreate() {
+    setSync('syncing');
+    try {
+      const r = await rpc('cs_create', {});
+      SYNC = { code: r.code, version: 0, last: 0 }; saveSync();
+      await syncNow();
+      return true;
+    } catch (e) { SYNC = { code: '', version: 0, last: 0 }; saveSync(); setSync('err', syncErrText(e)); toast(syncErrText(e)); return false; }
+  }
+  async function syncJoin(code) {
+    const c = cleanCode(code);
+    if (c.length !== 12) { toast('同步碼是 12 個英文或數字'); return false; }
+    const old = SYNC; SYNC = { code: c, version: 0, last: 0 };
+    try { await syncNow(); if (syncState !== 'ok') throw new Error(syncMsg); saveSync(); return true; }
+    catch (e) { const msg = e.code ? syncErrText(e) : (syncMsg || syncErrText(e)); SYNC = old.code ? old : { code: '', version: 0, last: 0 }; saveSync(); toast(msg); setSync(SYNC.code ? 'err' : 'off', msg); return false; }
+  }
+  function syncDisconnect() { clearTimeout(pushTimer); pushTimer = 0; SYNC = { code: '', version: 0, last: 0 }; saveSync(); setSync('off'); }
 
   /* ================= 小工具 ================= */
   function fmt(ms) { if (ms === null || ms === undefined) return '—'; if (ms === Infinity) return 'DNF'; return (Math.floor(ms / 10) / 100).toFixed(2); }
@@ -911,7 +1066,7 @@ const CS = (function () {
       const pc = planCheck(ds, false) || { items_done: [] };
       const cnt = dayCounts(ds);
       let changed = false;
-      for (const it of pl.items) if (it.auto && cnt[it.auto.type] >= it.auto.n && pc.items_done.indexOf(it.id) < 0) { const p = planCheck(ds, true); p.items_done.push(it.id); changed = true; }
+      for (const it of pl.items) if (it.auto && cnt[it.auto.type] >= it.auto.n && pc.items_done.indexOf(it.id) < 0) { const p = planCheck(ds, true); p.items_done.push(it.id); p.u = Date.now(); changed = true; }
       if (changed) save();
       const done = (planCheck(ds, false) || { items_done: [] }).items_done;
       const nDone = pl.items.filter(it => done.indexOf(it.id) >= 0).length;
@@ -948,6 +1103,7 @@ const CS = (function () {
   ACT.plan = el => {
     const ds = today(); const p = planCheck(ds, true); const id = el.dataset.id; const i = p.items_done.indexOf(id);
     if (i >= 0) p.items_done.splice(i, 1); else { p.items_done.push(id); }
+    p.u = Date.now();
     save(); renderHome();
     const pl = CS.planForDate(ds);
     if (i < 0 && pl.items && pl.items.every(it => p.items_done.indexOf(it.id) >= 0)) { confetti(); toast('今天的菜單全部完成！' + sticker('day' + ds)); }
@@ -1020,8 +1176,8 @@ const CS = (function () {
   function stat(k, v) { return '<div class="stat"><div class="k">' + k + '</div><div class="v num">' + esc(v) + '</div></div>'; }
   ACT.newScr = () => { curScramble = CS.genScramble(); renderTimer(); };
   ACT.newSession = async () => { if (await ask('要開始新的一場嗎？舊的成績會保留在進度頁。', '開新場次')) { DB.practiceSession = { id: 'p-' + uid(), date: today() }; save(); renderTimer(); } };
-  ACT.pen = el => { const s = DB.solves.find(x => x.id === el.dataset.id); if (!s) return; s.penalty = s.penalty === el.dataset.p ? 'none' : el.dataset.p; save(); render(); };
-  ACT.del = async el => { if (await ask('確定要刪除這次成績嗎？', '刪除', true)) { DB.solves = DB.solves.filter(x => x.id !== el.dataset.id); save(); render(); } };
+  ACT.pen = el => { const s = DB.solves.find(x => x.id === el.dataset.id); if (!s) return; s.penalty = s.penalty === el.dataset.p ? 'none' : el.dataset.p; s.u = Date.now(); save(); render(); };
+  ACT.del = async el => { if (await ask('確定要刪除這次成績嗎？', '刪除', true)) { DB.solves = DB.solves.filter(x => x.id !== el.dataset.id); DB.deleted[el.dataset.id] = Date.now(); save(); render(); } };
 
   /* ================= 模擬比賽 ================= */
   let MK = null;
@@ -1146,7 +1302,7 @@ const CS = (function () {
   /* ================= 專項練習 ================= */
   const DR = { sub: 'cross', cross: { variant: 'cross', scr: CS.genScramble(), pending: null }, slow: { pending: null, on: false, scr: CS.genScramble() }, alg: { set: 'PLL', quiz: null, includeUnknown: false, showAlg: false, last: null } };
   function algStatus(id) { const r = DB.algStatus.find(x => x.alg_id === id); return r ? r.status : 'unknown'; }
-  function setAlgStatus(id, st) { const r = DB.algStatus.find(x => x.alg_id === id); if (r) r.status = st; else DB.algStatus.push({ alg_id: id, status: st }); save(); }
+  function setAlgStatus(id, st) { const r = DB.algStatus.find(x => x.alg_id === id); if (r) { r.status = st; r.u = Date.now(); } else DB.algStatus.push({ alg_id: id, status: st, u: Date.now() }); save(); }
   function drillCtx() {
     if (DR.sub === 'cross') return {
       label: DR.cross.variant === 'cross' ? '十字觀察練習' : '十字＋第一組 F2L', inspection: true, enforce: false, hideable: false,
@@ -1249,7 +1405,7 @@ const CS = (function () {
   function bindSlow() {
     const r = $('#bpm'); if (!r) return;
     r.oninput = () => { $('#bpmV').textContent = r.value; };
-    r.onchange = () => { DB.settings.bpm = +r.value; save(); if (DR.slow.on) metroStart(); };
+    r.onchange = () => { DB.settings.bpm = +r.value; DB.settings_u = Date.now(); save(); if (DR.slow.on) metroStart(); };
   }
   ACT.metro = () => { if (DR.slow.on) metroStop(); else metroStart(); renderDrills(); };
   ACT.slowSave = el => {
@@ -1403,7 +1559,7 @@ const CS = (function () {
       '<tr><td>公式計時</td><td class="num">' + al.length + '</td><td class="num">' + fmtAvg(CS.meanValid(al.map(d => d.penalty === 'DNF' ? Infinity : d.ms))) + '</td><td>會 ' + DB.algStatus.filter(a => a.status === 'know').length + ' 個公式</td></tr></table></div>';
     $('#page-progress').innerHTML = h;
     const nf = $('#nf');
-    if (nf) nf.onchange = () => { let v = parseFloat(nf.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); nf.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; save(); probCache = null; renderProgress(); };
+    if (nf) nf.onchange = () => { let v = parseFloat(nf.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); nf.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; DB.settings_u = Date.now(); save(); probCache = null; renderProgress(); };
   }
 
   /* ================= 設定與資料 ================= */
@@ -1425,11 +1581,11 @@ const CS = (function () {
     h += '<div class="card"><h2>系統自我檢查</h2><p class="small" style="margin-top:0">逐條檢查打亂、平均、觀察罰則、2 分鐘上限、公式驗證、機率與匯出入。</p><button class="btn" data-act="selftest">▶️ 執行自我檢查</button><div id="testOut" style="margin-top:10px"></div></div>';
     h += '<div class="card"><h2>清除全部資料</h2><p class="small" style="margin-top:0">會刪除這台裝置上所有成績、模擬賽、勾選紀錄和設定，<b>無法復原</b>。建議先匯出。</p><button class="btn danger" data-act="wipe">清除全部資料…</button></div>';
     h += '<div class="card small muted"><b>比賽資訊</b>：臺北市 115 學年度國中小學科學與創新教育實施計畫 子計畫 5 魔術方塊創新學習競賽，國小一般競速組 3x3x3。初賽兩轉取最快、前 50 名晉級決賽；決賽兩轉取最快排名；第 1–6 名優勝、第 7–30 名優等。磁力或非磁力方塊皆可，禁用藍牙方塊，需標準配色。<br>目標線使用家長提供的 114 學年度國小組決賽成績（第 1 名 9.08、第 6 名 11.62、第 30 名 16.48、第 48 名 22.43）。</div>';
-    $('#page-settings').innerHTML = h;
+    $('#page-settings').innerHTML = syncCardHTML() + h;
     $('#theme').value = s.theme;
     $('#theme').onchange = e => { DB.settings.theme = e.target.value; save(); applyTheme(); };
-    $('#nf2').onchange = e => { const v = parseFloat(e.target.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); e.target.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; save(); probCache = null; toast('已更新緊張係數'); };
-    $$('[data-set]').forEach(i => i.onchange = () => { DB.settings[i.dataset.set] = i.checked; save(); });
+    $('#nf2').onchange = e => { const v = parseFloat(e.target.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); e.target.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; DB.settings_u = Date.now(); save(); probCache = null; toast('已更新緊張係數'); };
+    $$('[data-set]').forEach(i => i.onchange = () => { DB.settings[i.dataset.set] = i.checked; DB.settings_u = Date.now(); save(); });
     $('#impFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) readFile(f, importBackup); };
     $('#csFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) readFile(f, importCsTimer); };
   }
@@ -1441,6 +1597,65 @@ const CS = (function () {
     r.readAsText(f);
   }
   ACT.closeModal = () => closeModal();
+
+  /* 跨裝置同步：設定頁卡片 */
+  function syncLink() { return location.origin + location.pathname + '#sync=' + fmtCode(SYNC.code); }
+  function syncCardHTML() {
+    let h = '<div class="card"><h2>☁️ 跨裝置同步</h2>';
+    if (!SYNC.code) {
+      h += '<p class="small" style="margin-top:0">讓平板、手機、電腦用同一份成績。第一台裝置按「建立同步碼」，其他裝置輸入同一組同步碼就會自動合併，<b>兩邊原本的成績都會保留</b>。</p>' +
+        '<button class="btn primary" style="width:100%" data-act="syncCreate">建立同步碼（第一台裝置）</button>' +
+        '<div class="row" style="margin-top:10px"><input type="text" id="syncIn" class="grow mono" placeholder="輸入同步碼，例如 AB2C-D3EF-GH4J" autocomplete="off" autocapitalize="characters" spellcheck="false" style="min-width:0;flex:1"><button class="btn" data-act="syncJoin">連接</button></div>' +
+        '<p class="tiny muted">需要網路；沒有網路時照常練習，連上後再同步。資料存在雲端資料庫，只用同步碼辨識，不需要帳號或姓名。</p>';
+    } else {
+      h += '<p class="small" style="margin-top:0">這台裝置已開啟同步。在其他裝置的「設定」輸入這組同步碼：</p>' +
+        '<div class="scramble mono" style="text-align:center;font-size:26px;letter-spacing:2px">' + esc(fmtCode(SYNC.code)) + '</div>' +
+        '<div class="row" style="margin-top:8px"><button class="btn grow" data-act="syncCopy">📋 複製同步碼</button><button class="btn grow" data-act="syncCopyLink">🔗 複製連結</button></div>' +
+        '<p class="small" id="syncStatus" style="margin:10px 0">' + syncStatusHTML() + '</p>' +
+        '<div class="row"><button class="btn primary grow" data-act="syncNow">🔄 立即同步</button><button class="btn grow" data-act="syncOff">取消這台的同步</button></div>' +
+        '<p class="tiny muted">同步碼就像家裡的鑰匙：拿到的人都能看到並修改成績，只分享給家人。練習時每次存檔後約 3 秒自動上傳，打開網頁或切回來時自動下載。</p>';
+    }
+    return h + '</div>';
+  }
+  async function copyText(t, okMsg) {
+    try { await navigator.clipboard.writeText(t); toast(okMsg); }
+    catch (e) { openModal('<h2>請手動複製</h2><input type="text" readonly value="' + esc(t) + '" style="width:100%" id="cpIn"><div class="row" style="margin-top:12px"><button class="btn primary grow" data-act="closeModal">好了</button></div>', m => { const i = $('#cpIn', m); i.focus(); i.select(); }); }
+  }
+  ACT.syncCreate = async el => {
+    el.disabled = true;
+    if (await syncCreate()) {
+      renderSettings();
+      openModal('<h2>☁️ 同步碼建立好了</h2><div class="scramble mono" style="text-align:center;font-size:28px;letter-spacing:2px">' + esc(fmtCode(SYNC.code)) + '</div><p>在另一台裝置打開 CubeSprint →「設定」→ 輸入這組同步碼，或用「複製連結」傳給自己（例如 LINE 給自己），在另一台點開連結。</p><p class="small muted">目前的 ' + DB.solves.length + ' 筆成績已上傳。</p><div class="row"><button class="btn grow" data-act="syncCopyLink">🔗 複製連結</button><button class="btn primary grow" data-act="closeModal">知道了</button></div>');
+    } else el.disabled = false;
+  };
+  ACT.syncJoin = async el => {
+    const v = ($('#syncIn') || {}).value || '';
+    el.disabled = true;
+    const before = DB.solves.length;
+    const ok = await syncJoin(v);
+    if (ok) { renderSettings(); toast('已連接！合併後共 ' + DB.solves.length + ' 筆成績（原本這台 ' + before + ' 筆）', 4000); }
+    else el.disabled = false;
+  };
+  ACT.syncNow = async () => { try { await syncNow(); } catch (e) { } if (syncState === 'ok') toast('同步完成'); };
+  ACT.syncCopy = () => copyText(fmtCode(SYNC.code), '已複製同步碼');
+  ACT.syncCopyLink = () => copyText(syncLink(), '已複製連結，傳到另一台裝置點開即可');
+  ACT.syncOff = async () => {
+    if (await ask('取消這台裝置的同步嗎？這台和雲端的成績都會保留，之後輸入同步碼可以再連回來。', '取消同步')) { syncDisconnect(); renderSettings(); toast('這台裝置已取消同步'); }
+  };
+  function checkSyncLink(hash) {
+    const m = (hash || '').match(/^#sync=([0-9A-Za-z-]{12,20})$/);
+    if (!m) return false;
+    const code = cleanCode(m[1]);
+    try { history.replaceState(null, '', '#settings'); } catch (e) { }
+    if (SYNC.code === code) { toast('這台裝置已經連上這組同步碼'); return true; }
+    const msg = SYNC.code ? '這台裝置目前連著另一組同步碼。要改連 ' + fmtCode(code) + ' 嗎？兩邊成績會合併。' : '要用同步碼 ' + fmtCode(code) + ' 連接這台裝置嗎？這台原本的成績會和雲端合併，不會刪除。';
+    ask(msg, '連接').then(async yes => {
+      if (!yes) return;
+      const before = DB.solves.length;
+      if (await syncJoin(code)) { if (page === 'settings') renderSettings(); toast('已連接！合併後共 ' + DB.solves.length + ' 筆成績（原本這台 ' + before + ' 筆）', 4000); }
+    });
+    return true;
+  }
   ACT.export = () => {
     const out = Object.assign({ exported_at: new Date().toISOString(), storage_key: KEY }, DB);
     const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
@@ -1459,7 +1674,7 @@ const CS = (function () {
       '<tr><td>專項練習</td><td class="num">' + data.drills.length + '</td><td class="num">' + DB.drills.length + '</td></tr>' +
       '<tr><td>每日勾選</td><td class="num">' + data.planChecks.length + '</td><td class="num">' + DB.planChecks.length + '</td></tr>' +
       '<tr><td>公式狀態</td><td class="num">' + data.algStatus.length + '</td><td class="num">' + DB.algStatus.length + '</td></tr></table>' +
-      '<p><b>匯入會用檔案內容取代目前全部資料。</b></p><div class="row"><button class="btn grow" data-act="closeModal">取消</button><button class="btn primary grow" id="impGo">確認匯入</button></div>', m => {
+      '<p><b>匯入會用檔案內容取代目前全部資料。</b>' + (SYNC.code ? '<br><span class="small">（已開啟跨裝置同步：匯入後會再和雲端資料合併。）</span>' : '') + '</p><div class="row"><button class="btn grow" data-act="closeModal">取消</button><button class="btn primary grow" id="impGo">確認匯入</button></div>', m => {
         $('#impGo', m).onclick = () => { DB = data; save(); closeModal(); applyTheme(); toast('匯入完成：' + DB.solves.length + ' 筆成績'); render(); };
       });
   }
@@ -1500,12 +1715,12 @@ const CS = (function () {
   };
   ACT.wipe = () => {
     const WORD = '清除全部資料';
-    openModal('<h2>清除全部資料</h2><p>這個動作<b>無法復原</b>。請輸入「<b>' + WORD + '</b>」確認：</p><input type="text" id="wipeIn" autocomplete="off" style="width:100%" autofocus><div class="row" style="margin-top:12px"><button class="btn grow" data-act="closeModal">取消</button><button class="btn danger grow" id="wipeGo" disabled>清除</button></div>', m => {
+    openModal('<h2>清除全部資料</h2><p>這個動作<b>無法復原</b>。' + (SYNC.code ? '這台裝置也會取消同步，<b>雲端和其他裝置的資料不會被刪除</b>。' : '') + '請輸入「<b>' + WORD + '</b>」確認：</p><input type="text" id="wipeIn" autocomplete="off" style="width:100%" autofocus><div class="row" style="margin-top:12px"><button class="btn grow" data-act="closeModal">取消</button><button class="btn danger grow" id="wipeGo" disabled>清除</button></div>', m => {
       const i = $('#wipeIn', m), b = $('#wipeGo', m);
       i.oninput = () => { b.disabled = i.value.trim() !== WORD; };
       b.onclick = () => {
         if (i.value.trim() !== WORD) return;
-        DB = CS.defaultDB(); MK = null; probCache = null;
+        DB = CS.defaultDB(); MK = null; probCache = null; syncDisconnect();
         try { window.localStorage.removeItem(KEY); } catch (e) { }
         if (!storageOK && storageAvailable()) { storageOK = true; storageNote = ''; }
         save(); showBanner(); applyTheme(); closeModal(); toast('已清除全部資料'); render();
@@ -1517,10 +1732,25 @@ const CS = (function () {
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalOpen()) closeModal(); });
   $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
   applyTheme(); showBanner();
-  window.addEventListener('hashchange', () => { const h = (location.hash || '').slice(1); if (PAGES.indexOf(h) >= 0 && h !== page) go(h); });
+  window.addEventListener('hashchange', () => {
+    if (/^#sync=/.test(location.hash)) { const hh = location.hash; go('settings'); checkSyncLink(hh); return; }
+    const h = (location.hash || '').slice(1); if (PAGES.indexOf(h) >= 0 && h !== page) go(h);
+  });
   const h0 = (location.hash || '').slice(1);
-  go(PAGES.indexOf(h0) >= 0 ? h0 : 'home');
-  window.CubeSprint = { CS, T, get DB() { return DB; }, get storageOK() { return storageOK; } };
+  const viaLink = /^sync=/.test(h0);
+  go(viaLink ? 'settings' : (PAGES.indexOf(h0) >= 0 ? h0 : 'home'));
+  setSync(SYNC.code ? 'idle' : 'off'); showBanner();
+  if (viaLink) checkSyncLink('#' + h0);
+  else if (SYNC.code) syncNow().catch(() => { });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushBeacon();
+    else if (SYNC.code && !T.busy()) syncNow().catch(() => { });
+  });
+  window.addEventListener('pagehide', flushBeacon);
+  window.addEventListener('online', () => { if (SYNC.code) syncNow().catch(() => { }); });
+  window.addEventListener('offline', () => { if (SYNC.code) setSync('offline'); });
+  setInterval(() => { if (SYNC.code && document.visibilityState === 'visible' && !T.busy() && !syncBusy) syncNow().catch(() => { }); }, 90000);
+  window.CubeSprint = { CS, T, get DB() { return DB; }, get storageOK() { return storageOK; }, get SYNC() { return SYNC; }, syncNow };
 })();
 </script>
 </body>
