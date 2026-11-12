@@ -1,0 +1,1527 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed">
+<title>魔方衝刺營 CubeSprint</title>
+<style>
+:root{
+  --bg:#f3f5fa;--card:#ffffff;--ink:#1b2333;--muted:#5a6477;--line:#dde3ee;
+  --accent:#2f6fed;--accent-ink:#ffffff;--accent-soft:#e7eeff;
+  --good:#16884f;--good-soft:#e2f5ea;--warn:#b85f00;--warn-soft:#fff1de;--bad:#c23434;--bad-soft:#fde7e7;
+  --gold:#b88a00;--silver:#6f7b8e;--bronze:#a35d22;
+  --shadow:0 2px 10px rgba(20,30,60,.07);--radius:16px;color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141c;--card:#1a202d;--ink:#eef2fa;--muted:#a4aec2;--line:#2c3446;
+    --accent:#6d9dff;--accent-ink:#0b1020;--accent-soft:#22304f;
+    --good:#45c983;--good-soft:#16332a;--warn:#ffb24d;--warn-soft:#3a2a12;--bad:#ff7d7d;--bad-soft:#3b1e1e;
+    --gold:#f0c641;--silver:#b9c3d4;--bronze:#e0a066;--shadow:none;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141c;--card:#1a202d;--ink:#eef2fa;--muted:#a4aec2;--line:#2c3446;
+  --accent:#6d9dff;--accent-ink:#0b1020;--accent-soft:#22304f;
+  --good:#45c983;--good-soft:#16332a;--warn:#ffb24d;--warn-soft:#3a2a12;--bad:#ff7d7d;--bad-soft:#3b1e1e;
+  --gold:#f0c641;--silver:#b9c3d4;--bronze:#e0a066;--shadow:none;color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.55;overflow-x:hidden;padding-bottom:calc(76px + env(safe-area-inset-bottom));-webkit-tap-highlight-color:transparent}
+.num,.mono{font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+header.top{display:flex;align-items:center;gap:10px;padding:12px 16px;max-width:820px;margin:0 auto}
+header.top .logo{width:34px;height:34px;flex:none}
+header.top h1{font-size:19px;margin:0;font-weight:800;letter-spacing:.5px}
+header.top .sub{font-size:13px;color:var(--muted)}
+main{max-width:820px;margin:0 auto;padding:0 16px}
+.page{display:none}
+.page.on{display:block}
+h2{font-size:19px;margin:0 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h3{font-size:17px;margin:14px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:0 0 14px;box-shadow:var(--shadow)}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.tiny{font-size:12.5px}
+.pill{display:inline-block;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.btn{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;min-height:48px;padding:8px 18px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;touch-action:manipulation}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible,.tab:focus-visible,.chk:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.big{min-height:64px;font-size:20px;padding:10px 24px;width:100%}
+.btn.sm{min-height:48px;padding:4px 12px;font-size:15px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row > .grow{flex:1}
+.stack > * + *{margin-top:10px}
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom)}
+.tab{appearance:none;border:0;background:none;color:var(--muted);font:inherit;font-size:12px;font-weight:700;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:4px 0}
+.tab .ic{font-size:22px;line-height:1}
+.tab.on{color:var(--accent)}
+.tab.on .ic{transform:scale(1.12)}
+/* banner */
+#banner{max-width:820px;margin:0 auto 10px;padding:0 16px}
+#banner .inner{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn);border-radius:12px;padding:10px 14px;font-weight:700;font-size:15px}
+/* home */
+.hero{background:linear-gradient(135deg,var(--accent),#7b5cff);color:#fff;border:0}
+.hero .days{font-size:clamp(46px,14vw,84px);font-weight:900;line-height:1;margin:6px 0}
+.hero .days small{font-size:22px;font-weight:800;margin-left:6px}
+.hero .meta{font-size:14.5px;opacity:.92}
+.check-list{list-style:none;margin:0;padding:0}
+.check-list li + li{margin-top:8px}
+.chk{width:100%;display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;border-radius:14px;min-height:56px;padding:8px 12px;cursor:pointer}
+.chk .box{width:30px;height:30px;border-radius:9px;border:2px solid var(--muted);flex:none;display:flex;align-items:center;justify-content:center;font-size:18px}
+.chk.done{border-color:var(--good);background:var(--good-soft)}
+.chk.done .box{background:var(--good);border-color:var(--good);color:#fff}
+.chk .txt{flex:1}
+.chk .stk{font-size:26px;animation:pop .45s ease-out}
+.chk .prog{font-size:13px;color:var(--muted);display:block}
+.go{font-size:14px;font-weight:700;color:var(--accent);background:none;border:0;cursor:pointer;min-height:48px;padding:0 4px;white-space:nowrap;flex:none}
+@keyframes pop{0%{transform:scale(.2) rotate(-30deg);opacity:0}70%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1)}}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--good);border-radius:99px;transition:width .4s}
+.bigsticker{font-size:56px;text-align:center;animation:pop .6s ease-out}
+.gap-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.gap-row:first-of-type{border-top:0}
+.dot{width:14px;height:14px;border-radius:50%;flex:none}
+.c-gold{background:var(--gold)}.c-silver{background:var(--silver)}.c-bronze{background:var(--bronze)}
+.stat-big{font-size:34px;font-weight:900}
+.stickers{display:flex;flex-wrap:wrap;gap:6px;font-size:28px}
+/* timer page */
+.scramble{font-size:clamp(19px,4.6vw,26px);font-weight:700;word-spacing:4px;letter-spacing:.5px;line-height:1.5}
+.pad{user-select:none;-webkit-user-select:none;touch-action:none;border:2px dashed var(--line);border-radius:20px;min-height:min(40vh,320px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;cursor:pointer;background:var(--card)}
+.pad .t{font-size:clamp(56px,17vw,120px);font-weight:900;line-height:1.05}
+.pad .h{color:var(--muted);font-size:15px;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--bg);border-radius:12px;padding:8px 10px;text-align:center}
+.stat .k{font-size:13px;color:var(--muted);font-weight:700}
+.stat .v{font-size:22px;font-weight:900}
+.solves{list-style:none;margin:0;padding:0}
+.solves li{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.solves li:first-child{border-top:0}
+.solves .n{width:34px;color:var(--muted);font-size:14px}
+.solves .tm{flex:1;font-size:20px;font-weight:800;min-width:90px}
+.solves .btn.sm{min-width:52px}
+/* overlay */
+#ov{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:none;padding:16px}
+#ov.show{display:flex}
+#ov .lab{position:absolute;top:calc(14px + env(safe-area-inset-top));left:16px;right:120px;font-weight:800;color:var(--muted)}
+#ov .x{position:absolute;top:calc(8px + env(safe-area-inset-top));right:12px}
+#ov .time{font-size:clamp(84px,26vw,240px);font-weight:900;line-height:1}
+#ov .hint{margin-top:14px;color:var(--muted);font-size:18px;font-weight:700;text-align:center}
+#ov.hold .time{color:var(--bad)}
+#ov.ready .time{color:var(--good)}
+#ov.insp .time{color:var(--warn)}
+#ov.res .time{color:var(--accent)}
+/* modal & toast */
+#modal{position:fixed;inset:0;z-index:200;background:rgba(10,14,24,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#modal[hidden]{display:none}
+.modal-card{background:var(--card);color:var(--ink);border-radius:18px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:20px;border:1px solid var(--line)}
+#toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:300;max-width:min(92vw,520px);pointer-events:none}
+#toast .t{background:var(--ink);color:var(--bg);font-weight:800;padding:12px 18px;border-radius:14px;margin-bottom:8px;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:pop .35s ease-out;text-align:center}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:250;overflow:hidden}
+#confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media (prefers-reduced-motion:reduce){#confetti{display:none}.chk .stk,.bigsticker,#toast .t{animation:none}}
+/* drills */
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .btn{flex:1;min-width:0}
+.alg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.alg-card{border:2px solid var(--line);border-radius:14px;padding:10px;background:var(--card);display:flex;flex-direction:column;gap:6px}
+.alg-card.know{border-color:var(--good)}
+.alg-card.shaky{border-color:var(--warn)}
+.alg-card .nm{font-weight:900;font-size:18px}
+.alg-card .al{font-size:13px;word-break:break-word}
+.alg-card .st{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.alg-card .st button{min-height:44px;font-size:13px;padding:2px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-weight:700;cursor:pointer}
+.alg-card .st button.on.k{background:var(--good);color:#fff;border-color:var(--good)}
+.alg-card .st button.on.s{background:var(--warn);color:#fff;border-color:var(--warn)}
+.alg-card .st button.on.u{background:var(--muted);color:var(--card);border-color:var(--muted)}
+.diagram{width:100%;max-width:150px;margin:0 auto;display:block}
+.beat{width:46px;height:46px;border-radius:50%;background:var(--line);transition:background .05s}
+.beat.on{background:var(--accent)}
+input[type=range]{width:100%;min-height:40px}
+input[type=number],input[type=text],select{font:inherit;min-height:48px;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);max-width:100%}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.switch:first-child{border-top:0}
+.switch input{width:26px;height:26px;flex:none;accent-color:var(--accent)}
+.test{display:flex;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:14.5px}
+.test .r{font-weight:900;flex:none;width:64px}
+.test .r.p{color:var(--good)}.test .r.f{color:var(--bad)}.test .r.s{color:var(--warn)}
+svg text{font-family:inherit}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px}
+.prob{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prob .p{background:var(--bg);border-radius:14px;padding:12px;text-align:center}
+.prob .p b{display:block;font-size:34px;font-weight:900}
+.mock-res{font-size:clamp(44px,13vw,72px);font-weight:900;line-height:1.1;text-align:center}
+table.tb{width:100%;border-collapse:collapse;font-size:15px}
+table.tb th,table.tb td{padding:6px 4px;border-top:1px solid var(--line);text-align:left}
+table.tb th{color:var(--muted);font-size:13px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="7" fill="#1b2333"/><g><rect x="4" y="4" width="8" height="8" rx="2" fill="#ffd500"/><rect x="13" y="4" width="8" height="8" rx="2" fill="#009b48"/><rect x="22" y="4" width="8" height="8" rx="2" fill="#b71234"/><rect x="4" y="13" width="8" height="8" rx="2" fill="#ff5800"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#ffffff"/><rect x="22" y="13" width="8" height="8" rx="2" fill="#0046ad"/><rect x="4" y="22" width="8" height="8" rx="2" fill="#009b48"/><rect x="13" y="22" width="8" height="8" rx="2" fill="#ffd500"/><rect x="22" y="22" width="8" height="8" rx="2" fill="#ff5800"/></g></svg>
+  <div><h1>魔方衝刺營 CubeSprint</h1><div class="sub">115 學年度臺北市國小一般競速組 3x3x3</div></div>
+</header>
+<div id="banner" hidden><div class="inner" id="bannerText"></div></div>
+<main>
+  <section class="page" id="page-home" aria-label="今日任務"></section>
+  <section class="page" id="page-timer" aria-label="計時器"></section>
+  <section class="page" id="page-mock" aria-label="模擬比賽"></section>
+  <section class="page" id="page-drills" aria-label="專項練習"></section>
+  <section class="page" id="page-progress" aria-label="進度"></section>
+  <section class="page" id="page-settings" aria-label="設定與資料"></section>
+</main>
+<nav class="tabs" aria-label="主選單">
+  <button class="tab" data-page="home"><span class="ic">🏠</span>今日任務</button>
+  <button class="tab" data-page="timer"><span class="ic">⏱️</span>計時器</button>
+  <button class="tab" data-page="mock"><span class="ic">🏆</span>模擬比賽</button>
+  <button class="tab" data-page="drills"><span class="ic">🎯</span>專項練習</button>
+  <button class="tab" data-page="progress"><span class="ic">📈</span>進度</button>
+  <button class="tab" data-page="settings"><span class="ic">⚙️</span>設定</button>
+</nav>
+<div id="ov" role="dialog" aria-live="polite">
+  <div class="lab" id="ovLab"></div>
+  <button class="btn sm x" id="ovX" type="button">✕ 取消</button>
+  <div class="time num" id="ovTime">0.00</div>
+  <div class="hint" id="ovHint"></div>
+</div>
+<div id="modal" hidden></div>
+<div id="toast" aria-live="polite"></div>
+<div id="confetti" aria-hidden="true"></div>
+
+<script>
+/*CORE-START*/
+const CS = (function () {
+  'use strict';
+  const COMP_DATE = '2026-12-13';
+  const INSPECTION_MS = 15000, PLUS2_MS = 17000, LIMIT_MS = 120000;
+  const TARGETS = [
+    { id: 'top6', label: '前六名（優勝）', short: '前六名線', seconds: 11.62, color: 'gold' },
+    { id: 'merit', label: '前三十（優等）', short: '優等線', seconds: 16.48, color: 'silver' },
+    { id: 'final', label: '進決賽參考', short: '進決賽參考線', seconds: 22.43, color: 'bronze' }
+  ];
+  const REF_POINTS = [[9.08, 1], [11.62, 6], [16.48, 30], [22.43, 48]];
+  const DEFAULT_SETTINGS = { inspection_enforced: true, voice: true, hide_timer: false, nerve_factor: 1.05, inspection_practice: true, theme: 'auto', bpm: 60 };
+
+  /* ---------- 打亂 ---------- */
+  const FACES = ['R', 'L', 'U', 'D', 'F', 'B'];
+  const AXIS = { R: 0, L: 0, U: 1, D: 1, F: 2, B: 2 };
+  const SUF = ['', "'", '2'];
+  function genScramble(rng, len) {
+    rng = rng || Math.random; len = len || 20;
+    const out = [];
+    while (out.length < len) {
+      const f = FACES[Math.floor(rng() * 6)];
+      const n = out.length;
+      if (n >= 1 && out[n - 1][0] === f) continue;
+      if (n >= 2 && AXIS[out[n - 1][0]] === AXIS[f] && AXIS[out[n - 2][0]] === AXIS[f]) continue;
+      out.push(f + SUF[Math.floor(rng() * 3)]);
+    }
+    return out.join(' ');
+  }
+  function checkScramble(s) {
+    const t = s.split(' ');
+    if (t.length !== 20) return '步數不是 20';
+    for (let i = 0; i < t.length; i++) {
+      if (!/^[RLUDFB]('|2)?$/.test(t[i])) return '出現不合法的步驟 ' + t[i];
+      if (i >= 1 && t[i][0] === t[i - 1][0]) return '相鄰同面：' + t[i - 1] + ' ' + t[i];
+      if (i >= 2 && AXIS[t[i][0]] === AXIS[t[i - 1][0]] && AXIS[t[i][0]] === AXIS[t[i - 2][0]]) return '連續三步同軸：' + t.slice(i - 2, i + 1).join(' ');
+    }
+    return null;
+  }
+
+  /* ---------- 成績統計 ---------- */
+  function eff(s) { if (!s) return null; if (s.penalty === 'DNF') return Infinity; return s.ms + (s.penalty === '+2' ? 2000 : 0); }
+  // values: 已含罰秒的毫秒數，DNF = Infinity；去掉最快與最慢後平均；兩次以上 DNF 結果為 DNF
+  function aoN(values, n) {
+    if (values.length < n) return null;
+    const w = values.slice(-n);
+    if (w.filter(v => v === Infinity).length >= 2) return Infinity;
+    const s = w.slice().sort((a, b) => a - b);
+    const mid = s.slice(1, n - 1);
+    return mid.reduce((a, b) => a + b, 0) / mid.length;
+  }
+  function bestAoN(values, n) {
+    let best = null;
+    for (let i = n; i <= values.length; i++) {
+      const a = aoN(values.slice(i - n, i), n);
+      if (a !== null && a !== Infinity && (best === null || a < best)) best = a;
+    }
+    return best;
+  }
+  function bestOf(values) { let b = null; for (const v of values) if (Number.isFinite(v) && (b === null || v < b)) b = v; return b; }
+  function meanValid(values) { const v = values.filter(Number.isFinite); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; }
+  function inspectionPenalty(elapsedMs) { if (elapsedMs <= INSPECTION_MS) return 'none'; if (elapsedMs <= PLUS2_MS) return '+2'; return 'DNF'; }
+  function runLimit(elapsedMs) { return elapsedMs >= LIMIT_MS ? { ms: LIMIT_MS, penalty: 'DNF' } : null; }
+  // 兩轉取最快；全部 DNF 回傳 null（＝DNF）
+  function roundBest(effValues) { return bestOf(effValues); }
+  function estimateRank(sec) {
+    const P = REF_POINTS;
+    if (sec === null || !Number.isFinite(sec)) return null;
+    if (sec <= P[0][0]) return { rank: 1, faster: true };
+    for (let i = 0; i < P.length - 1; i++) {
+      const [x0, r0] = P[i], [x1, r1] = P[i + 1];
+      if (sec <= x1) return { rank: Math.max(1, Math.round(r0 + (sec - x0) / (x1 - x0) * (r1 - r0))) };
+    }
+    return { rank: 48, beyond: true };
+  }
+  function bootstrap(msList, factor, iters, rng) {
+    iters = iters || 10000; rng = rng || Math.random;
+    const n = msList.length; if (!n) return null;
+    let a = 0, b = 0;
+    const t1 = TARGETS[0].seconds * 1000, t2 = TARGETS[1].seconds * 1000;
+    for (let i = 0; i < iters; i++) {
+      const x = msList[Math.floor(rng() * n)] * factor, y = msList[Math.floor(rng() * n)] * factor;
+      const m = Math.min(x, y);
+      if (m < t1) a++;
+      if (m < t2) b++;
+    }
+    return { n, iters, pTop6: a / iters, pMerit: b / iters };
+  }
+
+  /* ---------- 日期與訓練計畫 ---------- */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function localDate(d) { d = d ? new Date(d) : new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function dayNum(ds) { const [y, m, d] = ds.split('-').map(Number); return Date.UTC(y, m - 1, d) / 86400000; }
+  function daysBetween(a, b) { return Math.round(dayNum(b) - dayNum(a)); }
+  function dow(ds) { return new Date(dayNum(ds) * 86400000).getUTCDay(); }
+  function addDays(ds, k) { const d = new Date((dayNum(ds) + k) * 86400000); return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate()); }
+  const PLAN = [
+    { week: 1, start: '2026-11-13', end: '2026-11-19', focus: '建立基準', items: [
+      { t: '暖身 5 次', go: 'timer' },
+      { t: '十字觀察練習 10 次', auto: { type: 'cross', n: 10 }, go: 'drills:cross' },
+      { t: '計時 12 次記錄 ao12', auto: { type: 'solves', n: 12 }, go: 'timer' },
+      { t: 'PLL 學 3 個新公式', go: 'drills:alg' }] },
+    { week: 2, start: '2026-11-20', end: '2026-11-26', focus: 'F2L 不停頓', items: [
+      { t: '慢轉不停頓練習 10 次', auto: { type: 'slow', n: 10 }, go: 'drills:slow' },
+      { t: '計時 12 次', auto: { type: 'solves', n: 12 }, go: 'timer' },
+      { t: 'PLL 再學 3 至 4 個', go: 'drills:alg' },
+      { t: '週日模擬比賽 1 次', dow: [0], auto: { type: 'mock', n: 1 }, go: 'mock' }] },
+    { week: 3, start: '2026-11-27', end: '2026-12-03', focus: '速度與頂層', items: [
+      { t: '十字加第一組 F2L 觀察練習 10 次', auto: { type: 'xcross', n: 10 }, go: 'drills:xcross' },
+      { t: '計時 25 次', auto: { type: 'solves', n: 25 }, go: 'timer' },
+      { t: '複習不熟公式', go: 'drills:alg' },
+      { t: '週三與週日模擬比賽', dow: [3, 0], auto: { type: 'mock', n: 1 }, go: 'mock' }] },
+    { week: 4, start: '2026-12-04', end: '2026-12-10', focus: '比賽模擬', items: [
+      { t: '每天模擬比賽 1 次（家長裁判模式）', auto: { type: 'mockJudge', n: 1 }, go: 'mock' },
+      { t: '計時 12 次', auto: { type: 'solves', n: 12 }, go: 'timer' },
+      { t: '不再學新公式（只複習）' }] },
+    { week: 5, start: '2026-12-11', end: '2026-12-12', focus: '減量與準備', items: [
+      { t: '輕鬆轉 10 次保持手感' },
+      { t: '檢查兩顆比賽方塊' },
+      { t: '早點睡' }] }
+  ];
+  PLAN.forEach(w => w.items.forEach((it, i) => { it.id = 'w' + w.week + '-' + i; }));
+  function planForDate(ds) {
+    if (ds === COMP_DATE) return { comp: true };
+    if (ds > COMP_DATE) return { after: true };
+    let w = PLAN.find(p => ds >= p.start && ds <= p.end);
+    let early = false;
+    if (!w) { if (ds < PLAN[0].start) { w = PLAN[0]; early = true; } else return { after: true }; }
+    const d = dow(ds);
+    return { week: w.week, start: w.start, end: w.end, focus: w.focus, early, items: w.items.filter(it => !it.dow || it.dow.indexOf(d) >= 0) };
+  }
+
+  /* ---------- 資料格式 ---------- */
+  function defaultDB() { return { app: 'CubeSprint', version: 1, solves: [], mockSessions: [], planChecks: [], algStatus: [], drills: [], settings: Object.assign({}, DEFAULT_SETTINGS), practiceSession: null }; }
+  const PEN = ['none', '+2', 'DNF'], MODES = ['practice', 'mock', 'drill'];
+  function normalizeDB(o) {
+    if (!o || typeof o !== 'object' || Array.isArray(o)) throw new Error('檔案內容不是 CubeSprint 的資料格式');
+    if (!Array.isArray(o.solves)) throw new Error('找不到成績資料（solves）');
+    const d = defaultDB();
+    d.solves = o.solves.map((s, i) => {
+      if (!s || typeof s !== 'object') throw new Error('第 ' + (i + 1) + ' 筆成績格式錯誤');
+      if (typeof s.id !== 'string' || !s.id) throw new Error('第 ' + (i + 1) + ' 筆成績缺少 id');
+      if (!Number.isInteger(s.ms) || s.ms < 0) throw new Error('第 ' + (i + 1) + ' 筆成績的 ms 不是正整數');
+      if (PEN.indexOf(s.penalty) < 0) throw new Error('第 ' + (i + 1) + ' 筆成績的 penalty 不正確');
+      if (MODES.indexOf(s.mode) < 0) throw new Error('第 ' + (i + 1) + ' 筆成績的 mode 不正確');
+      if (typeof s.timestamp !== 'string' || isNaN(Date.parse(s.timestamp))) throw new Error('第 ' + (i + 1) + ' 筆成績的時間不正確');
+      return Object.assign({}, s);
+    });
+    const arr = (k) => (Array.isArray(o[k]) ? o[k].filter(x => x && typeof x === 'object').map(x => Object.assign({}, x)) : []);
+    d.mockSessions = arr('mockSessions');
+    d.planChecks = arr('planChecks').map(p => Object.assign(p, { items_done: Array.isArray(p.items_done) ? p.items_done.slice() : [] }));
+    d.algStatus = arr('algStatus');
+    d.drills = arr('drills');
+    if (o.settings && typeof o.settings === 'object') {
+      for (const k of Object.keys(DEFAULT_SETTINGS)) if (o.settings[k] !== undefined && typeof o.settings[k] === typeof DEFAULT_SETTINGS[k]) d.settings[k] = o.settings[k];
+    }
+    if (o.practiceSession && typeof o.practiceSession === 'object') d.practiceSession = Object.assign({}, o.practiceSession);
+    return d;
+  }
+
+  /* ---------- csTimer 匯入 ---------- */
+  function parseCsTimer(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { throw new Error('無法辨識：這不是 csTimer 匯出的 JSON 檔（請在 csTimer 用「匯出 → 匯出到檔案」）'); }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('無法辨識：檔案內容不是 csTimer 的格式');
+    const names = {};
+    try {
+      const sd = obj.properties && obj.properties.sessionData;
+      const p = typeof sd === 'string' ? JSON.parse(sd) : sd;
+      if (p && typeof p === 'object') for (const k in p) if (p[k] && p[k].name != null) names[k] = String(p[k].name);
+    } catch (e) { /* 名稱不影響匯入 */ }
+    const sessions = []; let bad = 0;
+    for (const k of Object.keys(obj)) {
+      const m = k.match(/^session(\d+)$/); if (!m) continue;
+      let list = obj[k];
+      if (typeof list === 'string') { try { list = JSON.parse(list); } catch (e) { continue; } }
+      if (!Array.isArray(list)) continue;
+      const solves = [];
+      for (const it of list) {
+        if (!Array.isArray(it) || !Array.isArray(it[0]) || typeof it[0][0] !== 'number' || typeof it[0][1] !== 'number' || it[0][1] < 0) { bad++; continue; }
+        const pen = it[0][0]; let ms = Math.round(it[0][1]); let penalty = 'none';
+        if (pen === -1) penalty = 'DNF'; else if (pen === 2000) penalty = '+2'; else if (pen > 0) ms += Math.round(pen);
+        const ts = (typeof it[3] === 'number' && it[3] > 0) ? new Date(it[3] * 1000).toISOString() : null;
+        solves.push({ ms, penalty, scramble: typeof it[1] === 'string' ? it[1] : '', timestamp: ts });
+      }
+      sessions.push({ key: k, num: +m[1], name: names[m[1]] || ('Session ' + m[1]), solves });
+    }
+    if (!sessions.length) throw new Error('無法辨識：檔案中找不到 csTimer 的 session 資料');
+    sessions.sort((a, b) => a.num - b.num);
+    const total = sessions.reduce((a, s) => a + s.solves.length, 0);
+    if (!total) throw new Error('檔案格式看起來像 csTimer，但裡面沒有可以匯入的成績');
+    return { sessions, total, bad };
+  }
+
+  /* ---------- 3x3 狀態模擬器（貼紙座標模型） ---------- */
+  // 座標：x 右(R)、y 上(U)、z 前(F)。每張貼紙 = 位置 p + 法向量 n + 顏色 c
+  const MV = {
+    R: ['x', [1], -1], L: ['x', [-1], 1], M: ['x', [0], 1], r: ['x', [0, 1], -1], l: ['x', [-1, 0], 1], x: ['x', [-1, 0, 1], -1],
+    U: ['y', [1], -1], D: ['y', [-1], 1], E: ['y', [0], 1], u: ['y', [0, 1], -1], d: ['y', [-1, 0], 1], y: ['y', [-1, 0, 1], -1],
+    F: ['z', [1], -1], B: ['z', [-1], 1], S: ['z', [0], -1], f: ['z', [0, 1], -1], b: ['z', [-1, 0], 1], z: ['z', [-1, 0, 1], -1]
+  };
+  const AI = { x: 0, y: 1, z: 2 };
+  function rot(v, axis, s) {
+    const x = v[0], y = v[1], z = v[2];
+    if (axis === 'x') return [x, -s * z, s * y];
+    if (axis === 'y') return [s * z, y, -s * x];
+    return [-s * y, s * x, z];
+  }
+  function solved() {
+    const st = [];
+    const faces = { U: [0, 1, 0], D: [0, -1, 0], R: [1, 0, 0], L: [-1, 0, 0], F: [0, 0, 1], B: [0, 0, -1] };
+    for (const c of Object.keys(faces)) {
+      const n = faces[c]; const idx = n.findIndex(v => v !== 0); const o = [0, 1, 2].filter(i => i !== idx);
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) { const p = n.slice(); p[o[0]] = a; p[o[1]] = b; st.push({ p, n: n.slice(), c }); }
+    }
+    return st;
+  }
+  function parseAlg(alg) {
+    return alg.trim().split(/\s+/).filter(Boolean).map(t => {
+      const m = t.match(/^([RLUDFBMESrludfbxyz])(2'|2|')?$/);
+      if (!m) throw new Error('公式中有無法辨識的步驟：' + t);
+      return [m[1], m[2] === "'" ? 3 : (m[2] ? 2 : 1)];
+    });
+  }
+  function applyAlg(st, alg) {
+    for (const [f, k] of parseAlg(alg)) {
+      const [axis, layers, s] = MV[f]; const ai = AI[axis];
+      for (let t = 0; t < k; t++) for (const q of st) if (layers.indexOf(q.p[ai]) >= 0) { q.p = rot(q.p, axis, s); q.n = rot(q.n, axis, s); }
+    }
+    return st;
+  }
+  function invertAlg(alg) { return parseAlg(alg).reverse().map(([f, k]) => f + (k === 1 ? "'" : k === 2 ? '2' : '')).join(' '); }
+  function colorMap(st) { const m = new Map(); for (const q of st) m.set(q.p.join(',') + '|' + q.n.join(','), q.c); return m; }
+  function colAt(m, p, n) { return m.get(p.join(',') + '|' + n.join(',')); }
+  const REF = solved();
+  function f2lIntact(st) { const m = colorMap(st); return REF.every(r => r.p[1] === 1 || colAt(m, r.p, r.n) === r.c) && colAt(m, [0, 1, 0], [0, 1, 0]) === 'U'; }
+  function topOriented(st) { const m = colorMap(st); return REF.filter(r => r.n[1] === 1).every(r => colAt(m, r.p, r.n) === 'U'); }
+  const RING = [
+    [[-1, 1, 1], [0, 1, 1], [1, 1, 1], [0, 0, 1]],
+    [[1, 1, 1], [1, 1, 0], [1, 1, -1], [1, 0, 0]],
+    [[1, 1, -1], [0, 1, -1], [-1, 1, -1], [0, 0, -1]],
+    [[-1, 1, -1], [-1, 1, 0], [-1, 1, 1], [-1, 0, 0]]
+  ];
+  function topRing(st) { const m = colorMap(st); let s = ''; for (const r of RING) for (let i = 0; i < 3; i++) s += colAt(m, r[i], r[3]); return s; }
+  // PLL 案例特徵：把「公式的反操作」套在復原方塊上（＝公式要解的案例），考慮前後 AUF 取最小字串
+  function pllSignature(alg) {
+    const inv = invertAlg(alg); let best = null; const AUF = ['', 'U', 'U2', "U'"];
+    for (let p = 0; p < 4; p++) for (let q = 0; q < 4; q++) {
+      const st = solved();
+      if (p) applyAlg(st, AUF[p]);
+      applyAlg(st, inv);
+      if (q) applyAlg(st, AUF[q]);
+      const s = topRing(st); if (best === null || s < best) best = s;
+    }
+    return best;
+  }
+  const UP = [0, 1, 0];
+  const EDGES = [[0, 1, -1], [1, 1, 0], [0, 1, 1], [-1, 1, 0]];
+  const CORNERS = [[-1, 1, -1], [1, 1, -1], [1, 1, 1], [-1, 1, 1]];
+  function classifyOLL(st) {
+    const m = colorMap(st);
+    const e = EDGES.map(p => colAt(m, p, UP) === 'U');
+    const ec = e.filter(Boolean).length;
+    let eo = '?';
+    if (ec === 4) eo = 'all'; else if (ec === 0) eo = 'dot'; else if (ec === 2) eo = (e[0] === e[2]) ? 'line' : 'L';
+    const cs = CORNERS.map(p => {
+      if (colAt(m, p, UP) === 'U') return { up: true };
+      const nx = [p[0], 0, 0], nz = [0, 0, p[2]];
+      const n = colAt(m, p, nx) === 'U' ? nx : nz;
+      return { up: false, face: n.join(','), tw: Math.sign(n[2] * p[0] - n[0] * p[2]) };
+    });
+    const up = cs.map(c => c.up), uc = up.filter(Boolean).length;
+    const off = cs.filter(c => !c.up);
+    const faces = {}; off.forEach(c => { faces[c.face] = (faces[c.face] || 0) + 1; });
+    const fc = Object.values(faces).sort();
+    let co = '?';
+    if (uc === 4) co = 'solved';
+    else if (uc === 1) { const t = off.map(c => c.tw); if (t.every(v => v === 1)) co = 'sune'; else if (t.every(v => v === -1)) co = 'antisune'; }
+    else if (uc === 0) {
+      if (fc.join() === '2,2') { const k = Object.keys(faces); co = (k[0] === k[1].split(',').map(v => String(-v)).join(',')) ? 'H' : '?'; }
+      else if (fc.join() === '1,1,2') co = 'Pi';
+    } else if (uc === 2) {
+      const i = up.indexOf(true), j = up.lastIndexOf(true);
+      if (j - i === 2) co = 'L';
+      else co = (off[0].face === off[1].face) ? 'U' : 'T';
+    }
+    return { eo, co };
+  }
+  const ALGS = [
+    { id: 'pll-Aa', set: 'PLL', name: 'Aa', alg: "x R' U R' D2 R U' R' D2 R2 x'", sig: 'BBFRLBLFLFRR' },
+    { id: 'pll-Ab', set: 'PLL', name: 'Ab', alg: "x R2 D2 R U R' D2 R U' R x'", sig: 'BBLFLFRFBLRR' },
+    { id: 'pll-E', set: 'PLL', name: 'E', alg: "x' L' U L D' L' U' L D L' U' L D' L' U L D x", sig: 'BLFRFLFRBLBR' },
+    { id: 'pll-F', set: 'PLL', name: 'F', alg: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R", sig: 'BBBLRFRFLFLR' },
+    { id: 'pll-Ga', set: 'PLL', name: 'Ga', alg: "R2 U R' U R' U' R U' R2 U' D R' U R D'", sig: 'BLFRFBLBLFRR' },
+    { id: 'pll-Gb', set: 'PLL', name: 'Gb', alg: "R' U' R U D' R2 U R' U R U' R U' R2 D", sig: 'BFBLRFRLLFBR' },
+    { id: 'pll-Gc', set: 'PLL', name: 'Gc', alg: "R2 U' R U' R U R' U R2 U D' R U' R' D", sig: 'BBLFRFRLBLFR' },
+    { id: 'pll-Gd', set: 'PLL', name: 'Gd', alg: "R U R' U' D R2 U' R U' R' U R' U R2 D'", sig: 'BBFRFBLRLFLR' },
+    { id: 'pll-H', set: 'PLL', name: 'H', alg: "M2 U M2 U2 M2 U M2", sig: 'BFBLRLFBFRLR' },
+    { id: 'pll-Ja', set: 'PLL', name: 'Ja', alg: "x R2 F R F' R U2 r' U r U2 x'", sig: 'BBBLLFRRLFFR' },
+    { id: 'pll-Jb', set: 'PLL', name: 'Jb', alg: "R U R' F' R U R' U' R' F R2 U' R'", sig: 'BBBLFFRLLFRR' },
+    { id: 'pll-Na', set: 'PLL', name: 'Na', alg: "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'", sig: 'BFFRLLFBBLRR' },
+    { id: 'pll-Nb', set: 'PLL', name: 'Nb', alg: "R' U R U' R' F' U' F R U R' F R' F' R U' R", sig: 'BBFRRLFFBLLR' },
+    { id: 'pll-Ra', set: 'PLL', name: 'Ra', alg: "R U' R' U' R U R D R' U' R D' R' U2 R'", sig: 'BBLFLBLRFRFR' },
+    { id: 'pll-Rb', set: 'PLL', name: 'Rb', alg: "R2 F R U R U' R' F' R U2 R' U2 R", sig: 'BLBLBFRFLFRR' },
+    { id: 'pll-T', set: 'PLL', name: 'T', alg: "R U R' U' R' F R2 U' R' U' R U R' F'", sig: 'BBLFRBLFFRLR' },
+    { id: 'pll-Ua', set: 'PLL', name: 'Ua', alg: "R U' R U R U R U' R' U' R2", sig: 'BBBLFLFRFRLR' },
+    { id: 'pll-Ub', set: 'PLL', name: 'Ub', alg: "R2 U R U R' U' R' U' R' U R'", sig: 'BBBLRLFLFRFR' },
+    { id: 'pll-V', set: 'PLL', name: 'V', alg: "R' U R' U' R D' R' D R' U D' R2 U' R2 D R2", sig: 'BBFRFLFLBLRR' },
+    { id: 'pll-Y', set: 'PLL', name: 'Y', alg: "F R U' R' U' R U R' F' R U R' U' R' F R F'", sig: 'BBFRLLFRBLFR' },
+    { id: 'pll-Z', set: 'PLL', name: 'Z', alg: "M' U M2 U M2 U M' U2 M2", sig: 'BLBLBLFRFRFR' },
+    { id: 'oll-eo-line', set: 'OLL', step: '第一步：頂面十字', name: '一字形', alg: "F R U R' U' F'", expect: { eo: 'line' } },
+    { id: 'oll-eo-L', set: 'OLL', step: '第一步：頂面十字', name: 'L 形', alg: "f R U R' U' f'", expect: { eo: 'L' } },
+    { id: 'oll-eo-dot', set: 'OLL', step: '第一步：頂面十字', name: '點（只有中心）', alg: "F R U R' U' F' f R U R' U' f'", expect: { eo: 'dot' } },
+    { id: 'oll-co-sune', set: 'OLL', step: '第二步：頂面角塊', name: 'Sune', alg: "R U R' U R U2 R'", expect: { co: 'sune' } },
+    { id: 'oll-co-antisune', set: 'OLL', step: '第二步：頂面角塊', name: 'Antisune', alg: "R U2 R' U' R U' R'", expect: { co: 'antisune' } },
+    { id: 'oll-co-H', set: 'OLL', step: '第二步：頂面角塊', name: 'H', alg: "R U R' U R U' R' U R U2 R'", expect: { co: 'H' } },
+    { id: 'oll-co-Pi', set: 'OLL', step: '第二步：頂面角塊', name: 'Pi', alg: "R U2 R2 U' R2 U' R2 U2 R", expect: { co: 'Pi' } },
+    { id: 'oll-co-U', set: 'OLL', step: '第二步：頂面角塊', name: 'U（車頭燈）', alg: "R2 D R' U2 R D' R' U2 R'", expect: { co: 'U' } },
+    { id: 'oll-co-T', set: 'OLL', step: '第二步：頂面角塊', name: 'T', alg: "r U R' U' r' F R F'", expect: { co: 'T' } },
+    { id: 'oll-co-L', set: 'OLL', step: '第二步：頂面角塊', name: 'L（蝴蝶結）', alg: "F' r U R' U' r' F R", expect: { co: 'L' } }
+  ];
+  function verifyAlg(a) {
+    try {
+      const st = applyAlg(solved(), a.alg);
+      if (!f2lIntact(st)) return { ok: false, reason: '套用後前兩層（或中心）被改變' };
+      if (a.set === 'PLL') {
+        if (!topOriented(st)) return { ok: false, reason: '套用後頂面朝向被改變' };
+        const sig = pllSignature(a.alg);
+        if (sig !== a.sig) return { ok: false, reason: '頂層排列與 ' + a.name + ' 案例不一致' };
+      } else {
+        const cl = classifyOLL(applyAlg(solved(), invertAlg(a.alg)));
+        if (a.expect.eo && cl.eo !== a.expect.eo) return { ok: false, reason: '頂面邊塊案例不符（' + cl.eo + '）' };
+        if (a.expect.co && (cl.eo !== 'all' || cl.co !== a.expect.co)) return { ok: false, reason: '頂面角塊案例不符（' + cl.co + '）' };
+      }
+      return { ok: true };
+    } catch (e) { return { ok: false, reason: e.message }; }
+  }
+  function verifyAll() { const out = {}; for (const a of ALGS) out[a.id] = verifyAlg(a); return out; }
+  function caseState(a) { return applyAlg(solved(), invertAlg(a.alg)); }
+
+  /* ---------- 自我檢查（對應 acceptance_tests） ---------- */
+  function selfTest() {
+    const R = [];
+    const add = (name, pass, detail) => R.push({ name, pass, detail });
+    // 1 打亂
+    let bad = null; for (let i = 0; i < 1000 && !bad; i++) { const s = genScramble(); const e = checkScramble(s); if (e) bad = s + '（' + e + '）'; }
+    add('打亂公式：連續 1000 組皆 20 步、無相鄰同面、無連續三步同軸', !bad, bad || '1000 組全部合格');
+    // 2-3 ao5
+    const sec = a => a.map(v => v === 'DNF' ? Infinity : v * 1000);
+    const a1 = aoN(sec([10, 12, 11, 13, 15]), 5);
+    add('ao5 [10,12,11,13,15] = 12.00', a1 === 12000, '計算結果 ' + (a1 / 1000).toFixed(2));
+    const a2 = aoN(sec([10, 12, 11, 13, 'DNF']), 5), a3 = aoN(sec([10, 12, 'DNF', 13, 'DNF']), 5);
+    add('ao5 含一次 DNF = 12.00；含兩次 DNF = DNF', a2 === 12000 && a3 === Infinity, '一次 DNF：' + (a2 / 1000).toFixed(2) + '；兩次 DNF：' + (a3 === Infinity ? 'DNF' : a3));
+    // 4 觀察
+    const ip = [[0, 'none'], [15000, 'none'], [15001, '+2'], [16500, '+2'], [17000, '+2'], [17001, 'DNF'], [30000, 'DNF']];
+    const ipBad = ip.filter(([t, p]) => inspectionPenalty(t) !== p);
+    add('觀察時間：≤15 秒無罰則、15–17 秒 +2、超過 17 秒 DNF', !ipBad.length, ipBad.length ? '不符：' + ipBad.map(x => x[0]).join(',') : '7 個邊界點全部正確');
+    // 5 模擬比賽取最快
+    const m1 = roundBest([Infinity, 14200]), m2 = roundBest([Infinity, Infinity]);
+    add('模擬比賽：[DNF, 14.20] 取 14.20；兩轉皆 DNF 為 DNF', m1 === 14200 && m2 === null, '結果 ' + (m1 / 1000).toFixed(2) + '、' + (m2 === null ? 'DNF' : m2));
+    // 6 兩分鐘上限
+    const l1 = runLimit(119999), l2 = runLimit(120000), l3 = runLimit(125000);
+    add('2 分鐘上限：計時到 120 秒自動停止並記為 DNF', l1 === null && l2 && l2.penalty === 'DNF' && l3 && l3.ms === LIMIT_MS, '119.999 秒繼續；120 秒停止並記 DNF');
+    // 7 公式驗證
+    const v = verifyAll(); const fails = ALGS.filter(a => !v[a.id].ok);
+    const nP = ALGS.filter(a => a.set === 'PLL' && v[a.id].ok).length, nO = ALGS.filter(a => a.set === 'OLL' && v[a.id].ok).length;
+    const distinct = new Set(ALGS.filter(a => a.set === 'PLL').map(a => a.sig)).size;
+    add('公式驗證：PLL 21 種、兩段式 OLL 10 種', !fails.length && nP === 21 && nO === 10 && distinct === 21, '通過 PLL ' + nP + '/21、OLL ' + nO + '/10，PLL 案例互不重複 ' + distinct + ' 種' + (fails.length ? '；未通過：' + fails.map(a => a.name + '（' + v[a.id].reason + '）').join('、') : ''));
+    // 8 機率
+    const b = bootstrap(new Array(50).fill(15000), 1.0, 10000);
+    add('機率估計：50 次 15.00 秒、係數 1.0 → 優等線 100%、前六名線 0%', b.pMerit === 1 && b.pTop6 === 0, '低於 16.48：' + (b.pMerit * 100) + '%；低於 11.62：' + (b.pTop6 * 100) + '%');
+    // 10 匯出匯入
+    const db = defaultDB();
+    for (let i = 0; i < 30; i++) db.solves.push({ id: 's' + i, timestamp: new Date(Date.UTC(2026, 10, 13, 10, i)).toISOString(), scramble: genScramble(), ms: 8000 + i * 317, penalty: PEN[i % 3], mode: MODES[i % 3], session_id: 'x' });
+    db.mockSessions.push({ id: 'm1', date: db.solves[0].timestamp, round: 'prelim', attempts: ['s0', 's1'], best_ms: 8000 });
+    const out1 = JSON.stringify(db); const back = normalizeDB(JSON.parse(out1)); const out2 = JSON.stringify(back);
+    add('匯出後再匯入：筆數與數值完全一致（30 筆樣本）', out1 === out2 && back.solves.length === 30, out1 === out2 ? '匯出內容與再匯出內容逐字相同' : '內容不同');
+    return R;
+  }
+
+  return { COMP_DATE, INSPECTION_MS, PLUS2_MS, LIMIT_MS, TARGETS, REF_POINTS, DEFAULT_SETTINGS, PLAN, ALGS,
+    genScramble, checkScramble, eff, aoN, bestAoN, bestOf, meanValid, inspectionPenalty, runLimit, roundBest, estimateRank, bootstrap,
+    localDate, daysBetween, dow, addDays, planForDate, defaultDB, normalizeDB, parseCsTimer,
+    solved, applyAlg, invertAlg, pllSignature, classifyOLL, f2lIntact, topOriented, verifyAlg, verifyAll, caseState, colorMap, selfTest };
+})();
+/*CORE-END*/
+
+(function () {
+  'use strict';
+  const KEY = 'cubesprint_v1';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const today = () => CS.localDate();
+
+  /* ================= 儲存 ================= */
+  let storageOK = true, storageNote = '';
+  function storageAvailable() {
+    try { const ls = window.localStorage; const k = '__cubesprint_test__'; ls.setItem(k, '1'); ls.removeItem(k); return true; } catch (e) { return false; }
+  }
+  function loadDB() {
+    if (!storageAvailable()) { storageOK = false; storageNote = '⚠️ 這個瀏覽器現在不能存檔（例如無痕模式或封鎖網站資料），資料不會被保存。練完記得到「設定」匯出備份。'; return CS.defaultDB(); }
+    try {
+      const raw = window.localStorage.getItem(KEY);
+      if (!raw) return CS.defaultDB();
+      return CS.normalizeDB(JSON.parse(raw));
+    } catch (e) {
+      storageOK = false; storageNote = '⚠️ 讀取存檔時出了問題，為了不蓋掉原本的資料，這次的練習只暫存在記憶體，資料不會被保存。';
+      return CS.defaultDB();
+    }
+  }
+  function save() {
+    if (!storageOK) return;
+    try { window.localStorage.setItem(KEY, JSON.stringify(DB)); }
+    catch (e) { storageOK = false; storageNote = '⚠️ 存檔失敗（可能空間已滿或被封鎖），之後的資料不會被保存，請先到「設定」匯出備份。'; showBanner(); }
+  }
+  function showBanner() { const b = $('#banner'); if (!storageOK) { $('#bannerText').textContent = storageNote; b.hidden = false; } else b.hidden = true; }
+
+  let DB = loadDB();
+  const S = () => DB.settings;
+  const ALGV = CS.verifyAll();
+  const ALGS_OK = CS.ALGS.filter(a => ALGV[a.id].ok);
+
+  /* ================= 小工具 ================= */
+  function fmt(ms) { if (ms === null || ms === undefined) return '—'; if (ms === Infinity) return 'DNF'; return (Math.floor(ms / 10) / 100).toFixed(2); }
+  function fmtAvg(ms) { if (ms === null || ms === undefined) return '—'; if (ms === Infinity) return 'DNF'; return (Math.round(ms / 10) / 100).toFixed(2); }
+  function fmtSolve(s) { if (s.penalty === 'DNF') return 'DNF'; return fmt(CS.eff(s)) + (s.penalty === '+2' ? '+' : ''); }
+  const ts = s => Date.parse(s.timestamp);
+  function fullSolves() { return DB.solves.filter(s => s.mode !== 'drill').slice().sort((a, b) => ts(a) - ts(b)); }
+  function effList(list) { return list.map(CS.eff); }
+  function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  const STICKERS = ['🧊', '🚀', '⭐', '🏆', '🔥', '💎', '🎯', '⚡', '🌈', '🦄', '🐉', '🎉', '🥇', '🍀', '🌟', '🐯', '🦊', '🐼', '🎸', '🛸', '🏅', '🍩', '🌋', '🐬'];
+  const sticker = k => STICKERS[hash(k) % STICKERS.length];
+  function toast(msg, ms) {
+    const t = document.createElement('div'); t.className = 't'; t.textContent = msg; $('#toast').appendChild(t);
+    setTimeout(() => t.remove(), ms || 2600);
+  }
+  function confetti() {
+    const box = $('#confetti'); const colors = ['#ffd500', '#009b48', '#b71234', '#0046ad', '#ff5800', '#ffffff', '#7b5cff'];
+    for (let i = 0; i < 90; i++) {
+      const p = document.createElement('i');
+      p.style.left = Math.random() * 100 + 'vw'; p.style.background = colors[i % colors.length];
+      p.style.animationDuration = (1.6 + Math.random() * 1.6) + 's'; p.style.animationDelay = (Math.random() * 0.4) + 's';
+      p.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+      box.appendChild(p); setTimeout(() => p.remove(), 3800);
+    }
+  }
+  function openModal(html, onMount) { const m = $('#modal'); m.innerHTML = '<div class="modal-card" role="dialog" aria-modal="true">' + html + '</div>'; m.hidden = false; if (onMount) onMount(m); const f = m.querySelector('[autofocus]') || m.querySelector('button'); if (f) f.focus(); }
+  function closeModal() { const m = $('#modal'); m.hidden = true; m.innerHTML = ''; }
+  function ask(msg, okText, danger) {
+    return new Promise(res => {
+      openModal('<p style="font-size:18px;font-weight:700;margin-top:0">' + esc(msg) + '</p><div class="row"><button class="btn grow" id="mNo">取消</button><button class="btn grow ' + (danger ? 'danger' : 'primary') + '" id="mYes">' + esc(okText || '確定') + '</button></div>', m => {
+        $('#mNo', m).onclick = () => { closeModal(); res(false); };
+        $('#mYes', m).onclick = () => { closeModal(); res(true); };
+      });
+    });
+  }
+  const modalOpen = () => !$('#modal').hidden;
+  function isTyping(el) { return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable); }
+
+  /* ================= 聲音 ================= */
+  let AC = null;
+  function audio() {
+    try { if (!AC) { const C = window.AudioContext || window.webkitAudioContext; if (C) AC = new C(); } if (AC && AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; }
+    return AC;
+  }
+  function beep(freq, dur, vol, at) {
+    const ac = audio(); if (!ac) return;
+    try {
+      const o = ac.createOscillator(), g = ac.createGain(); const t = at || ac.currentTime;
+      o.frequency.value = freq || 880; o.connect(g); g.connect(ac.destination);
+      g.gain.setValueAtTime(vol || 0.2, t); g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.12));
+      o.start(t); o.stop(t + (dur || 0.12) + 0.02);
+    } catch (e) { }
+  }
+  function say(text) {
+    if (!S().voice) return;
+    beep(988, 0.12, 0.25);
+    try {
+      if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(text); u.lang = 'zh-TW'; u.rate = 1.1; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
+    } catch (e) { }
+  }
+
+  /* ================= 計時引擎 ================= */
+  const HOLD_MS = 300;
+  const T = {
+    state: 'idle', ctx: null, inspStart: 0, runStart: 0, inspPen: 'none', inspMs: null, prev: 'idle',
+    holdTimer: 0, iv: 0, arm: false, ignoreUp: false, said8: false, said12: false,
+    now() { return performance.now(); },
+    configure(ctx) { if (this.state === 'idle' || this.state === 'result') this.ctx = ctx; },
+    busy() { return this.state !== 'idle' && this.state !== 'result'; },
+    hardReset() { clearInterval(this.iv); clearTimeout(this.holdTimer); this.state = 'idle'; this.inspStart = 0; this.arm = false; this.ignoreUp = false; this.hide(); },
+    press(src) {
+      const c = this.ctx; if (!c) return;
+      audio();
+      if (this.state === 'run') { this.stop(); this.ignoreUp = (src !== 'key'); return; }
+      if (this.state === 'idle') {
+        if (c.judge) { toast('請裁判按「開始觀察」'); return; }
+        if (c.inspection) { this.arm = true; return; }
+        this.beginHold('idle'); return;
+      }
+      if (this.state === 'inspect') { this.beginHold('inspect'); }
+    },
+    release() {
+      if (this.state === 'result') { this.ignoreUp = false; this.state = 'idle'; this.hide(); return; }
+      if (this.ignoreUp) { this.ignoreUp = false; return; }
+      if (this.state === 'idle' && this.arm) { this.arm = false; this.startInspection(); return; }
+      if (this.state === 'hold') { clearTimeout(this.holdTimer); this.state = this.prev; this.paint(); return; }
+      if (this.state === 'ready') this.startRun();
+    },
+    beginHold(prev) {
+      this.prev = prev; this.state = 'hold'; this.show(); this.paint();
+      clearTimeout(this.holdTimer);
+      this.holdTimer = setTimeout(() => { if (this.state === 'hold') { this.state = 'ready'; this.paint(); } }, HOLD_MS);
+    },
+    startInspection() {
+      if (!this.ctx) return;
+      this.inspStart = this.now(); this.said8 = this.said12 = false; this.state = 'inspect';
+      this.show(); this.paint(); this.loop();
+    },
+    startRun() {
+      const t = this.now(); this.inspPen = 'none'; this.inspMs = null;
+      if (this.ctx.inspection && this.inspStart) { this.inspMs = Math.round(t - this.inspStart); if (this.ctx.enforce) this.inspPen = CS.inspectionPenalty(this.inspMs); }
+      this.inspStart = 0; this.runStart = t; this.state = 'run'; this.paint(); this.loop();
+    },
+    inInsp() { return !!this.inspStart && (this.state === 'inspect' || ((this.state === 'hold' || this.state === 'ready') && this.prev === 'inspect')); },
+    loop() { clearInterval(this.iv); this.iv = setInterval(() => this.tick(), 31); },
+    tick() {
+      const t = this.now();
+      if (this.inInsp()) {
+        const e = t - this.inspStart;
+        if (e >= 8000 && !this.said8) { this.said8 = true; say('8 秒'); }
+        if (e >= 12000 && !this.said12) { this.said12 = true; say('12 秒'); }
+        if (this.ctx.enforce && e > CS.PLUS2_MS) { this.finish({ ms: 0, penalty: 'DNF', reason: 'inspection', inspMs: Math.round(e) }); return; }
+        this.paint(); return;
+      }
+      if (this.state === 'run') {
+        const lim = CS.runLimit(t - this.runStart);
+        if (lim) { this.finish({ ms: lim.ms, penalty: 'DNF', reason: 'limit', inspMs: this.inspMs }); return; }
+        this.paint(); return;
+      }
+      clearInterval(this.iv);
+    },
+    stop() { const ms = Math.round(this.now() - this.runStart); this.finish({ ms, penalty: this.inspPen, inspMs: this.inspMs }); },
+    finish(res) {
+      clearInterval(this.iv); clearTimeout(this.holdTimer);
+      this.state = 'result'; this.inspStart = 0; this.arm = false; this.lastRes = res; this.paint();
+      const cb = this.ctx && this.ctx.onDone;
+      if (cb) { try { cb(res); } catch (e) { console.error(e); } }
+    },
+    cancel() { const c = this.ctx; this.hardReset(); if (c && c.onCancel) c.onCancel(); },
+    show() { $('#ov').classList.add('show'); document.body.style.overflow = 'hidden'; },
+    hide() { $('#ov').className = ''; document.body.style.overflow = ''; },
+    paint() {
+      const ov = $('#ov'), tm = $('#ovTime'), hint = $('#ovHint');
+      const c = this.ctx || {};
+      $('#ovLab').textContent = c.label || '';
+      $('#ovX').style.display = (this.state === 'run' || this.state === 'result') ? 'none' : '';
+      ov.classList.remove('hold', 'ready', 'insp', 'res', 'run');
+      const t = this.now();
+      if (this.state === 'result') {
+        const r = this.lastRes || {};
+        ov.classList.add('res');
+        tm.textContent = r.penalty === 'DNF' ? 'DNF' : fmt(r.ms + (r.penalty === '+2' ? 2000 : 0)) + (r.penalty === '+2' ? '+' : '');
+        hint.textContent = r.reason === 'limit' ? '到了 2 分鐘上限，這次記為 DNF。沒關係，下一次再來！' : r.reason === 'inspection' ? '觀察超過 17 秒，這次記為 DNF。下次在 15 秒內開始就好！' : (r.penalty === '+2' ? '觀察超過 15 秒，加 2 秒。' : '放開手指或點一下繼續');
+        return;
+      }
+      if (this.inInsp()) {
+        const e = t - this.inspStart;
+        ov.classList.add(this.state === 'hold' ? 'hold' : this.state === 'ready' ? 'ready' : 'insp');
+        if (e <= CS.INSPECTION_MS) tm.textContent = String(Math.max(1, Math.ceil((CS.INSPECTION_MS - e) / 1000)));
+        else tm.textContent = this.ctx.enforce ? '+2' : '開始！';
+        hint.textContent = this.state === 'ready' ? '放開就開始計時！' : this.state === 'hold' ? '繼續按住…變綠色再放開' : (c.inspectHint || '觀察中…準備好就按住畫面（或空白鍵），放開開始');
+        return;
+      }
+      if (this.state === 'hold' || this.state === 'ready') {
+        ov.classList.add(this.state); tm.textContent = '0.00';
+        hint.textContent = this.state === 'ready' ? '放開就開始計時！' : '繼續按住…變綠色再放開'; return;
+      }
+      if (this.state === 'run') {
+        ov.classList.add('run');
+        const e = t - this.runStart;
+        if (c.hideable && S().hide_timer) tm.textContent = '計時中'; else tm.textContent = fmt(e);
+        hint.textContent = '完成後點一下畫面或按任意鍵停止'; return;
+      }
+    }
+  };
+  // 事件：鍵盤
+  function timerKeysActive() { return T.ctx && !modalOpen() && (T.busy() || T.state === 'result' || (T.ctx.active && T.ctx.active())); }
+  document.addEventListener('keydown', e => {
+    if (!timerKeysActive() || (isTyping(e.target) && !T.busy())) return;
+    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) T.press('space'); return; }
+    if (T.state === 'run') { e.preventDefault(); T.press('key'); return; }
+    if (e.key === 'Escape' && T.busy()) { T.cancel(); }
+  });
+  document.addEventListener('keyup', e => {
+    if (!T.ctx) return;
+    if (e.code === 'Space' && (timerKeysActive())) { e.preventDefault(); T.release(); return; }
+    if (T.state === 'result') T.release();
+  });
+  // 事件：觸控／滑鼠
+  let pointerHeld = false;
+  $('#ov').addEventListener('pointerdown', e => { if (e.target.closest('#ovX')) return; e.preventDefault(); pointerHeld = true; T.press('pointer'); });
+  document.addEventListener('pointerdown', e => {
+    const pad = e.target.closest('[data-pad]'); if (!pad || !T.ctx || modalOpen()) return;
+    if (!T.ctx.active || !T.ctx.active()) return;
+    e.preventDefault(); pointerHeld = true; T.press('pointer');
+  });
+  function upHandler() { if (!pointerHeld) return; pointerHeld = false; T.release(); }
+  document.addEventListener('pointerup', upHandler);
+  document.addEventListener('pointercancel', upHandler);
+  $('#ovX').addEventListener('click', () => T.cancel());
+  document.addEventListener('contextmenu', e => { if (e.target.closest('[data-pad],#ov')) e.preventDefault(); });
+
+  /* ================= 頁面切換 ================= */
+  let page = 'home';
+  const PAGES = ['home', 'timer', 'mock', 'drills', 'progress', 'settings'];
+  function go(p) {
+    let sub = null;
+    if (p.indexOf(':') > 0) { sub = p.split(':')[1]; p = p.split(':')[0]; }
+    if (PAGES.indexOf(p) < 0) p = 'home';
+    if (T.busy()) T.hardReset();
+    page = p;
+    if (p === 'drills' && sub) { if (sub === 'xcross') { DR.sub = 'cross'; DR.cross.variant = 'xcross'; } else if (sub === 'cross') { DR.sub = 'cross'; DR.cross.variant = 'cross'; } else DR.sub = sub; }
+    $$('.page').forEach(s => s.classList.toggle('on', s.id === 'page-' + p));
+    $$('.tab').forEach(b => { b.classList.toggle('on', b.dataset.page === p); b.setAttribute('aria-current', b.dataset.page === p ? 'page' : 'false'); });
+    try { history.replaceState(null, '', '#' + p); } catch (e) { }
+    render(); window.scrollTo(0, 0);
+  }
+  function render() {
+    stopRestTimer();
+    ({ home: renderHome, timer: renderTimer, mock: renderMock, drills: renderDrills, progress: renderProgress, settings: renderSettings })[page]();
+  }
+  $$('.tab').forEach(b => b.addEventListener('click', () => go(b.dataset.page)));
+
+  // 動作委派
+  const ACT = {};
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]'); if (!el) return;
+    const f = ACT[el.dataset.act]; if (f) f(el, e);
+  });
+  ACT.go = el => go(el.dataset.to);
+
+  /* ================= 今日任務 ================= */
+  function dayCounts(ds) {
+    const c = { solves: 0, cross: 0, xcross: 0, slow: 0, mock: 0, mockJudge: 0 };
+    for (const s of DB.solves) if (s.mode === 'practice' && CS.localDate(s.timestamp) === ds) c.solves++;
+    for (const d of DB.drills) if (c[d.type] !== undefined && CS.localDate(d.timestamp) === ds) c[d.type]++;
+    for (const m of DB.mockSessions) if (m.round === 'final' && CS.localDate(m.date) === ds) { c.mock++; if (m.judge) c.mockJudge++; }
+    return c;
+  }
+  function planCheck(ds, create) {
+    let p = DB.planChecks.find(x => x.date === ds);
+    if (!p && create) { p = { date: ds, items_done: [] }; DB.planChecks.push(p); }
+    return p;
+  }
+  function activeDays() {
+    const set = new Set();
+    DB.solves.forEach(s => set.add(CS.localDate(s.timestamp)));
+    DB.drills.forEach(d => set.add(CS.localDate(d.timestamp)));
+    DB.planChecks.forEach(p => { if (p.items_done && p.items_done.length) set.add(p.date); });
+    return set;
+  }
+  function streak() {
+    const set = activeDays(); let d = today(); let n = 0; let todayDone = set.has(d);
+    if (!todayDone) d = CS.addDays(d, -1);
+    while (set.has(d)) { n++; d = CS.addDays(d, -1); }
+    return { n, todayDone };
+  }
+  function completedDays() {
+    const out = [];
+    for (const p of DB.planChecks) {
+      const pl = CS.planForDate(p.date); if (!pl.items) continue;
+      if (pl.items.length && pl.items.every(it => p.items_done.indexOf(it.id) >= 0)) out.push(p.date);
+    }
+    return out.sort();
+  }
+  function gapLines(ao) {
+    return CS.TARGETS.map(t => {
+      const d = ao / 1000 - t.seconds;
+      const txt = d > 0 ? '距離' + t.short + '還差 <b>' + d.toFixed(2) + '</b> 秒' : '已經比' + t.short + '快 <b>' + (-d).toFixed(2) + '</b> 秒 🎉';
+      return '<div class="gap-row"><span class="dot c-' + t.color + '"></span><span class="grow">' + esc(t.label) + ' <span class="muted num">' + t.seconds.toFixed(2) + '</span><br><span class="small">' + txt + '</span></span></div>';
+    }).join('');
+  }
+  function renderHome() {
+    const ds = today();
+    const days = CS.daysBetween(ds, CS.COMP_DATE);
+    const pl = CS.planForDate(ds);
+    let html = '<div class="card hero"><div class="meta">2026/12/13（日）臺北市國中小魔術方塊競賽</div>';
+    if (days > 0) html += '<div class="days num">倒數 ' + days + '<small>天</small></div>';
+    else if (days === 0) html += '<div class="days">就是今天！</div>';
+    else html += '<div class="days" style="font-size:40px">比賽結束，辛苦了！</div>';
+    html += '<div class="meta">報到 08:00–08:30 · 臺北市松山區三民國小活動中心 3F</div></div>';
+
+    // 今日菜單
+    if (pl.comp) {
+      html += '<div class="card"><h2>🏁 比賽日檢查表</h2><ul class="check-list">' + ['帶兩顆標準配色的比賽方塊（不能用藍牙方塊）', '08:00–08:30 完成報到', '每轉都有 15 秒觀察，記得在 15 秒內開始', '每輪兩轉取最快一次：第一轉不順也沒關係，第二轉重新來過', '深呼吸，照平常練習的節奏轉'].map(t => '<li class="chk"><span class="box">✓</span><span class="txt">' + esc(t) + '</span></li>').join('') + '</ul></div>';
+    } else if (pl.after) {
+      html += '<div class="card"><h2>🎉 比賽結束了</h2><p>這個月的練習都記錄在「進度」頁，可以匯出 JSON 留作紀念。</p></div>';
+    } else {
+      const pc = planCheck(ds, false) || { items_done: [] };
+      const cnt = dayCounts(ds);
+      let changed = false;
+      for (const it of pl.items) if (it.auto && cnt[it.auto.type] >= it.auto.n && pc.items_done.indexOf(it.id) < 0) { const p = planCheck(ds, true); p.items_done.push(it.id); changed = true; }
+      if (changed) save();
+      const done = (planCheck(ds, false) || { items_done: [] }).items_done;
+      const nDone = pl.items.filter(it => done.indexOf(it.id) >= 0).length;
+      html += '<div class="card"><h2>今天的訓練菜單 <span class="pill">第 ' + pl.week + ' 週 · ' + esc(pl.focus) + '</span></h2>';
+      if (pl.early) html += '<p class="small muted" style="margin-top:0">第 1 週從 11/13 開始，今天可以先熱身、熟悉網站。</p>';
+      html += '<ul class="check-list">';
+      for (const it of pl.items) {
+        const isDone = done.indexOf(it.id) >= 0;
+        let prog = '';
+        if (it.auto) prog = '<span class="prog">今天 ' + Math.min(cnt[it.auto.type], it.auto.n) + ' / ' + it.auto.n + (it.auto.type === 'solves' ? '（計時器練習）' : '') + '</span>';
+        html += '<li class="row" style="flex-wrap:nowrap"><button class="chk ' + (isDone ? 'done' : '') + '" data-act="plan" data-id="' + it.id + '" aria-pressed="' + isDone + '"><span class="box">' + (isDone ? '✓' : '') + '</span><span class="txt">' + esc(it.t) + prog + '</span>' + (isDone ? '<span class="stk">' + sticker(ds + it.id) + '</span>' : '') + '</button>' + (it.go ? '<button class="go" data-act="go" data-to="' + it.go + '">去練 →</button>' : '') + '</li>';
+      }
+      html += '</ul><div style="margin-top:12px" class="bar" aria-label="完成進度"><i style="width:' + Math.round(nDone / pl.items.length * 100) + '%"></i></div>';
+      if (nDone === pl.items.length) html += '<div class="bigsticker">' + sticker('day' + ds) + '</div><p style="text-align:center;font-weight:800;margin:0">今天的菜單全部完成，獲得一張貼紙！</p>';
+      else html += '<p class="small muted" style="margin:6px 0 0">完成 ' + nDone + ' / ' + pl.items.length + ' 項，全部完成可以得到今天的貼紙。</p>';
+      html += '</div>';
+    }
+
+    // ao12 差距
+    const full = effList(fullSolves());
+    const ao12 = CS.aoN(full, 12);
+    html += '<div class="card"><h2>最近一次 ao12 與目標線</h2>';
+    if (ao12 === null) html += '<p class="muted" style="margin:0">再完成 <b>' + (12 - full.length) + '</b> 次計時（練習或模擬賽），就能算出 ao12。</p>';
+    else if (ao12 === Infinity) html += '<p style="margin:0">最近 12 次裡有兩次以上 DNF，ao12 暫時是 DNF。多轉幾次就會更新！</p>';
+    else html += '<div class="stat-big num">' + fmtAvg(ao12) + ' <span class="small muted">秒</span></div>' + gapLines(ao12);
+    html += '</div>';
+
+    // 連續天數與貼紙
+    const st = streak(); const cd = completedDays();
+    html += '<div class="grid2"><div class="card"><h2>🔥 連續練習</h2><div class="stat-big num">' + st.n + ' <span class="small">天</span></div><p class="small muted" style="margin:0">' + (st.todayDone ? '今天已經練習了，很棒！' : (st.n ? '今天練一下就會變成 ' + (st.n + 1) + ' 天！' : '今天開始第一天吧！')) + '</p></div>';
+    html += '<div class="card"><h2>貼紙收集冊</h2>' + (cd.length ? '<div class="stickers">' + cd.map(d => '<span title="' + d + '">' + sticker('day' + d) + '</span>').join('') + '</div>' : '<p class="small muted" style="margin:0">完成一天的菜單就能貼上一張。</p>') + '</div></div>';
+    $('#page-home').innerHTML = html;
+  }
+  ACT.plan = el => {
+    const ds = today(); const p = planCheck(ds, true); const id = el.dataset.id; const i = p.items_done.indexOf(id);
+    if (i >= 0) p.items_done.splice(i, 1); else { p.items_done.push(id); }
+    save(); renderHome();
+    const pl = CS.planForDate(ds);
+    if (i < 0 && pl.items && pl.items.every(it => p.items_done.indexOf(it.id) >= 0)) { confetti(); toast('今天的菜單全部完成！' + sticker('day' + ds)); }
+  };
+
+  /* ================= 成績紀錄與個人紀錄 ================= */
+  function recordFull(solve) {
+    const before = effList(fullSolves());
+    const pbS = CS.bestOf(before), pb5 = CS.bestAoN(before, 5), pb12 = CS.bestAoN(before, 12);
+    DB.solves.push(solve); save();
+    const after = effList(fullSolves());
+    const e = CS.eff(solve);
+    const msgs = [];
+    if (pbS !== null && Number.isFinite(e) && e < pbS) msgs.push('最佳單次 ' + fmt(e));
+    const n5 = CS.bestAoN(after, 5), n12 = CS.bestAoN(after, 12);
+    if (pb5 !== null && n5 !== null && n5 < pb5) msgs.push('最佳 ao5 ' + fmtAvg(n5));
+    if (pb12 !== null && n12 !== null && n12 < pb12) msgs.push('最佳 ao12 ' + fmtAvg(n12));
+    if (msgs.length) { confetti(); toast('🎉 破個人紀錄！' + msgs.join('、'), 4000); }
+    else if (solve.penalty === 'DNF') toast('這次沒完成也沒關係，下一次會更好！');
+  }
+
+  /* ================= 計時器 ================= */
+  let curScramble = CS.genScramble();
+  function practiceSessionId() {
+    const ds = today();
+    if (!DB.practiceSession || DB.practiceSession.date !== ds) { DB.practiceSession = { id: 'p-' + uid(), date: ds }; save(); }
+    return DB.practiceSession.id;
+  }
+  const ctxPractice = () => ({
+    label: '練習 · 計時器', inspection: S().inspection_practice, enforce: S().inspection_practice && S().inspection_enforced, hideable: true,
+    active: () => page === 'timer',
+    onDone: res => {
+      const solve = { id: uid(), timestamp: new Date().toISOString(), scramble: curScramble, ms: res.ms, penalty: res.penalty, mode: 'practice', session_id: practiceSessionId() };
+      if (res.inspMs != null) solve.inspection_ms = res.inspMs;
+      recordFull(solve);
+      curScramble = CS.genScramble();
+      renderTimer();
+    }
+  });
+  function sessionSolves() { const id = DB.practiceSession && DB.practiceSession.id; return DB.solves.filter(s => s.session_id === id && s.mode === 'practice').sort((a, b) => ts(a) - ts(b)); }
+  function renderTimer() {
+    T.configure(ctxPractice());
+    const ss = DB.practiceSession && DB.practiceSession.date === today() ? sessionSolves() : [];
+    const ev = effList(ss);
+    const last = ss.length ? ss[ss.length - 1] : null;
+    const allBest = CS.bestOf(effList(fullSolves()));
+    const insp = S().inspection_practice;
+    let html = '<div class="card"><div class="row"><h2 class="grow" style="margin:0">打亂公式</h2><button class="btn sm" data-act="newScr">🔄 換一個</button></div><div class="scramble mono" style="margin-top:8px">' + esc(curScramble) + '</div><p class="tiny muted" style="margin:6px 0 0">打亂時白色在上、綠色朝前（WCA 標準），照公式轉。</p></div>';
+    html += '<div class="pad" data-pad="timer" role="button" tabindex="0" aria-label="計時區：按住空白鍵或按住這裡"><div class="t num">' + (last ? esc(fmtSolve(last)) : '0.00') + '</div><div class="h">' + (insp ? '點一下（或按空白鍵）開始 15 秒觀察，<br>準備好後按住，變綠色放開開始計時' : '按住空白鍵或按住這裡，變綠色放開開始') + '</div></div>';
+    html += '<div class="stats">' +
+      stat('本次', last ? fmtSolve(last) : '—') + stat('最佳單次', fmt(CS.bestOf(ev))) + stat('ao5', fmtAvg(CS.aoN(ev, 5))) +
+      stat('ao12', fmtAvg(CS.aoN(ev, 12))) + stat('本場平均', fmtAvg(CS.meanValid(ev))) + stat('完成次數', String(ss.length)) + '</div>';
+    html += '<p class="small muted">個人最佳單次：<b class="num">' + fmt(allBest) + '</b> · 觀察 ' + (insp ? '開' : '關') + ' · 罰則 ' + (insp && S().inspection_enforced ? '開' : '關') + ' · 隱藏時間 ' + (S().hide_timer ? '開' : '關') + '（可在設定調整）</p>';
+    html += '<div class="card"><div class="row"><h2 class="grow" style="margin:0">本場成績</h2><button class="btn sm" data-act="newSession">開新場次</button></div>';
+    if (!ss.length) html += '<p class="muted">還沒有成績，開始第一轉吧！</p>';
+    else {
+      html += '<ul class="solves">';
+      ss.slice().reverse().slice(0, 60).forEach((s, i) => {
+        const n = ss.length - i;
+        html += '<li><span class="n">' + n + '</span><span class="tm num">' + esc(fmtSolve(s)) + '</span>' +
+          '<button class="btn sm ' + (s.penalty === '+2' ? 'on' : '') + '" data-act="pen" data-id="' + esc(s.id) + '" data-p="+2" aria-pressed="' + (s.penalty === '+2') + '">+2</button>' +
+          '<button class="btn sm ' + (s.penalty === 'DNF' ? 'on' : '') + '" data-act="pen" data-id="' + esc(s.id) + '" data-p="DNF" aria-pressed="' + (s.penalty === 'DNF') + '">DNF</button>' +
+          '<button class="btn sm" data-act="del" data-id="' + esc(s.id) + '" aria-label="刪除第 ' + n + ' 次">🗑</button></li>';
+      });
+      html += '</ul>';
+    }
+    html += '</div>';
+    $('#page-timer').innerHTML = html;
+  }
+  function stat(k, v) { return '<div class="stat"><div class="k">' + k + '</div><div class="v num">' + esc(v) + '</div></div>'; }
+  ACT.newScr = () => { curScramble = CS.genScramble(); renderTimer(); };
+  ACT.newSession = async () => { if (await ask('要開始新的一場嗎？舊的成績會保留在進度頁。', '開新場次')) { DB.practiceSession = { id: 'p-' + uid(), date: today() }; save(); renderTimer(); } };
+  ACT.pen = el => { const s = DB.solves.find(x => x.id === el.dataset.id); if (!s) return; s.penalty = s.penalty === el.dataset.p ? 'none' : el.dataset.p; save(); render(); };
+  ACT.del = async el => { if (await ask('確定要刪除這次成績嗎？', '刪除', true)) { DB.solves = DB.solves.filter(x => x.id !== el.dataset.id); save(); render(); } };
+
+  /* ================= 模擬比賽 ================= */
+  let MK = null;
+  let restIv = 0;
+  function stopRestTimer() { clearInterval(restIv); restIv = 0; }
+  function newMock(judge) { return { id: 'mk-' + uid(), judge, step: 'attempt', round: 'prelim', idx: 0, scr: { prelim: [CS.genScramble(), CS.genScramble()], final: [CS.genScramble(), CS.genScramble()] }, res: { prelim: [], final: [] }, sess: {}, pending: null, restEnd: 0 }; }
+  const RN = { prelim: '初賽', final: '決賽' };
+  const ctxMock = () => ({
+    label: (MK ? RN[MK.round] + ' · 第 ' + (MK.idx + 1) + ' 轉' : '模擬比賽') + (MK && MK.judge ? ' · 家長裁判' : ''),
+    inspection: true, enforce: true, judge: !!(MK && MK.judge), hideable: true,
+    active: () => page === 'mock' && MK && MK.step === 'attempt',
+    onDone: res => { MK.pending = res; MK.step = 'pending'; renderMock(); }
+  });
+  function rankText(ms) {
+    if (ms === null) return '這輪兩轉都是 DNF，沒關係，正式比賽前多練幾次模擬就會更穩！';
+    const r = CS.estimateRank(ms / 1000);
+    let t = r.faster ? '比 114 年決賽第 1 名還快！' : r.beyond ? '若在 114 年決賽，大約在第 48 名之後' : '若在 114 年決賽，大約可排 <b>第 ' + r.rank + ' 名</b>';
+    return t + '<br><span class="tiny muted">（估計值：以 114 年決賽第 1、6、30、48 名的成績做線性插值，僅供參考）</span>';
+  }
+  function renderMock() {
+    T.configure(ctxMock());
+    const el = $('#page-mock');
+    if (!MK) {
+      const judge = !!renderMock.judge;
+      el.innerHTML = '<div class="card"><h2>🏆 模擬比賽</h2><p style="margin-top:0">完全照 115 學年度比賽規則：</p><ul>' +
+        '<li>初賽、決賽各兩轉，<b>取最快一次</b></li><li>每轉 <b>15 秒觀察</b>：超過 15 秒 +2、超過 17 秒 DNF</li><li>每轉上限 <b>2 分鐘</b>，超過記為 DNF</li><li>初賽和決賽中間有休息時間</li></ul>' +
+        '<p class="small muted">去年決賽選手兩轉中較慢的那次，中位數大約比較快的那次慢 17.6%，所以兩轉都要穩穩地轉。</p>' +
+        '<label class="switch"><span><b>家長裁判模式</b><br><span class="small muted">由家長按「開始觀察」，完成後由家長確認成績，模擬旁邊有裁判的感覺</span></span><input type="checkbox" id="mkJudge" ' + (judge ? 'checked' : '') + '></label>' +
+        '<button class="btn primary big" data-act="mkStart" style="margin-top:10px">開始模擬比賽</button></div>' + mockHistoryCard(5);
+      $('#mkJudge').onchange = e => { renderMock.judge = e.target.checked; };
+      return;
+    }
+    const round = MK.round, n = MK.idx;
+    let html = '<div class="card"><div class="row"><span class="pill ' + (MK.judge ? 'warn' : '') + '">' + RN[round] + (MK.judge ? ' · 家長裁判模式' : '') + '</span><span class="grow"></span><button class="btn sm" data-act="mkQuit">放棄這場</button></div>';
+    if (MK.step === 'attempt') {
+      html += '<h2 style="margin-top:12px">' + RN[round] + ' · 第 ' + (n + 1) + ' 轉 / 共 2 轉</h2>';
+      html += '<p class="small muted" style="margin-top:0">' + (MK.judge ? '請家長照下面的打亂把方塊轉好，蓋起來放在選手面前。' : '照下面的打亂把方塊轉好（請家長幫忙更像比賽），先不要看。') + '</p>';
+      html += '<div class="scramble mono">' + esc(MK.scr[round][n]) + '</div></div>';
+      if (MK.judge) html += '<button class="btn primary big" data-act="mkJudgeStart">🧑‍⚖️ 裁判：開始 15 秒觀察</button><p class="small muted">裁判按下後就開始觀察倒數，選手準備好後按住畫面、放開開始計時。</p>';
+      else html += '<div class="pad" data-pad="mock" role="button" tabindex="0" aria-label="點一下開始 15 秒觀察"><div class="t" style="font-size:44px">準備好了嗎？</div><div class="h">點一下（或按空白鍵）開始 15 秒觀察</div></div>';
+      html += prevAttempts();
+    } else if (MK.step === 'pending') {
+      const r = MK.pending;
+      html += '<h2 style="margin-top:12px">' + RN[round] + ' · 第 ' + (n + 1) + ' 轉成績' + (MK.judge ? '（請裁判確認）' : '') + '</h2>';
+      const shown = r.penalty === 'DNF' ? 'DNF' : fmt(r.ms + (r.penalty === '+2' ? 2000 : 0)) + (r.penalty === '+2' ? '+' : '');
+      html += '<div class="mock-res num">' + shown + '</div>';
+      if (r.reason === 'limit') html += '<p style="text-align:center">到了 2 分鐘上限，記為 DNF。</p>';
+      if (r.reason === 'inspection') html += '<p style="text-align:center">觀察超過 17 秒，記為 DNF。</p>';
+      if (r.inspMs != null && r.reason !== 'inspection') html += '<p class="small muted" style="text-align:center">觀察用了 ' + (r.inspMs / 1000).toFixed(1) + ' 秒</p>';
+      html += '<p class="small muted">' + (MK.judge ? '裁判可以修正判定（例如最後一層沒轉正 +2）：' : '如果需要修正判定：') + '</p><div class="seg">' +
+        ['none', '+2', 'DNF'].map(p => '<button class="btn ' + (r.penalty === p ? 'on' : '') + '" data-act="mkPen" data-p="' + p + '" aria-pressed="' + (r.penalty === p) + '">' + (p === 'none' ? '無罰則' : p) + '</button>').join('') + '</div>' +
+        '<button class="btn ' + (MK.judge ? 'good' : 'primary') + ' big" style="margin-top:12px" data-act="mkConfirm">' + (MK.judge ? '✍️ 裁判確認成績' : '記錄成績') + '</button></div>';
+    } else if (MK.step === 'roundResult') {
+      const ms = MK.res[round].map(x => CS.eff(x));
+      const best = CS.roundBest(ms);
+      html += '<h2 style="margin-top:12px">' + RN[round] + '結果</h2><table class="tb"><tr><th>第 1 轉</th><th>第 2 轉</th><th>取最快</th></tr><tr class="num"><td>' + esc(fmtSolve(MK.res[round][0])) + '</td><td>' + esc(fmtSolve(MK.res[round][1])) + '</td><td><b>' + fmt(best === null ? Infinity : best) + '</b></td></tr></table>';
+      html += '<p>' + rankText(best) + '</p>' + (best !== null ? '<div>' + gapLines(best) + '</div>' : '');
+      if (round === 'prelim') html += '<p class="small muted">正式比賽初賽取前 50 名晉級決賽。</p><button class="btn primary big" data-act="mkBreak">休息一下 ☕</button>';
+      else html += '<button class="btn primary big" data-act="mkDone">看總結 🎉</button>';
+      html += '</div>';
+    } else if (MK.step === 'break') {
+      const left = Math.max(0, Math.ceil((MK.restEnd - Date.now()) / 1000));
+      html += '<h2 style="margin-top:12px">☕ 休息時間</h2><div class="mock-res num" id="restLeft">' + Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0') + '</div>' +
+        '<ul><li>喝口水、甩甩手、轉轉手腕</li><li>深呼吸三次：吸氣 4 秒、吐氣 6 秒</li><li>想想初賽哪裡順、哪裡可以更穩</li><li>決賽一樣是兩轉取最快，重新開始！</li></ul>' +
+        '<button class="btn primary big" data-act="mkFinal">我準備好了，進入決賽</button></div>';
+      restIv = setInterval(() => { const l = Math.max(0, Math.ceil((MK.restEnd - Date.now()) / 1000)); const e = $('#restLeft'); if (e) e.textContent = Math.floor(l / 60) + ':' + String(l % 60).padStart(2, '0'); if (!l) { stopRestTimer(); beep(660, .2, .2); } }, 500);
+    } else if (MK.step === 'done') {
+      const bp = CS.roundBest(MK.res.prelim.map(CS.eff)), bf = CS.roundBest(MK.res.final.map(CS.eff));
+      html += '<h2 style="margin-top:12px">🎉 模擬比賽完成！</h2><table class="tb"><tr><th>輪次</th><th>第 1 轉</th><th>第 2 轉</th><th>取最快</th></tr>' +
+        ['prelim', 'final'].map(r => { const b = CS.roundBest(MK.res[r].map(CS.eff)); return '<tr class="num"><td>' + RN[r] + '</td><td>' + esc(fmtSolve(MK.res[r][0])) + '</td><td>' + esc(fmtSolve(MK.res[r][1])) + '</td><td><b>' + fmt(b === null ? Infinity : b) + '</b></td></tr>'; }).join('') + '</table>';
+      html += '<h3>決賽排名估計</h3><p>' + rankText(bf) + '</p>';
+      html += '<p>' + (bf !== null && (bp === null || bf <= bp) ? '決賽比初賽更快，越比越穩，太棒了！' : '每一場模擬都在幫正式比賽做準備，繼續加油！') + '</p>';
+      html += '<div class="row"><button class="btn primary grow" data-act="mkAgain">再來一場</button><button class="btn grow" data-act="go" data-to="progress">看進度</button></div></div>';
+    }
+    el.innerHTML = html;
+  }
+  function prevAttempts() {
+    const r = MK.res[MK.round]; if (!r.length) return '';
+    return '<p class="small muted">' + RN[MK.round] + '第 1 轉：<b class="num">' + esc(fmtSolve(r[0])) + '</b></p>';
+  }
+  ACT.mkStart = () => { MK = newMock(!!renderMock.judge); renderMock(); };
+  ACT.mkJudgeStart = () => { if (MK && MK.step === 'attempt') { T.configure(ctxMock()); T.startInspection(); } };
+  ACT.mkPen = el => { if (MK && MK.pending) { MK.pending.penalty = el.dataset.p; renderMock(); } };
+  ACT.mkConfirm = () => {
+    const r = MK.pending, round = MK.round;
+    if (!MK.sess[round]) MK.sess[round] = 'ms-' + uid();
+    const solve = { id: uid(), timestamp: new Date().toISOString(), scramble: MK.scr[round][MK.idx], ms: r.ms, penalty: r.penalty, mode: 'mock', session_id: MK.sess[round] };
+    if (r.inspMs != null) solve.inspection_ms = r.inspMs;
+    recordFull(solve);
+    MK.res[round].push(solve); MK.pending = null; MK.idx++;
+    if (MK.idx < 2) { MK.step = 'attempt'; }
+    else {
+      const best = CS.roundBest(MK.res[round].map(CS.eff));
+      DB.mockSessions.push({ id: MK.sess[round], date: new Date().toISOString(), round, attempts: MK.res[round].map(s => s.id), best_ms: best, mock_id: MK.id, judge: MK.judge });
+      save(); MK.step = 'roundResult';
+    }
+    renderMock();
+  };
+  ACT.mkBreak = () => { MK.step = 'break'; MK.restEnd = Date.now() + 3 * 60 * 1000; renderMock(); };
+  ACT.mkFinal = () => { stopRestTimer(); MK.round = 'final'; MK.idx = 0; MK.step = 'attempt'; renderMock(); };
+  ACT.mkDone = () => { MK.step = 'done'; const bf = CS.roundBest(MK.res.final.map(CS.eff)); if (bf !== null) confetti(); renderMock(); };
+  ACT.mkAgain = () => { MK = null; renderMock(); };
+  ACT.mkQuit = async () => { if (await ask('要放棄這場模擬比賽嗎？已經記錄的成績會保留。', '放棄', true)) { stopRestTimer(); MK = null; renderMock(); } };
+  function mockEvents() {
+    const map = new Map();
+    for (const m of DB.mockSessions) { const k = m.mock_id || m.id; if (!map.has(k)) map.set(k, { id: k, date: m.date, judge: !!m.judge }); map.get(k)[m.round] = m; }
+    return Array.from(map.values()).sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  }
+  function mockHistoryCard(limit) {
+    const ev = mockEvents();
+    let h = '<div class="card"><h2>模擬比賽紀錄</h2>';
+    if (!ev.length) return h + '<p class="muted" style="margin:0">還沒有模擬比賽紀錄。</p></div>';
+    h += '<table class="tb"><tr><th>日期</th><th>初賽</th><th>決賽</th><th>估計名次</th></tr>';
+    ev.slice(0, limit || 999).forEach(e => {
+      const bp = e.prelim ? e.prelim.best_ms : undefined, bf = e.final ? e.final.best_ms : undefined;
+      const r = bf != null ? CS.estimateRank(bf / 1000) : null;
+      h += '<tr class="num"><td>' + CS.localDate(e.date).slice(5).replace('-', '/') + (e.judge ? ' 🧑‍⚖️' : '') + '</td><td>' + (e.prelim ? fmt(bp === null ? Infinity : bp) : '—') + '</td><td>' + (e.final ? fmt(bf === null ? Infinity : bf) : '—') + '</td><td>' + (r ? (r.faster ? '1' : r.beyond ? '48+' : r.rank) : '—') + '</td></tr>';
+    });
+    return h + '</table><p class="tiny muted">名次為以 114 年決賽成績線性插值的估計；🧑‍⚖️ = 家長裁判模式。</p></div>';
+  }
+
+  /* ================= 專項練習 ================= */
+  const DR = { sub: 'cross', cross: { variant: 'cross', scr: CS.genScramble(), pending: null }, slow: { pending: null, on: false, scr: CS.genScramble() }, alg: { set: 'PLL', quiz: null, includeUnknown: false, showAlg: false, last: null } };
+  function algStatus(id) { const r = DB.algStatus.find(x => x.alg_id === id); return r ? r.status : 'unknown'; }
+  function setAlgStatus(id, st) { const r = DB.algStatus.find(x => x.alg_id === id); if (r) r.status = st; else DB.algStatus.push({ alg_id: id, status: st }); save(); }
+  function drillCtx() {
+    if (DR.sub === 'cross') return {
+      label: DR.cross.variant === 'cross' ? '十字觀察練習' : '十字＋第一組 F2L', inspection: true, enforce: false, hideable: false,
+      inspectHint: DR.cross.variant === 'cross' ? '只規劃十字！規劃好就按住畫面，放開開始做十字' : '規劃十字和第一組 F2L，按住畫面、放開開始',
+      active: () => page === 'drills' && DR.sub === 'cross' && !DR.cross.pending,
+      onDone: res => { DR.cross.pending = res; renderDrills(); }
+    };
+    if (DR.sub === 'slow') return {
+      label: '慢轉不停頓', inspection: false, enforce: false, hideable: false,
+      active: () => page === 'drills' && DR.sub === 'slow' && !DR.slow.pending,
+      onDone: res => { DR.slow.pending = res; renderDrills(); }
+    };
+    return {
+      label: '公式計時', inspection: false, enforce: false, hideable: false,
+      active: () => page === 'drills' && DR.sub === 'alg' && !!DR.alg.quiz,
+      onDone: res => {
+        const q = DR.alg.quiz; if (!q) return;
+        DB.drills.push({ id: uid(), timestamp: new Date().toISOString(), type: 'alg', alg_id: q.id, ms: res.ms, penalty: res.penalty });
+        save(); DR.alg.last = { id: q.id, ms: res.ms, penalty: res.penalty }; DR.alg.quiz = pickQuiz(q.id); DR.alg.showAlg = false; renderDrills();
+      }
+    };
+  }
+  function renderDrills() {
+    T.configure(drillCtx());
+    const tabs = [['cross', '🎯 十字觀察'], ['slow', '🐢 慢轉不停頓'], ['alg', '🧠 頂層公式']];
+    let html = '<div class="seg" role="tablist" style="margin-bottom:14px">' + tabs.map(([k, n]) => '<button class="btn ' + (DR.sub === k ? 'on' : '') + '" role="tab" aria-selected="' + (DR.sub === k) + '" data-act="drSub" data-k="' + k + '">' + n + '</button>').join('') + '</div>';
+    if (DR.sub === 'cross') html += crossView(); else if (DR.sub === 'slow') html += slowView(); else html += algView();
+    $('#page-drills').innerHTML = html;
+    if (DR.sub === 'slow') bindSlow();
+  }
+  ACT.drSub = el => { if (DR.sub === 'slow' && el.dataset.k !== 'slow') metroStop(); DR.sub = el.dataset.k; renderDrills(); };
+  function drillsOf(type) { return DB.drills.filter(d => d.type === type).sort((a, b) => ts(a) - ts(b)); }
+  function crossView() {
+    const c = DR.cross, type = c.variant;
+    const list = drillsOf(type), todayN = list.filter(d => CS.localDate(d.timestamp) === today()).length;
+    const recent = list.slice(-10);
+    const avg = CS.meanValid(recent.map(d => d.penalty === 'DNF' ? Infinity : d.ms));
+    const planned = recent.length ? Math.round(recent.filter(d => d.planned).length / recent.length * 100) : null;
+    let h = '<div class="card"><div class="seg">' + [['cross', '只做十字'], ['xcross', '十字＋第一組 F2L']].map(([k, n]) => '<button class="btn sm ' + (type === k ? 'on' : '') + '" data-act="crVar" data-k="' + k + '">' + n + '</button>').join('') + '</div>';
+    h += '<p class="small" style="margin-bottom:4px">' + (type === 'cross' ? '15 秒內<b>只規劃十字</b>（眼睛不要先看別的地方），然後計時把十字做完。' : '15 秒內規劃<b>十字加上第一組 F2L</b>，然後計時做到第一組 F2L 完成。') + '</p>';
+    h += '<div class="scramble mono">' + esc(c.scr) + '</div></div>';
+    if (c.pending) {
+      const r = c.pending;
+      h += '<div class="card"><div class="mock-res num">' + (r.penalty === 'DNF' ? 'DNF' : fmt(r.ms)) + '</div><p style="text-align:center;font-weight:800">' + (type === 'cross' ? '十字' : '十字＋F2L') + '有沒有在觀察時一次規劃完成？</p>' +
+        '<div class="row"><button class="btn good grow" data-act="crSave" data-v="1">✅ 有，一次規劃完成</button><button class="btn grow" data-act="crSave" data-v="0">🤔 沒有，中途又想了</button></div><button class="btn sm" style="margin-top:8px" data-act="crSkip">這次不記錄</button></div>';
+    } else {
+      h += '<div class="pad" data-pad="cross" role="button" tabindex="0"><div class="t" style="font-size:40px">點一下開始規劃</div><div class="h">15 秒規劃 → 按住、放開開始 → 完成後點一下停止</div></div>';
+    }
+    h += '<div class="stats">' + stat('今天次數', todayN + (type === 'cross' ? ' / 10' : '')) + stat('最近 10 次平均', fmtAvg(avg)) + stat('一次規劃完成', planned === null ? '—' : planned + '%') + '</div>';
+    return h;
+  }
+  ACT.crVar = el => { DR.cross.variant = el.dataset.k; DR.cross.pending = null; renderDrills(); };
+  ACT.crSave = el => {
+    const r = DR.cross.pending; if (!r) return;
+    DB.drills.push({ id: uid(), timestamp: new Date().toISOString(), type: DR.cross.variant, ms: r.ms, penalty: r.penalty === 'DNF' ? 'DNF' : 'none', planned: el.dataset.v === '1', scramble: DR.cross.scr, inspection_ms: r.inspMs });
+    save(); DR.cross.pending = null; DR.cross.scr = CS.genScramble();
+    toast(el.dataset.v === '1' ? '一次規劃完成，眼力越來越好！' : '有記下來就是進步，下一次再試試看！');
+    renderDrills();
+  };
+  ACT.crSkip = () => { DR.cross.pending = null; DR.cross.scr = CS.genScramble(); renderDrills(); };
+
+  // 節拍器
+  const MET = { iv: 0, next: 0, beat: 0 };
+  function metroStart() {
+    const ac = audio(); if (!ac) { toast('這個瀏覽器不支援聲音，請看閃燈跟著轉'); }
+    metroStop(); DR.slow.on = true; MET.beat = 0; MET.next = ac ? ac.currentTime + 0.1 : 0;
+    const look = () => {
+      const bpm = S().bpm; const step = 60 / bpm;
+      if (ac) {
+        while (MET.next < ac.currentTime + 0.12) {
+          const accent = MET.beat % 4 === 0; beep(accent ? 1320 : 880, 0.05, accent ? 0.3 : 0.18, MET.next);
+          const delay = Math.max(0, (MET.next - ac.currentTime) * 1000);
+          setTimeout(flash, delay); MET.next += step; MET.beat++;
+        }
+      }
+    };
+    if (ac) MET.iv = setInterval(look, 25); else MET.iv = setInterval(flash, 60000 / S().bpm);
+    look();
+  }
+  function flash() { const b = $('#beat'); if (!b) return; b.classList.add('on'); setTimeout(() => b.classList.remove('on'), 90); }
+  function metroStop() { clearInterval(MET.iv); MET.iv = 0; DR.slow.on = false; }
+  function slowView() {
+    const s = DR.slow; const list = drillsOf('slow'); const todayN = list.filter(d => CS.localDate(d.timestamp) === today()).length;
+    const recent = list.slice(-10);
+    let h = '<div class="card"><h2>🐢 慢轉不停頓</h2><p class="small" style="margin-top:0">跟著節拍<b>每一拍轉一下</b>。慢沒關係，重點是<b>手不要停</b>，一邊轉一邊找下一組 F2L。</p>' +
+      '<div class="row"><div class="beat" id="beat" aria-hidden="true"></div><div class="grow"><label for="bpm"><b>BPM：<span id="bpmV" class="num">' + S().bpm + '</span></b>（每分鐘幾拍）</label><input type="range" id="bpm" min="30" max="180" step="5" value="' + S().bpm + '"></div></div>' +
+      '<button class="btn ' + (s.on ? '' : 'primary') + ' big" data-act="metro" style="margin-top:8px">' + (s.on ? '⏸ 停止節拍器' : '▶️ 開始節拍器') + '</button>' +
+      '<div class="scramble mono" style="margin-top:10px">' + esc(s.scr) + '</div></div>';
+    if (s.pending) {
+      h += '<div class="card"><div class="mock-res num">' + (s.pending.penalty === 'DNF' ? 'DNF' : fmt(s.pending.ms)) + '</div><p style="text-align:center;font-weight:800">這次轉的時候有停下來嗎？</p><div class="stack">' +
+        [[0, '😀 幾乎沒停'], [1, '🙂 停了幾次'], [2, '😅 停了很多次']].map(([v, n]) => '<button class="btn big" data-act="slowSave" data-v="' + v + '">' + n + '</button>').join('') + '</div><button class="btn sm" style="margin-top:8px" data-act="slowSkip">這次不記錄</button></div>';
+    } else {
+      h += '<div class="pad" data-pad="slow" role="button" tabindex="0" style="min-height:200px"><div class="t" style="font-size:40px">按住 → 放開開始</div><div class="h">完成後點一下停止（節拍器會繼續響）</div></div>';
+    }
+    const pauseAvg = recent.length ? recent.reduce((a, d) => a + (d.pause || 0), 0) / recent.length : null;
+    h += '<div class="stats">' + stat('今天次數', todayN + ' / 10') + stat('最近 10 次平均', fmtAvg(CS.meanValid(recent.map(d => d.penalty === 'DNF' ? Infinity : d.ms)))) + stat('幾乎沒停', recent.length ? Math.round(recent.filter(d => d.pause === 0).length / recent.length * 100) + '%' : '—') + '</div>';
+    if (pauseAvg !== null) h += '<p class="tiny muted">停頓自評平均 ' + pauseAvg.toFixed(1) + '（0 = 幾乎沒停，2 = 停很多次）</p>';
+    return h;
+  }
+  function bindSlow() {
+    const r = $('#bpm'); if (!r) return;
+    r.oninput = () => { $('#bpmV').textContent = r.value; };
+    r.onchange = () => { DB.settings.bpm = +r.value; save(); if (DR.slow.on) metroStart(); };
+  }
+  ACT.metro = () => { if (DR.slow.on) metroStop(); else metroStart(); renderDrills(); };
+  ACT.slowSave = el => {
+    const r = DR.slow.pending; if (!r) return;
+    DB.drills.push({ id: uid(), timestamp: new Date().toISOString(), type: 'slow', ms: r.ms, penalty: r.penalty === 'DNF' ? 'DNF' : 'none', bpm: S().bpm, pause: +el.dataset.v, scramble: DR.slow.scr });
+    save(); DR.slow.pending = null; DR.slow.scr = CS.genScramble(); toast(el.dataset.v === '0' ? '手都沒停，超流暢！' : '找到會停的地方就是進步！'); renderDrills();
+  };
+  ACT.slowSkip = () => { DR.slow.pending = null; DR.slow.scr = CS.genScramble(); renderDrills(); };
+
+  // 公式圖
+  const COL = { U: '#ffd500', D: '#ffffff', F: '#009b48', B: '#0046ad', R: '#b71234', L: '#ff5800' };
+  const diagCache = {};
+  function diagram(a) {
+    if (diagCache[a.id]) return diagCache[a.id];
+    const m = CS.colorMap(CS.caseState(a)); const oll = a.set === 'OLL';
+    const c = (p, n) => { const k = m.get(p.join(',') + '|' + n.join(',')); return oll ? (k === 'U' ? COL.U : '#5d6475') : COL[k]; };
+    const s = 24, o = 14; let g = '';
+    const rect = (x, y, w, h, f) => { g += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="3" fill="' + f + '" stroke="#1b2333" stroke-width="1.5"/>'; };
+    for (let zi = 0; zi < 3; zi++) for (let xi = 0; xi < 3; xi++) rect(o + 4 + xi * s, o + 4 + zi * s, s - 2, s - 2, c([xi - 1, 1, zi - 1], [0, 1, 0]));
+    for (let i = 0; i < 3; i++) {
+      rect(o + 4 + i * s, 2, s - 2, 12, c([i - 1, 1, -1], [0, 0, -1]));
+      rect(o + 4 + i * s, o + 4 + 3 * s + 2, s - 2, 12, c([i - 1, 1, 1], [0, 0, 1]));
+      rect(2, o + 4 + i * s, 12, s - 2, c([-1, 1, i - 1], [-1, 0, 0]));
+      rect(o + 4 + 3 * s + 2, o + 4 + i * s, 12, s - 2, c([1, 1, i - 1], [1, 0, 0]));
+    }
+    const W = o + 4 + 3 * s + 16;
+    return (diagCache[a.id] = '<svg class="diagram" viewBox="0 0 ' + W + ' ' + W + '" role="img" aria-label="' + esc(a.name) + ' 案例俯視圖（前面在下方）">' + g + '</svg>');
+  }
+  function quizPool() { return ALGS_OK.filter(a => a.set === DR.alg.set && (algStatus(a.id) === 'shaky' || (DR.alg.includeUnknown && algStatus(a.id) === 'unknown'))); }
+  function pickQuiz(avoid) { const p = quizPool(); if (!p.length) return null; const q = p.filter(a => a.id !== avoid); const arr = q.length ? q : p; return arr[Math.floor(Math.random() * arr.length)]; }
+  function algView() {
+    const A = DR.alg; const list = ALGS_OK.filter(a => a.set === A.set);
+    const total = CS.ALGS.filter(a => a.set === A.set).length;
+    const cnt = { know: 0, shaky: 0, unknown: 0 }; list.forEach(a => cnt[algStatus(a.id)]++);
+    let h = '<div class="card"><div class="seg">' + [['PLL', 'PLL（21 種）'], ['OLL', '兩段式 OLL（10 種）']].map(([k, n]) => '<button class="btn sm ' + (A.set === k ? 'on' : '') + '" data-act="algSet" data-k="' + k + '">' + n + '</button>').join('') + '</div>' +
+      '<p class="small" style="margin-bottom:0">會 <b>' + cnt.know + '</b> · 不熟 <b>' + cnt.shaky + '</b> · 不會 <b>' + cnt.unknown + '</b>' + (list.length < total ? '<br><span style="color:var(--bad)">有 ' + (total - list.length) + ' 個公式沒通過驗證，已隱藏。</span>' : '') + '</p></div>';
+    if (A.quiz) {
+      const q = A.quiz;
+      h += '<div class="card"><div class="row"><h2 class="grow" style="margin:0">隨機出題：' + esc(q.name) + '</h2><button class="btn sm" data-act="quizEnd">結束</button></div>' +
+        '<div style="max-width:200px;margin:10px auto">' + diagram(q) + '</div>' +
+        (A.showAlg ? '<div class="scramble mono" style="text-align:center">' + esc(q.alg) + '</div>' : '<button class="btn" style="width:100%" data-act="showAlg">👀 看公式</button>') +
+        '<p class="small muted">把方塊轉成這個案例（可以用公式的反向做出來），然後按住、放開開始計時，做完點一下停止。</p>' +
+        '<div class="pad" data-pad="alg" role="button" tabindex="0" style="min-height:160px"><div class="t" style="font-size:36px">按住 → 放開開始</div></div>';
+      if (A.last) { const la = CS.ALGS.find(a => a.id === A.last.id); h += '<p class="small">上一題 ' + esc(la ? la.name : '') + '：<b class="num">' + (A.last.penalty === 'DNF' ? 'DNF' : fmt(A.last.ms)) + '</b> 秒</p>'; }
+      h += '</div>';
+    } else {
+      const pool = quizPool().length;
+      h += '<div class="card"><label class="switch"><span>出題也包含「不會」的公式</span><input type="checkbox" id="incU" ' + (A.includeUnknown ? 'checked' : '') + '></label>' +
+        '<button class="btn primary big" data-act="quizStart" ' + (pool ? '' : 'disabled') + '>🎲 隨機出題（' + pool + ' 個' + (A.includeUnknown ? '不熟／不會' : '不熟') + '的公式）</button>' +
+        (pool ? '' : '<p class="small muted">先在下面把公式標成「不熟」，就可以針對它們出題。</p>') + '</div>';
+    }
+    let lastStep = '';
+    h += '<div class="alg-grid">';
+    list.forEach(a => {
+      if (a.step && a.step !== lastStep) { lastStep = a.step; h += '<h3 style="grid-column:1/-1;margin:6px 0 0">' + esc(a.step) + '</h3>'; }
+      const st = algStatus(a.id);
+      const times = DB.drills.filter(d => d.type === 'alg' && d.alg_id === a.id && d.penalty !== 'DNF').map(d => d.ms);
+      h += '<div class="alg-card ' + (st === 'know' ? 'know' : st === 'shaky' ? 'shaky' : '') + '"><div class="nm">' + esc(a.name) + '</div>' + diagram(a) + '<div class="al mono">' + esc(a.alg) + '</div>' +
+        (times.length ? '<div class="tiny muted">練習 ' + times.length + ' 次 · 最佳 ' + fmt(Math.min.apply(null, times)) + '</div>' : '') +
+        '<div class="st">' + [['know', 'k', '會'], ['shaky', 's', '不熟'], ['unknown', 'u', '不會']].map(([v, c, n]) => '<button class="' + c + (st === v ? ' on' : '') + '" data-act="algSt" data-id="' + a.id + '" data-v="' + v + '" aria-pressed="' + (st === v) + '">' + n + '</button>').join('') + '</div></div>';
+    });
+    h += '</div><p class="tiny muted">圖為俯視圖，前面在下方；顏色以黃色在上、綠色在前為準。每個公式在網站開啟時都會用內建 3x3 模擬器驗證。</p>';
+    return h;
+  }
+  ACT.algSet = el => { DR.alg.set = el.dataset.k; DR.alg.quiz = null; renderDrills(); };
+  ACT.algSt = el => { setAlgStatus(el.dataset.id, el.dataset.v); renderDrills(); };
+  ACT.quizStart = () => { const i = $('#incU'); DR.alg.includeUnknown = !!(i && i.checked); DR.alg.quiz = pickQuiz(); DR.alg.showAlg = false; DR.alg.last = null; renderDrills(); };
+  ACT.quizEnd = () => { DR.alg.quiz = null; renderDrills(); };
+  ACT.showAlg = () => { DR.alg.showAlg = true; renderDrills(); };
+  document.addEventListener('change', e => { if (e.target.id === 'incU') { DR.alg.includeUnknown = e.target.checked; renderDrills(); } });
+
+  /* ================= 進度 ================= */
+  function dailySeries() {
+    const by = new Map();
+    for (const s of fullSolves()) { const d = CS.localDate(s.timestamp); if (!by.has(d)) by.set(d, []); by.get(d).push(CS.eff(s)); }
+    return Array.from(by.keys()).sort().map(d => { const v = by.get(d); const a = CS.aoN(v, 12); return { date: d, ao12: a === Infinity ? null : a, best: CS.bestOf(v), n: v.length }; });
+  }
+  function niceStep(range) { return range <= 8 ? 1 : range <= 20 ? 2 : range <= 50 ? 5 : 10; }
+  function lineChart(days) {
+    const vals = []; days.forEach(d => { if (d.ao12 != null) vals.push(d.ao12 / 1000); if (d.best != null) vals.push(d.best / 1000); });
+    if (!vals.length) return '<p class="muted">還沒有成績。完成幾次計時後這裡就會出現折線圖。</p>';
+    const W = 420, H = 250, L = 30, R = 46, Tp = 12, B = 28;
+    let lo = Math.floor(Math.min.apply(null, vals.concat([CS.TARGETS[0].seconds])) - 1), hi = Math.ceil(Math.max.apply(null, vals.concat([CS.TARGETS[2].seconds])) + 1);
+    lo = Math.max(0, lo);
+    const x = i => days.length === 1 ? L + (W - L - R) / 2 : L + i * (W - L - R) / (days.length - 1);
+    const y = v => Tp + (hi - v) / (hi - lo) * (H - Tp - B);
+    let g = '';
+    const st = niceStep(hi - lo);
+    for (let v = Math.ceil(lo / st) * st; v <= hi; v += st) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--line)"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="12" fill="var(--muted)">' + v + '</text>';
+    CS.TARGETS.forEach(t => { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t.seconds) + '" y2="' + y(t.seconds) + '" stroke="var(--' + t.color + ')" stroke-width="2" stroke-dasharray="6 5"/><text x="' + (W - R + 4) + '" y="' + (y(t.seconds) + 4) + '" font-size="12" font-weight="800" fill="var(--' + t.color + ')">' + t.seconds.toFixed(2) + '</text>'; });
+    const lab = Math.max(1, Math.ceil(days.length / 7));
+    days.forEach((d, i) => { if (i % lab === 0 || i === days.length - 1) g += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="12" fill="var(--muted)">' + +d.date.slice(5, 7) + '/' + +d.date.slice(8) + '</text>'; });
+    const path = (key, color, dash) => {
+      let p = '', dots = '';
+      days.forEach((d, i) => { if (d[key] == null) return; const X = x(i), Y = y(d[key] / 1000); p += (p ? 'L' : 'M') + X.toFixed(1) + ' ' + Y.toFixed(1); dots += '<circle cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="4.5" fill="' + color + '"><title>' + d.date + ' ' + (key === 'ao12' ? 'ao12 ' + fmtAvg(d[key]) : '最佳 ' + fmt(d[key])) + '</title></circle>'; });
+      return '<path d="' + p + '" fill="none" stroke="' + color + '" stroke-width="2.5"' + (dash ? ' stroke-dasharray="2 4"' : '') + '/>' + dots;
+    };
+    g += path('best', 'var(--warn)', true) + path('ao12', 'var(--accent)', false);
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="每日 ao12 與最佳單次折線圖">' + g + '</svg><div class="legend"><span><i style="background:var(--accent)"></i>每日 ao12（當天最後 12 次）</span><span><i style="background:var(--warn)"></i>每日最佳單次</span>' + CS.TARGETS.map(t => '<span><i style="background:var(--' + t.color + ')"></i>' + t.label + '</span>').join('') + '</div>';
+  }
+  function histogram(vals) {
+    const v = vals.filter(Number.isFinite).map(x => x / 1000);
+    if (!v.length) return '<p class="muted">還沒有有效成績。</p>';
+    const lo = Math.floor(Math.min.apply(null, v)), hi = Math.floor(Math.max.apply(null, v));
+    const bins = []; for (let b = lo; b <= hi; b++) bins.push({ b, n: 0 });
+    v.forEach(x => bins[Math.floor(x) - lo].n++);
+    const max = Math.max.apply(null, bins.map(b => b.n));
+    const W = 420, H = 200, L = 6, R = 6, Tp = 16, B = 24; const bw = (W - L - R) / bins.length;
+    let g = '';
+    bins.forEach((b, i) => {
+      const h = b.n / max * (H - Tp - B); const X = L + i * bw, Y = H - B - h;
+      g += '<rect x="' + (X + 1).toFixed(1) + '" y="' + Y.toFixed(1) + '" width="' + Math.max(1, bw - 2).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="3" fill="var(--accent)"><title>' + b.b + '–' + (b.b + 1) + ' 秒：' + b.n + ' 次</title></rect>';
+      if (b.n && bw > 16) g += '<text x="' + (X + bw / 2).toFixed(1) + '" y="' + (Y - 4).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">' + b.n + '</text>';
+      const step = Math.ceil(bins.length / 12);
+      if (i % step === 0) g += '<text x="' + (X + bw / 2).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="12" fill="var(--muted)">' + b.b + '</text>';
+    });
+    CS.TARGETS.slice(0, 2).forEach(t => { if (t.seconds >= lo && t.seconds <= hi + 1) { const X = L + (t.seconds - lo) * bw; g += '<line x1="' + X + '" x2="' + X + '" y1="' + Tp + '" y2="' + (H - B) + '" stroke="var(--' + t.color + ')" stroke-width="2" stroke-dasharray="5 4"/>'; } });
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="成績分布長條圖，每 1 秒一格">' + g + '</svg><p class="tiny muted" style="margin:4px 0 0">橫軸：秒（每格 1 秒，例如「12」代表 12.00–12.99 秒）；虛線為前六名線與優等線。共 ' + v.length + ' 次有效成績。</p>';
+  }
+  let probCache = null;
+  function probCard() {
+    const valid = fullSolves().map(CS.eff).filter(Number.isFinite).slice(-50);
+    const f = S().nerve_factor;
+    const key = valid.join(',') + '|' + f;
+    if (!probCache || probCache.key !== key) probCache = { key, r: CS.bootstrap(valid, f, 10000) };
+    const r = probCache.r;
+    let h = '<div class="card"><h2>🎲 比賽機率估計</h2>';
+    h += '<label class="row small" for="nf"><span class="grow">緊張係數（比賽時比平常慢多少）</span><input type="number" id="nf" min="1" max="1.5" step="0.01" value="' + f.toFixed(2) + '" style="width:110px"></label>';
+    if (!r) return h + '<p class="muted">還沒有有效成績，先去計時吧！</p></div>';
+    h += '<div class="prob" style="margin-top:10px"><div class="p"><span class="small">兩轉最快 &lt; 11.62（前六名線）</span><b class="num" style="color:var(--gold)">' + (r.pTop6 * 100).toFixed(1) + '%</b></div><div class="p"><span class="small">兩轉最快 &lt; 16.48（優等線）</span><b class="num" style="color:var(--silver)">' + (r.pMerit * 100).toFixed(1) + '%</b></div></div>';
+    h += '<p class="small muted">做法：取最近 <b>' + r.n + '</b> 次有效成績（不含 DNF）× 緊張係數 ' + f.toFixed(2) + '，隨機抽 10,000 組「兩轉取最快」，計算低於目標線的比例。</p>';
+    if (r.n < 20) h += '<p class="small" style="color:var(--warn);font-weight:800">⚠️ 樣本只有 ' + r.n + ' 次（少於 20 次），這個機率不可信，多練一些再來看。</p>';
+    h += '<button class="btn sm" data-act="reprob">重新計算</button></div>';
+    return h;
+  }
+  ACT.reprob = () => { probCache = null; renderProgress(); };
+  function renderProgress() {
+    const full = fullSolves(); const ev = effList(full);
+    let h = '<div class="card"><h2>📈 每日 ao12 與最佳單次</h2>' + lineChart(dailySeries()) + '</div>';
+    h += '<div class="card"><h2>📊 成績分布</h2>' + histogram(ev) + '</div>';
+    h += probCard();
+    h += '<div class="card"><h2>總覽</h2><div class="stats">' + stat('總次數', String(full.length)) + stat('個人最佳', fmt(CS.bestOf(ev))) + stat('DNF', String(ev.filter(v => v === Infinity).length)) +
+      stat('最佳 ao5', fmtAvg(CS.bestAoN(ev, 5))) + stat('最佳 ao12', fmtAvg(CS.bestAoN(ev, 12))) + stat('最近 ao12', fmtAvg(CS.aoN(ev, 12))) + '</div><p class="tiny muted">統計包含計時器練習與模擬比賽的完整還原成績（專項練習分開統計）。</p></div>';
+    h += mockHistoryCard();
+    const cr = drillsOf('cross'), xc = drillsOf('xcross'), sl = drillsOf('slow'), al = DB.drills.filter(d => d.type === 'alg');
+    const pct = l => l.length ? Math.round(l.filter(d => d.planned).length / l.length * 100) + '%' : '—';
+    h += '<div class="card"><h2>專項練習紀錄</h2><table class="tb"><tr><th>項目</th><th>次數</th><th>平均</th><th>備註</th></tr>' +
+      '<tr><td>十字觀察</td><td class="num">' + cr.length + '</td><td class="num">' + fmtAvg(CS.meanValid(cr.map(d => d.penalty === 'DNF' ? Infinity : d.ms))) + '</td><td>一次規劃 ' + pct(cr) + '</td></tr>' +
+      '<tr><td>十字＋F2L</td><td class="num">' + xc.length + '</td><td class="num">' + fmtAvg(CS.meanValid(xc.map(d => d.penalty === 'DNF' ? Infinity : d.ms))) + '</td><td>一次規劃 ' + pct(xc) + '</td></tr>' +
+      '<tr><td>慢轉不停頓</td><td class="num">' + sl.length + '</td><td class="num">' + fmtAvg(CS.meanValid(sl.map(d => d.penalty === 'DNF' ? Infinity : d.ms))) + '</td><td>幾乎沒停 ' + (sl.length ? Math.round(sl.filter(d => d.pause === 0).length / sl.length * 100) + '%' : '—') + '</td></tr>' +
+      '<tr><td>公式計時</td><td class="num">' + al.length + '</td><td class="num">' + fmtAvg(CS.meanValid(al.map(d => d.penalty === 'DNF' ? Infinity : d.ms))) + '</td><td>會 ' + DB.algStatus.filter(a => a.status === 'know').length + ' 個公式</td></tr></table></div>';
+    $('#page-progress').innerHTML = h;
+    const nf = $('#nf');
+    if (nf) nf.onchange = () => { let v = parseFloat(nf.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); nf.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; save(); probCache = null; renderProgress(); };
+  }
+
+  /* ================= 設定與資料 ================= */
+  function renderSettings() {
+    const s = S();
+    const sw = (k, t, d) => '<label class="switch"><span><b>' + t + '</b>' + (d ? '<br><span class="small muted">' + d + '</span>' : '') + '</span><input type="checkbox" data-set="' + k + '" ' + (s[k] ? 'checked' : '') + '></label>';
+    let h = '<div class="card"><h2>練習設定</h2>' +
+      sw('inspection_practice', '練習時使用 15 秒觀察', '計時器頁每次先觀察再開始') +
+      sw('inspection_enforced', '觀察時間罰則（WCA 規則）', '超過 15 秒 +2、超過 17 秒 DNF；模擬比賽一律開啟') +
+      sw('voice', '8 秒、12 秒語音提醒', '用語音加嗶聲提醒（像裁判喊時間）') +
+      sw('hide_timer', '計時中隱藏時間', '只顯示「計時中」，避免分心') +
+      '<label class="switch" for="nf2"><span><b>緊張係數</b><br><span class="small muted">比賽通常比平常慢，1.05 = 慢 5%（機率估計會套用）</span></span><input type="number" id="nf2" min="1" max="1.5" step="0.01" value="' + s.nerve_factor.toFixed(2) + '" style="width:100px;height:auto"></label>' +
+      '<label class="switch" for="theme"><span><b>外觀</b></span><select id="theme"><option value="auto">跟著裝置</option><option value="light">淺色</option><option value="dark">深色</option></select></label></div>';
+    h += '<div class="card"><h2>資料</h2><p class="small" style="margin-top:0">儲存狀態：' + (storageOK ? '<span class="pill good">已自動存在這台裝置的瀏覽器</span>' : '<span class="pill warn">資料不會被保存</span>') + '<br>成績 ' + DB.solves.length + ' 筆 · 模擬賽 ' + DB.mockSessions.length + ' 輪 · 專項練習 ' + DB.drills.length + ' 筆</p>' +
+      '<div class="stack"><button class="btn primary" style="width:100%" data-act="export">⬇️ 匯出全部資料（JSON）</button>' +
+      '<label class="btn" style="width:100%">⬆️ 匯入 CubeSprint JSON<input type="file" id="impFile" accept=".json,application/json" class="sr"></label>' +
+      '<label class="btn" style="width:100%">⬆️ 匯入 csTimer 匯出檔<input type="file" id="csFile" accept=".json,.txt,application/json,text/plain" class="sr"></label></div>' +
+      '<p class="tiny muted">換裝置或清除瀏覽器前，記得先匯出備份。</p></div>';
+    h += '<div class="card"><h2>系統自我檢查</h2><p class="small" style="margin-top:0">逐條檢查打亂、平均、觀察罰則、2 分鐘上限、公式驗證、機率與匯出入。</p><button class="btn" data-act="selftest">▶️ 執行自我檢查</button><div id="testOut" style="margin-top:10px"></div></div>';
+    h += '<div class="card"><h2>清除全部資料</h2><p class="small" style="margin-top:0">會刪除這台裝置上所有成績、模擬賽、勾選紀錄和設定，<b>無法復原</b>。建議先匯出。</p><button class="btn danger" data-act="wipe">清除全部資料…</button></div>';
+    h += '<div class="card small muted"><b>比賽資訊</b>：臺北市 115 學年度國中小學科學與創新教育實施計畫 子計畫 5 魔術方塊創新學習競賽，國小一般競速組 3x3x3。初賽兩轉取最快、前 50 名晉級決賽；決賽兩轉取最快排名；第 1–6 名優勝、第 7–30 名優等。磁力或非磁力方塊皆可，禁用藍牙方塊，需標準配色。<br>目標線使用家長提供的 114 學年度國小組決賽成績（第 1 名 9.08、第 6 名 11.62、第 30 名 16.48、第 48 名 22.43）。</div>';
+    $('#page-settings').innerHTML = h;
+    $('#theme').value = s.theme;
+    $('#theme').onchange = e => { DB.settings.theme = e.target.value; save(); applyTheme(); };
+    $('#nf2').onchange = e => { const v = parseFloat(e.target.value); if (!(v >= 1 && v <= 1.5)) { toast('緊張係數請填 1.00 到 1.50'); e.target.value = S().nerve_factor.toFixed(2); return; } DB.settings.nerve_factor = Math.round(v * 100) / 100; save(); probCache = null; toast('已更新緊張係數'); };
+    $$('[data-set]').forEach(i => i.onchange = () => { DB.settings[i.dataset.set] = i.checked; save(); });
+    $('#impFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) readFile(f, importBackup); };
+    $('#csFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) readFile(f, importCsTimer); };
+  }
+  function applyTheme() { const t = S().theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+  function readFile(f, cb) {
+    const r = new FileReader();
+    r.onload = () => cb(String(r.result), f.name);
+    r.onerror = () => openModal('<h2>讀取失敗</h2><p>無法讀取這個檔案。</p><button class="btn primary" data-act="closeModal">知道了</button>');
+    r.readAsText(f);
+  }
+  ACT.closeModal = () => closeModal();
+  ACT.export = () => {
+    const out = Object.assign({ exported_at: new Date().toISOString(), storage_key: KEY }, DB);
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'cubesprint-backup-' + today().replace(/-/g, '') + '.json';
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    toast('已匯出 ' + DB.solves.length + ' 筆成績');
+  };
+  function importBackup(text, name) {
+    let data;
+    try { data = CS.normalizeDB(JSON.parse(text)); }
+    catch (e) { openModal('<h2>無法匯入</h2><p>' + esc(name) + '：' + esc(e instanceof SyntaxError ? '檔案不是正確的 JSON。' : e.message) + '</p><p class="small muted">如果是 csTimer 的檔案，請改用「匯入 csTimer 匯出檔」。</p><button class="btn primary" data-act="closeModal">知道了</button>'); return; }
+    openModal('<h2>匯入預覽</h2><p class="small muted" style="margin-top:0">' + esc(name) + '</p><table class="tb"><tr><th></th><th>檔案內</th><th>目前</th></tr>' +
+      '<tr><td>成績</td><td class="num">' + data.solves.length + '</td><td class="num">' + DB.solves.length + '</td></tr>' +
+      '<tr><td>模擬賽（輪）</td><td class="num">' + data.mockSessions.length + '</td><td class="num">' + DB.mockSessions.length + '</td></tr>' +
+      '<tr><td>專項練習</td><td class="num">' + data.drills.length + '</td><td class="num">' + DB.drills.length + '</td></tr>' +
+      '<tr><td>每日勾選</td><td class="num">' + data.planChecks.length + '</td><td class="num">' + DB.planChecks.length + '</td></tr>' +
+      '<tr><td>公式狀態</td><td class="num">' + data.algStatus.length + '</td><td class="num">' + DB.algStatus.length + '</td></tr></table>' +
+      '<p><b>匯入會用檔案內容取代目前全部資料。</b></p><div class="row"><button class="btn grow" data-act="closeModal">取消</button><button class="btn primary grow" id="impGo">確認匯入</button></div>', m => {
+        $('#impGo', m).onclick = () => { DB = data; save(); closeModal(); applyTheme(); toast('匯入完成：' + DB.solves.length + ' 筆成績'); render(); };
+      });
+  }
+  function importCsTimer(text, name) {
+    let r;
+    try { r = CS.parseCsTimer(text); }
+    catch (e) { openModal('<h2>無法匯入 csTimer 檔</h2><p>' + esc(name) + '：' + esc(e.message) + '</p><button class="btn primary" data-act="closeModal">知道了</button>'); return; }
+    const exists = new Set(DB.solves.map(s => s.timestamp + '|' + s.ms));
+    let html = '<h2>csTimer 匯入預覽</h2><p class="small muted" style="margin-top:0">' + esc(name) + '　共 ' + r.total + ' 筆' + (r.bad ? '（另有 ' + r.bad + ' 筆格式不符已略過）' : '') + '，勾選要匯入的分組：</p>';
+    r.sessions.forEach((s, i) => {
+      const dup = s.solves.filter(x => x.timestamp && exists.has(x.timestamp + '|' + x.ms)).length;
+      html += '<label class="switch"><span><b>' + esc(s.name) + '</b><br><span class="small muted">' + s.solves.length + ' 筆' + (dup ? '，其中 ' + dup + ' 筆已存在會略過' : '') + '</span></span><input type="checkbox" data-cs="' + i + '" ' + (s.solves.length ? 'checked' : '') + '></label>';
+    });
+    html += '<p class="small">匯入的成績會當作「計時器練習」成績，加入現有資料（不會刪除原本的）。</p><div class="row"><button class="btn grow" data-act="closeModal">取消</button><button class="btn primary grow" id="csGo">確認匯入</button></div>';
+    openModal(html, m => {
+      $('#csGo', m).onclick = () => {
+        let n = 0, skip = 0;
+        $$('[data-cs]', m).forEach(cb => {
+          if (!cb.checked) return; const s = r.sessions[+cb.dataset.cs]; const sid = 'cstimer-' + s.num + '-' + uid();
+          s.solves.forEach(x => {
+            const t = x.timestamp || new Date().toISOString();
+            if (exists.has(t + '|' + x.ms)) { skip++; return; }
+            exists.add(t + '|' + x.ms);
+            DB.solves.push({ id: uid() + n, timestamp: t, scramble: x.scramble, ms: x.ms, penalty: x.penalty, mode: 'practice', session_id: sid, source: 'cstimer' }); n++;
+          });
+        });
+        save(); closeModal(); toast('已匯入 ' + n + ' 筆 csTimer 成績' + (skip ? '，略過重複 ' + skip + ' 筆' : '')); render();
+      };
+    });
+  }
+  ACT.selftest = () => {
+    const out = $('#testOut'); out.innerHTML = '<p class="muted">檢查中…</p>';
+    setTimeout(() => {
+      const R = CS.selfTest();
+      R.push({ name: 'localStorage 封鎖時不報錯並提示「資料不會被保存」', pass: true, skip: true, detail: storageOK ? '目前可正常存檔；若被封鎖會自動改用記憶體並顯示提示' : '目前無法存檔，已改用記憶體並顯示提示' });
+      out.innerHTML = R.map(r => '<div class="test"><span class="r ' + (r.skip ? 's' : r.pass ? 'p' : 'f') + '">' + (r.skip ? '說明' : r.pass ? '✔ 通過' : '✘ 未通過') + '</span><span>' + esc(r.name) + '<br><span class="tiny muted">' + esc(r.detail) + '</span></span></div>').join('');
+    }, 30);
+  };
+  ACT.wipe = () => {
+    const WORD = '清除全部資料';
+    openModal('<h2>清除全部資料</h2><p>這個動作<b>無法復原</b>。請輸入「<b>' + WORD + '</b>」確認：</p><input type="text" id="wipeIn" autocomplete="off" style="width:100%" autofocus><div class="row" style="margin-top:12px"><button class="btn grow" data-act="closeModal">取消</button><button class="btn danger grow" id="wipeGo" disabled>清除</button></div>', m => {
+      const i = $('#wipeIn', m), b = $('#wipeGo', m);
+      i.oninput = () => { b.disabled = i.value.trim() !== WORD; };
+      b.onclick = () => {
+        if (i.value.trim() !== WORD) return;
+        DB = CS.defaultDB(); MK = null; probCache = null;
+        try { window.localStorage.removeItem(KEY); } catch (e) { }
+        if (!storageOK && storageAvailable()) { storageOK = true; storageNote = ''; }
+        save(); showBanner(); applyTheme(); closeModal(); toast('已清除全部資料'); render();
+      };
+    });
+  };
+
+  /* ================= 啟動 ================= */
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalOpen()) closeModal(); });
+  $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+  applyTheme(); showBanner();
+  window.addEventListener('hashchange', () => { const h = (location.hash || '').slice(1); if (PAGES.indexOf(h) >= 0 && h !== page) go(h); });
+  const h0 = (location.hash || '').slice(1);
+  go(PAGES.indexOf(h0) >= 0 ? h0 : 'home');
+  window.CubeSprint = { CS, T, get DB() { return DB; }, get storageOK() { return storageOK; } };
+})();
+</script>
+</body>
+</html>
